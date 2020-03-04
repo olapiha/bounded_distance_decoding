@@ -1,0 +1,15 @@
+1. Why do we choose to for with this definition of density instead of vol(B(0,\lambda_1^{(p)}))/vol(L)? My guess would be it is equal up to a constant but gives simpler formulas.
+
+2. What is the shortest vector in our lattice?
+
+3. I am slightly confused by notation in Proposition 1 and Remark 1(page 4) small n there signifies different things is that correct?
+
+4. Koen explained me the intuition behind Vol(L)=|Z^n/L|, should I look into a formal proof?
+
+5. Why LLL in 2nd dimention is exact?
+
+6. What is the intuition behind Lemma1(page 7)? Why do we recover u, v from a lattice? It looks like very nice trick!
+
+7. It seems like there're two typos on page 8 in the end of Proposition 3(constant c is not mentioned anywhere) and where Vol(L) \geq \phi(m)(should be \leq?).
+
+8.() In the proof of theorem 1 why do we take B the (n+2)nd prime isn't nth enough?
