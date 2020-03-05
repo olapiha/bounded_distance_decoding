@@ -6,7 +6,7 @@
 
 4. Koen explained me the intuition behind Vol(L)=|Z^n/L|, should I look into a formal proof?
 
-5. Why LLL in 2nd dimention is exact?
+5. Why LLL in 2nd dimention is exact? +
 
 6. What is the intuition behind Lemma1(page 7)? Why do we recover u, v from a lattice? It looks like very nice trick!
 
@@ -15,3 +15,5 @@
 8.() In the proof of theorem 1 why do we take B the (n+2)nd prime isn't nth enough?
 
 9. We are building the lattice by calculating its basis. How do we find the prime p_i that generates (Z/mZ)*?
+
+
