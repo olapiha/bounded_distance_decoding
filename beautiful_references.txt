@@ -2,4 +2,8 @@ http://pi.math.cornell.edu/~mathclub/Media/mult-grp-cyclic-az.pdf
 https://link.springer.com/content/pdf/10.1007%2F978-3-642-02295-1.pdf
 https://www.di.ens.fr/~pnguyen/SLIDES/SlidesLuminy2010.pdf
 
+To read if free time:
+https://www.iacr.org/archive/crypto2009/56770568/56770568.pdf
+https://math.ucalgary.ca/ecc/files/ecc/u5/Micciancio_ECC2009.pdf
+
 
