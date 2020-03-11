@@ -25,6 +25,7 @@ For now I will use the notation from LLXY17.
 \begin{question}
 Should we change the notation a bit so they are nicer or better not to?
 \end{question}
+{\bf LEO: No opinions.}
 
 \section{Building blocks}
 \subsection{Factorization by trial division}
@@ -65,6 +66,9 @@ So if the solution exists it must be one of the pairs $(r_i, t_i)$ of the EEA.
 \begin{question}
 Why do we give up if the first gcd check fails instead of coming back to the while loop?
 \end{question}
+{\bf LEO: I do not know those algorithms, so I don't know... How about trying them on many random instance, and see if your variation also works ?}
+
+
 Note $n = deg(f)$.
 Complexity of the algorithm is one of the Extended Euclidean Algorithm $O(n^2)$. Or we can maybe use Fast Extended Euclidean Algorithm whose complexity is $O(M(n)log(n))$ where $M(n)$ is the complexity of multiplication of polynomials, so $O(nlog^2(n))$
 \begin{question}
@@ -77,8 +81,12 @@ In the paper they also give an algorithm for the case where the bounds for degre
 \begin{question}
 In LLXY17 what do they mean when using the same generator $\beta$ for every $c_j(x)$? In reality we would need to find $t$ generators one for every "coordinate"?
 \end{question}
+{\bf LEO: Hum, maybe most elements of $F_q[X]/(c_j(X))$ are generators, in which case it is possible that a single $\beta \in F_q[X]$ of small degree is a generator of each of them ?}
+
 To construct the lattice we need to compute the following:
 $\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{c_j(x)}$. The order of multiplicative group is $q^{d_0} - 1$ which might not be a smooth integer so we cannot use Pohlig-Hellman+Pollard pho. Maybe we can just take small parameters $q, d_0$: $q=constant$ and $d_0 = \theta(\sqrt n)$? If not we would need to use some smart DL algorithm that runs in quasi-polynomial time...
+
+{\bf LEO: I guess all you need is $q^{d_0} = n^{O(1)}$ ($poly(n)$), for example $d_0 = constant$ and $q=n^{O(1)}$ does works, so does $q=constant$ and $d_0 = O(\log n)$.}
 
 \section{Decoding radius}
 
@@ -107,4 +115,5 @@ r_2 = \frac{\floor{\frac{d_0t}{2}}}{\sqrt{n} (q^{d_0} - 1)^{t/n}}
 \begin{question}
 What should be the values of $d_0$ and $t$? It must be $\sqrt{n} < d_0t < n^{1+\epsilon}$(otherwise the tends to 0). If $d_0t = n$ it is very close to Minkowski's bound. It looks too good to be true? 
 \end{question}
+{\bf LEO: I am a bit lost: there are several constraints on the parameters, and you need to instantiate them all verifying all the constraints to conclude. At the moment you've chosen $d_0t$ but not $d_0$ and $t$ themselves so I am unsure you can conclude...}
 \end{document}
