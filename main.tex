@@ -1,0 +1,107 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amsmath}
+
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+
+\newtheorem{question}{Question}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+
+
+\title{Thoughts :)}
+\author{ Sasha }
+
+
+
+\begin{document}
+
+\maketitle
+
+\section{Lattice construction for product of fields[LLXY17]}
+For now I will use the notation from LLXY17. 
+\begin{question}
+Should we change the notation a bit so they are nicer or better not to?
+\end{question}
+
+\section{Building blocks}
+\subsection{Factorization by trial division}
+Input: A polynomial $g$ such that $deg(g) \leq m$ whose roots are among $\alpha_1, \dots , \alpha_n \in \mathbb{F}_q$\\
+Output: $e_1, \dots , e_n$ s.t. $g = \prod_{i = 1}^{n}(x - \alpha_i)^{e_i}$\\
+There's only $n$ possible roots, one trial division takes $O(m)$ time and the number of factors is bounded by $m$. So overall complexity is $O(m^2n)$.
+
+
+\subsection{Rational function reconstruction}
+I found here: http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf and then here: http://www.cecm.sfu.ca/~mmonagan/papers/fastRFR.pdf
+an algorithm which they call Wang's algorithm for rational function reconstruction. They \\
+Goal: Given $g,f$ find $n, d \in \mathbb{F}[x]$ that $deg(n) \leq N$, $deg(d) \leq D$, $N + D < deg(f)$ and $\frac{n}{d} = g \pmod{f}$\\
+Algorithm:(function $lc()$ outputs the leading coefficient)
+\begin{enumerate}
+	\item Set $N = \floor{\frac{deg(f)}{2}}$ $D = deg(f) - N - 1$\\
+			$r_0 = f$  $t_0 = 0$\\
+			$r_1 = g$  $t_1 = 1$\\
+	\item While $deg(r_1) > N$ do\\
+			$q = r_0 // r_1$\\
+			$(r_0, r_1) = (r_1, r_0 - qr_1)$\\
+			$(t_0, t_1) = (t_1, t_0 - qt_1)$\\
+	\item if $GCD(r_1, t_1) \neq 1$:\\
+			return FAIL\\
+		  else:\\
+			return $(\frac{r_1}{lc(t_1)}, \frac{t_1}{lc(t_1)})$
+\end{enumerate}
+\begin{lemma}
+Let $\mathbb{F}$ be a field, $f, g, r, s, t \in \mathbb{F}[x]$ with $r = sf + tg$, $t \neq 0$, $deg(f) > 0$, and $deg(r) + deg(t) <deg(f)$.
+Suppose $r_i, s_i, t_i$ for $0 \leq i \leq l + 1$ be the elements of the ith iteration in the Extended Euclidean Algorithm for $f$ and $g$ (e.i. $r_i = s_if + t_ig$). \\
+Then there exists a nonzero element $\alpha \in \mathbb{F}[x]$ such that $r = \alpha r_j$, $s = \alpha s_j$, $t = \alpha t_j$, where $deg(r_j) \leq deg(r) < deg(r_{j-1})$
+\end{lemma}
+\begin{proof}
+http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf \\(Lemma 3.2 page 35)
+\end{proof}
+
+So if the solution exists it must be one of the pairs $(r_i, t_i)$ of the EEA.
+
+\begin{question}
+Why do we give up if the first gcd check fails instead of coming back to the while loop?
+\end{question}
+Note $n = deg(f)$.
+Complexity of the algorithm is one of the Extended Euclidean Algorithm $O(n^2)$. Or we can maybe use Fast Extended Euclidean Algorithm whose complexity is $O(M(n)log(n))$ where $M(n)$ is the complexity of multiplication of polynomials, so $O(nlog^2(n))$
+\begin{remark}
+In the paper they also give an algorithm for the case where the bounds for degrees are not set in advance, but it works only with high probability(should I look into it in more detail?)
+\end{remark}
+\subsection{Computing logs}
+\begin{question}
+In LLXY17 what do they mean when using the same generator $\beta$ for every $c_j(x)$? In reality we would need to find $t$ generators one for every "coordinate"?
+\end{question}
+To construct the lattice we need to compute the following:
+$\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{c_j(x)}$. The order of multiplicative group is $q^{d_0} - 1$ which might not be a smooth integer so we cannot use Pohlig-Hellman+Pollard pho. Maybe we can just take small parameters $q, d_0$: $q=constant$ and $d_0 = \theta(\sqrt n)$? If not we would need to use some smart DL algorithm that runs in quasi-polynomial time...
+
+\section{Decoding radius}
+
+\subsection{Only positive discrete error}
+Suppose we receive $t = u + e$ where $u \in \mathcal{L}$, $\|e\|_1 \leq r_1$ and $\forall i: e_i \in \mathbb{N}$. Then we can compute 
+\begin{equation}
+\prod_{i = 1}^{n}(x - \alpha_i)^{t_i} = \prod_{i = 1}^{n}(x - \alpha_i)^{u_i}\prod_{i = 1}^{n}(x - \alpha_i)^{e_i} \pmod{c(x)}
+\end{equation}
+If $\|e\|_1 = \sum_{i =1}^{n} e_i \leq deg(c) = d_0t$ the operation above will give us exactly the polynomial $\prod_{i = 1}^{n}(x - \alpha_i)^{e_i}$. Then we can recover $e_i$, $1 \leq i \leq n$ from the factorization.\\
+So $r_1 = d_0t$.
+\subsection{Arbitrary discrete error}
+Now we have $\forall i: e_i \in \mathbb{Z}$. Then
+\begin{equation}
+\prod_{i = 1}^{n}(x - \alpha_i)^{t_i} \pmod{c(x)} = \prod_{i = 1}^{n}(x - \alpha_i)^{e_i} = \frac{\prod_{i \in I}(x - \alpha_i)^{e_i}}{\prod_{j \in J}(x - \alpha_j)^{-e_j}}
+\end{equation}
+\begin{lemma}
+Given $g,c$ where $deg(c) = d_0t$ we can recover $n, d \in \mathbb{F}[x]$ that $deg(n) \leq \floor{\frac{d_0t}{2}}$, $deg(d) \leq \floor{\frac{d_0t}{2}}$ and $\frac{n}{d} = g \pmod{c}$ in polynomial time.
+\end{lemma}
+So we can decode every message for which $\|e\|_1 = \sum_{i =1}^{n} |e_i| \leq \floor{\frac{d_0t}{2}}$
+
+\subsection{Continuous error and $l_2$ norm}
+Directly follows from DP19. $r_2 = \frac{\floor{\frac{d_0t}{2}}}{\sqrt{n} det(\mathcal{L})^{1/n}}$ where $det(\mathcal{L}) = \Phi(c(x)) = (q^{d_0} - 1)^{t}$.
+\begin{equation}
+r_2 = \frac{\floor{\frac{d_0t}{2}}}{\sqrt{n} (q^{d_0} - 1)^{t/n}}
+\end{equation}
+\begin{question}
+What should be the values of $d_0$ and $t$? It must be $\sqrt{n} < d_0t < n^{1+\epsilon}$(otherwise the tends to 0). If $d_0t = n$ it is very close to Minkowski's bound. It looks too good to be true? 
+\end{question}
+\end{document}
