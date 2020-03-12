@@ -1,10 +1,11 @@
-http://pi.math.cornell.edu/~mathclub/Media/mult-grp-cyclic-az.pdf
-https://link.springer.com/content/pdf/10.1007%2F978-3-642-02295-1.pdf
-https://www.di.ens.fr/~pnguyen/SLIDES/SlidesLuminy2010.pdf
+http://pi.math.cornell.edu/~mathclub/Media/mult-grp-cyclic-az.pdf - Multiplicative group is cyclic thm(very entertaining)
+https://link.springer.com/content/pdf/10.1007%2F978-3-642-02295-1.pdf - LLL book
+https://www.di.ens.fr/~pnguyen/SLIDES/SlidesLuminy2010.pdf - LLL algorithm
 http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf - Wang's algorithm
+https://link.springer.com/content/pdf/10.1007%2F3-540-39568-7.pdf - CR88
 
 To read if free time:
-https://www.iacr.org/archive/crypto2009/56770568/56770568.pdf
-https://math.ucalgary.ca/ecc/files/ecc/u5/Micciancio_ECC2009.pdf
+https://www.iacr.org/archive/crypto2009/56770568/56770568.pdf - Lattice problems complexity
+https://math.ucalgary.ca/ecc/files/ecc/u5/Micciancio_ECC2009.pdf - Lattice problems complexity(slides)
 
 
