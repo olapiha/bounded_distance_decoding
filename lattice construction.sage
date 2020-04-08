@@ -14,25 +14,26 @@
 #2.Compute logs of p_j with respect to it using PH & Pollard-rho algorithms
 #3.output the list of log_{\beta_i}(p_j) j = 1, ..., n
 def parity_check_representation(q, primes):
+    order = euler_phi(q)
     Zq = Zmod(q)
     multiplicative_group = Zq.unit_group()
     #Q: Should I check if it is actually cyclic?
     gen = multiplicative_group.gens_values()[0]
     logs = []
     for p in primes:
-        log = compute_log(multiplicative_group, gen, p)
+        log = compute_log(order, gen, p)
         logs.append(log)
-    return logs
+    return vector(logs)
 
-def compute_log(group, generator, element):
-    pass
-    #log = group.exp(element)
-    #print generator**log == element
-    #return log
+def compute_log(order, generator, element):
+    return discrete_log(element, generator, order)
 
 
-def dual_generating_set(arg):
-    pass
+def dual_generating_set(modulus_factors, primes):
+    dual_gens = identity_matrix(QQ, len(primes))
+    for q in modulus_factors:
+        dual_gens = dual_gens.stack(parity_check_representation(q, primes) / euler_phi(q))
+    return dual_gens
 
 
 #input type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'
@@ -67,26 +68,39 @@ def test_pbfd(n):
 
 
 def test_lll(n):
-        rows = []
-        for i in range(n):
-            print "Input", i, "th row here"
-            ith_row = []
-            for j in range(n):
-                element = int(input("next element:"))
-                ith_row.append(element)
-            rows.append(ith_row)
-        B = matrix(ZZ, rows)
-        print "initial basis:"
-        print B
-        print "reduced basis: "
-        print lll_wrapper(B)
+    rows = []
+    for i in range(n):
+        print "Input", i, "th row here"
+        ith_row = []
+        for j in range(n):
+            element = int(input("next element:"))
+            ith_row.append(element)
+        rows.append(ith_row)
+    B = matrix(ZZ, rows)
+    print "initial basis:"
+    print B
+    print "reduced basis: "
+    print lll_wrapper(B)
+
+
+def test_pcr(modulus_factors, primes):
+    res = []
+    for q in modulus_factors:
+        res.append(parity_check_representation(q, primes))
+    print res
+
+
+def main(modulus_factors, primes):
+    dual_gens = dual_generating_set(modulus_factors, primes)
+    dual_basis = lll_wrapper(dual_gens)
+    primal_basis = primal_basis_from_dual(dual_basis)
+    primal_basis = primal_basis.delete_rows(range(len(modulus_factors)))
+    return primal_basis
 
 
 #test_pbfd(2)
 #test_lll(3)
 
-#q = 25
-#Zq = Zmod(q)
-#multiplicative_group = UnitGroup(Zq)
-#gen = multiplicative_group.gens_values()[0]
-#compute_log(multiplicative_group, gen, 7)
+factors = [9, 49, 125, 7, 11]
+primes = [17, 37, 73, 13, 103, 107, 109]
+print main(factors, primes)
