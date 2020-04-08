@@ -27,10 +27,10 @@ For non-prime modulus
 
 For fields
 1.2. How to configure parameters such that the final algorithm is efficient for fields?
-1.3. How using pseudoinverses help to find basis of the lattice when matrix M is not invertible?
-1.4. How often matrix M is actually invertible?
-1.5  How many irreducible polinomials there are of degree d?
-1.6  How to efficiently check if an element g is a genertor of a multiplicative group (Z/mZ)* for m prime number?
+1.3. How using pseudoinverses help to find basis of the lattice when matrix M is not invertible? - directly
+1.4. How often matrix M is actually invertible? (irrelevant)
+1.5  How many irreducible polinomials there are of degree d? +++(literature)
+1.6  How to efficiently check if an element g is a genertor of a multiplicative group (Z/mZ)* for m prime number? (solved)
 
 
 2. Read CR88 to see if we can use their lattice
