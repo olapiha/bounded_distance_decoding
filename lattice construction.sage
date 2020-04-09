@@ -13,12 +13,14 @@
 #1.Find a generator of multiplicative groups Z / q_{i}^{e_i}}Z
 #2.Compute logs of p_j with respect to it using PH & Pollard-rho algorithms
 #3.output the list of log_{\beta_i}(p_j) j = 1, ..., n
-def parity_check_representation(q, primes):
-    order = euler_phi(q)
+def parity_check_representation((q, e), primes):
+    order = q**e - q**(e-1)
+    q = q**e
     Zq = Zmod(q)
     multiplicative_group = Zq.unit_group()
     #Q: Should I check if it is actually cyclic?
     gen = multiplicative_group.gens_values()[0]
+    print gen
     logs = []
     for p in primes:
         log = compute_log(order, gen, p)
@@ -31,8 +33,8 @@ def compute_log(order, generator, element):
 
 def dual_generating_set(modulus_factors, primes):
     dual_gens = identity_matrix(QQ, len(primes))
-    for q in modulus_factors:
-        dual_gens = dual_gens.stack(parity_check_representation(q, primes) / euler_phi(q))
+    for q, e in modulus_factors:
+        dual_gens = dual_gens.stack(parity_check_representation((q,e), primes) / (q**e - q**(e-1)))
     return dual_gens
 
 
@@ -85,9 +87,23 @@ def test_lll(n):
 
 def test_pcr(modulus_factors, primes):
     res = []
-    for q in modulus_factors:
-        res.append(parity_check_representation(q, primes))
+    for factor in modulus_factors:
+        res.append(parity_check_representation(factor, primes))
     print res
+
+
+def test_main(n, t):
+    primes = primes_first_n(n)
+    lowerbound = primes[n-1]
+    modulus_factors = []
+    for i in range(t):
+        q = random_prime(1000, proof=None, lbound=lowerbound+1)
+        e = ZZ.random_element(1,n)
+        modulus_factors.append((q, e))
+
+    print modulus_factors
+    print primes
+    print main(modulus_factors, primes)
 
 
 def main(modulus_factors, primes):
@@ -98,9 +114,4 @@ def main(modulus_factors, primes):
     return primal_basis
 
 
-#test_pbfd(2)
-#test_lll(3)
-
-factors = [9, 49, 125, 7, 11]
-primes = [17, 37, 73, 13, 103, 107, 109]
-print main(factors, primes)
+test_main(50, 4)
