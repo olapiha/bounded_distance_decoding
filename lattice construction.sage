@@ -69,7 +69,7 @@ def test_main(n, t):
     modulus_factors = primes[1:t+1]
     primes = [2] + primes[t+1:]
     modulus_factors = [(q, n) for q in modulus_factors]
-    main(modulus_factors, primes)
+    print main(modulus_factors, primes)
 
 
 def main(modulus_factors, primes):
@@ -82,10 +82,9 @@ def main(modulus_factors, primes):
     # This function takes the longest time and it makes sense
     # matrix dimention is (n+t) * n
     time primal_basis = primal_basis_from_dual(dual_basis)
-    primal_basis = primal_basis.delete_rows(range(len(modulus_factors)))
     # In all test runs the result was an integer matrix,
     # no function threw an exception
     return primal_basis
 
 
-#test_main(5, 4)
+test_main(10, 4)
