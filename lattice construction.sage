@@ -52,7 +52,6 @@ def dual_generating_set(modulus_factors, primes):
 def lll_wrapper(B):
     print "in LLL"
     res = B.LLL()
-    print res
     return res
 
 
@@ -71,7 +70,7 @@ def test_main(n, t):
     modulus_factors = primes[1:t+1]
     primes = [2] + primes[t+1:]
     modulus_factors = [(q, n) for q in modulus_factors]
-    print main(modulus_factors, primes)
+    main(modulus_factors, primes)
 
 
 def main(modulus_factors, primes):
@@ -83,9 +82,14 @@ def main(modulus_factors, primes):
     dual_basis = dual_basis.delete_rows(range(len(modulus_factors)))
     # matrix dimention is (n+t) * n
     time primal_basis = primal_basis_from_dual(dual_basis)
+    #determinant check
+    phi_of_modulus = 1
+    for (q, n) in modulus_factors:
+        phi_of_modulus *= q**n - q**(n-1)
+    print abs(det(primal_basis)) == phi_of_modulus
     # In all test runs the result was an integer matrix,
     # no function threw an exception
     return primal_basis
 
 
-test_main(6, 4)
+test_main(18, 4)
