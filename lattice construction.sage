@@ -79,7 +79,6 @@ def main(modulus_factors, primes):
     # number of generators is n+t but the dimention of the lattice is n
     # lll outputs zero rows first and we know there will be exactly t of them so:
     dual_basis = dual_basis.delete_rows(range(len(modulus_factors)))
-    # This function takes the longest time and it makes sense
     # matrix dimention is (n+t) * n
     time primal_basis = primal_basis_from_dual(dual_basis)
     # In all test runs the result was an integer matrix,
