@@ -51,7 +51,9 @@ def dual_generating_set(modulus_factors, primes):
 # output type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'
 def lll_wrapper(B):
     print "in LLL"
-    return B.LLL()
+    res = B.LLL()
+    print res
+    return res
 
 
 # input type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'
@@ -86,4 +88,4 @@ def main(modulus_factors, primes):
     return primal_basis
 
 
-test_main(10, 4)
+test_main(6, 4)
