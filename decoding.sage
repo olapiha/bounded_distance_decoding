@@ -1,5 +1,5 @@
 #!/usr/bin/env sage
-import numpy
+import numpy as np
 from sage.modules.free_module_integer import IntegerLattice
 
 # As input we are given a lattice basis,
@@ -35,9 +35,7 @@ def discrete_error(primes, modulus, point_t):
         Zm = Zmod(modulus)
         for i in range(n):
             prod_modulo = Zm(prod_modulo * Zm(primes[i]**point_t[i]))
-
         (numerator, denominator) = rational_number_reconstruction(prod_modulo, modulus)
-        print primes
         print numerator.factor()
         print denominator.factor()
         numerator_error = []
@@ -49,7 +47,6 @@ def discrete_error(primes, modulus, point_t):
                 e += 1
             numerator_error.append(e)
         numeator_error = vector(numerator_error)
-
         denominator_error = []
         for p in primes:
             e = 0
@@ -81,12 +78,15 @@ def test_decoding(n, t, B):
     coordinates = vector(numpy.random.randint(0, 10, n))
     lattice_point = basis * coordinates
 
-    # generate noise coords in default basis of Z^n
-    noise = vector(numpy.random.randint(0, B, n))
+    # generate integer noise of l_2 norm <= B
+    while True:
+        noise = vector(np.random.randint(-B, B+1, n))
+        if (noise.norm() <= B): break
+    print "norm of the noise: ", noise.norm()
     point_t = lattice_point + noise
-    return (positive_discrete_error(primes, modulus, point_t), noise)
+    return (discrete_error(primes, modulus, point_t), noise)
 
 
-result = test_decoding(50, 3, 2)
+result = test_decoding(10, 3, 3)
 print result[0]
 print result[1]
