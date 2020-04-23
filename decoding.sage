@@ -7,7 +7,7 @@ from sage.modules.free_module_integer import IntegerLattice
 # and a point point_t = (t_1, ..., t_n) in R^n such that point_t = x + e,
 # where x - lattice point and e - bounded error
 
-# The goal is to recover x from t and test it with real lattice instance
+# The goal is to recover x from t.
 # To achieve it we use algebraic sturucture of the lattice
 
 

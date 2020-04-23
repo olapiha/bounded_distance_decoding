@@ -85,15 +85,18 @@ def lattice_construction(modulus_factors, primes):
     # matrix dimention is (n+t) * n
     #time
     primal_basis = primal_basis_from_dual(dual_basis)
+
     #determinant check
     phi_of_modulus = 1
     for (q, n) in modulus_factors:
         phi_of_modulus *= q**n - q**(n-1)
     #print abs(det(primal_basis)) == phi_of_modulus
+
     # In all test runs the result was an integer matrix,
     # no function threw an exception
+
     # rows are basis vectors here!! That's why .T
     return primal_basis.T
 
 
-#test_main(18, 4)
+#print test_lattice_construction(18, 4)
