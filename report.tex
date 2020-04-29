@@ -1,0 +1,102 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\zz}{\mathbb{Z}}
+\newcommand{\LL}{\mathcal{L}}
+
+\newtheorem{question}{Question}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+
+
+\title{Report(draft)}
+\author{ Sasha }
+
+
+
+\begin{document}
+
+\maketitle
+
+\section{Generalization of the construction for integers}
+Plan:
+\begin{enumerate}
+    \item How to construct the lattice for non-prime modulus. Definition. (Maybe on why it's a lattice?)
+    \item How does decoding algorithm work:
+    \begin{itemize}
+        \item parity check representation
+        \item lattice as an intersection
+        \item dual basis of the intersection
+        \item gettin primal basis from dual
+    \end{itemize}
+    \item How to configure the parameters such that complexity is polynomial
+    \item Argument about loglog n an that having more factors does not give us an advantage
+\end{enumerate}
+
+\subsection{The lattice}
+In this chapter we take $m = \prod_{i=1}^{k} q_{i}^{e_{i}}$ where $\{q_{i}\}$ are odd prime numbers and $\{e_{i}\}$ are positive integers. We work with a group $(\zz/m\zz)^*$ which is not cyclic anymore so we cannot deploy properties of discrete logarithm. Nevertheless, Chinese Remainder Theorem gives us the following equivalence:
+\begin{equation}
+    (\zz/m\zz)^* \sim \prod_{i=1}^{k}(\zz/q_{i}^{e_{i}}\zz)^*
+\end{equation}
+And for every prime $q_{i} > 2$ the group $(\zz/q_{i}^{e_{i}}\zz)^*$ is known to be cyclic. So now, we consider discrete logarithms in every component of the product to find a lattice basis.
+
+Similarly to the initial construction we take a number $n$ and $B$ such that there exist $n$ prime numbers $p_{1}, ... , p_{n}$ different from every $q_{i}$ and bounded by $B$. And consider a group morphism:
+\begin{equation}
+    \psi : \zz^{n} \rightarrow (\zz/m\zz)^*
+\end{equation}
+\begin{equation}
+    (x_{1}, ..., x_{n}) \mapsto \prod_{i=1}^{n}p_{i}^{x_{i}} \pmod{m}
+\end{equation}
+
+Lattice is defined as the kernel of the morphism:
+\begin{equation}
+    \LL = \ker \psi = \{(x_{1}, ..., x_{n}) \in \zz^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
+\end{equation}
+Appying CRT gives us the following equivalence
+\begin{equation}
+    \LL = \ker \psi = \{(x_{1}, ..., x_{n}) \in \zz^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{q_{j}^{e_{j}}}\}
+\end{equation}
+Or going even further suppose we know for every $j$ a ${\beta_{j}}$ generator of  $(\zz/q_{j}^{e_{j}}\zz)^*$. Then using the isomorphism between cyclic group and group of exponents we get another representation:
+\begin{equation}
+    \LL = \{(x_{1}, ..., x_{n}) \in \zz^{n} |  \forall 1 \leq j \leq k: \sum_{i=1}^{n}x_{i}log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
+\end{equation}
+This is almost a parity check representation of $\LL$ except we have many parity check type conditions at the same time. So, we can think of $\LL$ as the intersection of lattices $\LL_{j}$ where each of them is defined as
+\begin{equation}
+    \LL_{j} \coloneqq \{(x_{1}, ..., x_{n}) \in \zz^{n} | \sum_{i=1}^{n}x_{i}log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
+\end{equation}
+
+\subsection{Construction}
+The idea of the construction algorithm is to get basis of the dual lattice using the fact that the dual of an intersection is union of the duals and also that parity check representation of the lattice gives us generating set of the dual. The algorithm has the following steps
+\begin{enumerate}
+    \item Obtain parity check representations for every $\LL_{j}$
+    \item Get dual generating set of their intersection
+    \item Eliminate linear dependencies using LLL algorithm
+    \item Obtain the basis of the primal lattice from the dual
+\end{enumerate}
+Let us describe each of them in detail
+\subsubsection{Dual generating set}
+To justify this step we need two lemmas
+\begin{lemma}
+    Suppose a lattice $\LL = \{x = (x_{1}, ..., x_{n}) \in \zz^{n} | Bx \equiv 0 \pmod{p}\}$
+    Then $(B/p I_{n})$(I need to rewrite this properly) form a generating set of the dual lattice.
+\end{lemma}
+\begin{lemma}
+    Supose $\LL = \cap \LL_{j}$ and we have $\LL^{*}$, $\LL_{j}^{*}$ are duals of the respective lattices. Then $\LL^{*} = \cup \LL_{j}^{*}$
+\end{lemma}
+\subsubsection{LLL algorithm}
+
+
+\subsubsection{Primal basis from dual basis}
+
+
+
+
+
+\end{document}
