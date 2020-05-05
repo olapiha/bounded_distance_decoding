@@ -5,9 +5,10 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{mathtools}
+\usepackage{xcolor}
 
 \newcommand{\floor}[1]{\lfloor #1 \rfloor}
-\newcommand{\zz}{\mathbb{Z}}
+\newcommand{\ZZ}{\mathbb{Z}}
 \newcommand{\LL}{\mathcal{L}}
 
 \newtheorem{question}{Question}
@@ -28,75 +29,161 @@
 \section{Generalization of the construction for integers}
 Plan:
 \begin{enumerate}
-    \item How to construct the lattice for non-prime modulus. Definition. (Maybe on why it's a lattice?)
-    \item How does decoding algorithm work:
+    \item (+) How to construct the lattice for non-prime modulus. Definition. (Maybe on why it's a lattice?)
+    \item (+) How does decoding algorithm work:
     \begin{itemize}
-        \item parity check representation
-        \item lattice as an intersection
-        \item dual basis of the intersection
-        \item gettin primal basis from dual
+        \item (+) parity check representation
+        \item (+) lattice as an intersection
+        \item (+) dual basis of the intersection
+        \item (+) getting primal basis from dual
     \end{itemize}
-    \item How to configure the parameters such that complexity is polynomial
+    \item (+) How to configure the parameters such that complexity is polynomial
     \item Argument about loglog n an that having more factors does not give us an advantage
 \end{enumerate}
 
-\subsection{The lattice}
-In this chapter we take $m = \prod_{i=1}^{k} q_{i}^{e_{i}}$ where $\{q_{i}\}$ are odd prime numbers and $\{e_{i}\}$ are positive integers. We work with a group $(\zz/m\zz)^*$ which is not cyclic anymore so we cannot deploy properties of discrete logarithm. Nevertheless, Chinese Remainder Theorem gives us the following equivalence:
-\begin{equation}
-    (\zz/m\zz)^* \sim \prod_{i=1}^{k}(\zz/q_{i}^{e_{i}}\zz)^*
-\end{equation}
-And for every prime $q_{i} > 2$ the group $(\zz/q_{i}^{e_{i}}\zz)^*$ is known to be cyclic. So now, we consider discrete logarithms in every component of the product to find a lattice basis.
+What else should be here in future?
+\begin{enumerate}
+    \item Short description of the initial construction
+    \item Description of the decoding algorithm and its extension
+    \item Why are we interested in the generalization
+\end{enumerate}
 
-Similarly to the initial construction we take a number $n$ and $B$ such that there exist $n$ prime numbers $p_{1}, ... , p_{n}$ different from every $q_{i}$ and bounded by $B$. And consider a group morphism:
+\subsection{The lattice}
+In this chapter we take $m = \prod_{i=1}^{k} q_{j}^{e_{j}}$ where $\{q_{j}\}$ are odd prime numbers and $\{e_{j}\}$ are positive integers. We work with a group $(\ZZ/m\ZZ)^*$ which is not cyclic anymore so we cannot deploy properties of discrete logarithm right away. Nevertheless, Chinese Remainder Theorem gives us the structure of the group:
 \begin{equation}
-    \psi : \zz^{n} \rightarrow (\zz/m\zz)^*
+    (\ZZ/m\ZZ)^* \sim \prod_{j=1}^{k}(\ZZ/q_{j}^{e_{j}}\ZZ)^*
+\end{equation}
+For every prime $q_{j} > 2$ and every $e_{j} \geq 1$ the group $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ is known to be cyclic. So now, we can consider discrete logarithms in every component of the product to find a lattice basis.
+
+Similarly to the initial construction we take numbers $n$ and $B$ such that we can find $n$ primes $p_{1}, ... , p_{n}$ different from every $q_{i}$ and bounded by $B$. We consider a group morphism:
+\begin{equation}
+    \psi : \ZZ^{n} \rightarrow (\ZZ/m\ZZ)^*
 \end{equation}
 \begin{equation}
     (x_{1}, ..., x_{n}) \mapsto \prod_{i=1}^{n}p_{i}^{x_{i}} \pmod{m}
 \end{equation}
 
-Lattice is defined as the kernel of the morphism:
+Lattice is defined as the kernel of $\psi$:
 \begin{equation}
-    \LL = \ker \psi = \{(x_{1}, ..., x_{n}) \in \zz^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
+    \LL \coloneqq \ker \psi = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
 \end{equation}
 Appying CRT gives us the following equivalence
 \begin{equation}
-    \LL = \ker \psi = \{(x_{1}, ..., x_{n}) \in \zz^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{q_{j}^{e_{j}}}\}
+    \LL = \ker \psi = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{q_{j}^{e_{j}}}\}
 \end{equation}
-Or going even further suppose we know for every $j$ a ${\beta_{j}}$ generator of  $(\zz/q_{j}^{e_{j}}\zz)^*$. Then using the isomorphism between cyclic group and group of exponents we get another representation:
+Or going even further, suppose we know for every $j$ a generator ${\beta_{j}}$ of  $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$. Using the isomorphism between cyclic group and group of exponents we get another representation:
 \begin{equation}
-    \LL = \{(x_{1}, ..., x_{n}) \in \zz^{n} |  \forall 1 \leq j \leq k: \sum_{i=1}^{n}x_{i}log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
+    \LL = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \sum_{i=1}^{n}x_{i}log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
 \end{equation}
-This is almost a parity check representation of $\LL$ except we have many parity check type conditions at the same time. So, we can think of $\LL$ as the intersection of lattices $\LL_{j}$ where each of them is defined as
+This is almost a parity check representation of $\LL$ except we have many parity check type conditions at the same time. So, we can think of $\LL$ as an intersection of lattices $\LL_{j}$ where each of them is defined as
 \begin{equation}
-    \LL_{j} \coloneqq \{(x_{1}, ..., x_{n}) \in \zz^{n} | \sum_{i=1}^{n}x_{i}log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
+    \LL_{j} \coloneqq \{(x_{1}, ..., x_{n}) \in \ZZ^{n} | \sum_{i=1}^{n}x_{i}log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
 \end{equation}
 
 \subsection{Construction}
-The idea of the construction algorithm is to get basis of the dual lattice using the fact that the dual of an intersection is union of the duals and also that parity check representation of the lattice gives us generating set of the dual. The algorithm has the following steps
+The idea of our construction algorithm is to compute basis of the dual lattice first. %using the fact that the dual of an intersection is union of the duals and also that %parity check representation of the lattice gives us generating set of the dual.
+Let us remind a definiton of a dual lattice.
+\begin{definition}
+    For a lattice $\LL \subseteq \mathbb{R}^{n}$ we define $\LL^{*} \subseteq (\mathbb{R}^{n})^{*}$ as a lattice of all linear maps $f:\mathbb{R}^{n} \rightarrow \mathbb{R}$ such that every lattice point is mapped to an integer value.
+\end{definition}
+Linear maps can be represented as inner poduct with a fixed vector. So equivalently
+\begin{equation}
+    \LL^{*} = \{y \in \mathbb{R} | \forall x \in \LL:  \langle y,x\rangle \in \ZZ \}
+\end{equation}
+
+
+ The algorithm has the following steps
 \begin{enumerate}
-    \item Obtain parity check representations for every $\LL_{j}$
+    \item Calculate parity check representations for every $\LL_{j}$
     \item Get dual generating set of their intersection
     \item Eliminate linear dependencies using LLL algorithm
     \item Obtain the basis of the primal lattice from the dual
 \end{enumerate}
-Let us describe each of them in detail
+We will describe each of them in detail
 \subsubsection{Dual generating set}
 To justify this step we need two lemmas
 \begin{lemma}
-    Suppose a lattice $\LL = \{x = (x_{1}, ..., x_{n}) \in \zz^{n} | Bx \equiv 0 \pmod{p}\}$
-    Then $(B/p I_{n})$(I need to rewrite this properly) form a generating set of the dual lattice.
+    Supose $\LL = \bigcap_{i=1}^{k} \LL_{j}$ and $\LL^{*}$, $\LL_{j}^{*}$ are duals of the respective lattices. Then $\LL^{*} = \bigcup_{i=1}^{k} \LL_{j}^{*}$
 \end{lemma}
-\begin{lemma}
-    Supose $\LL = \cap \LL_{j}$ and we have $\LL^{*}$, $\LL_{j}^{*}$ are duals of the respective lattices. Then $\LL^{*} = \cup \LL_{j}^{*}$
-\end{lemma}
-\subsubsection{LLL algorithm}
 
+\begin{lemma}
+    Suppose a lattice $\LL = \{x = (x_{1}, ..., x_{n}) \in \ZZ^{n} | Bx \equiv 0 \pmod{p}\}$
+    Then
+    \[
+    \binom{B/p}{I_{n}}
+    \]
+    forms a generating set of the dual lattice.
+\end{lemma}
+
+\begin{question}
+    Do I need proofs here?
+\end{question}
+
+The algorithm takes parity check representations of every lattice $\LL_{j}$ scales them and adds an identity matrix. Output is the union of calculated bases.
+
+\subsubsection{LLL algorithm}
+The LLL algorithm was originally designed for lattice reduction. It takes as input lattice basis and outputs a relatively short one. It operates as follows:
+
+\textcolor{red}{ToDo}: Make a Figure with LLL
+
+What happens if instead of a basis we give it as input a generating set?
+In the size reduction step we approximate the last vector $b_{n}$ by an integer linear combination of $(b_{1}, ..., b_{n-1})$ and then substitute $b_{n}$ with the error of the approximation. $b_{n}$ is assumed be outside of $span(b_{1}, ..., b_{n-1})$ so the procedure minimises its projection on it. This way the basis becomes "almost" orthogonal. What happens if $b_{n} \in span(b_{1}, ..., b_{n-1})$? The projection of the error on the span is proved to lie in the fundumental domain
+
+$P_{sym} = \{ \sum_{i = 1}^{n-1}\alpha_{i}\tilde{b}_{i}| \forall i: \alpha_{i} \in [-\frac{1}{2}, \frac{1}{2})\}$, where $\tilde{b}_{i}$ stands for Gram-Shmidt orthogonalized basis. Since $b_{n}$ belongs to the lattice $\LL = \LL(b_{1}, ..., b_{n-1})$
+this error is equal to zero. So if the dimention of the lattice is $m \leq n$ the output will contain $n-m$ zero vectors in the end.
+
+\begin{question}
+    Why do we still run the rest of LLL?
+\end{question}
 
 \subsubsection{Primal basis from dual basis}
+A way to calculate a basis of primal lattice having the basis of the dual is straight forward having its definition.
 
+\begin{definition}
+    For a basis $B = (b_{1}, ..., b_{n}) \in \mathbb{R}^{m \times n}$, define the dual basis $D = (d_{1}, ..., d_{n}) \in \mathbb{R}^{m \times n}$ as the unique basis that satisfies
+    \begin{itemize}
+        \item $span(D) = span(B)$
+        \item $B^{T}D = I$
+    \end{itemize}
+\end{definition}
+If B is an invertible matrix $(B^{T})^{-1}$ satisfies the definition. In the general case one can easily verify that $D = B(B^{T}B)^{-1}$ is the dual basis.
 
+\begin{question}
+    Should I write a proof or is this obvious?
+\end{question}
 
+\subsection{Complexity analysis}
+\textcolor{red}{ToDo}: Citations.
 
+Step one of the algorithm boils down to many computations of discrete logarithm in a finite group. For every distinct prime factor $q_{j}^{e_{j}}$ of the modulus we compute $n$ discrete logarithms(one for every prime $p_{i}$). It is $n \cdot k$ operations in total. Let us refer to $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ as group $G$. Group order is equal to $|G| = \phi(q_{j}^{e_{j}}) =  q_{j}^{e_{j}-1}(q_{j}-1) = \prod_{i=1}^{k} t_{i}^{a_{i}}$.
+It is a $q$-smooth integer, so to efficiently calculate discrete logarithms in this group we can use a combinaion of of Pohlig-Hellman and Pollard-$\rho$ algorithms. Overall complexity in group operations is
+\begin{equation}
+    O(\sum_{i=1}^{k} a_{i}(ln(|G|) + \sqrt{t_{i}}))
+\end{equation}
+To be polynomial in lattice dimention $a_{i} \leq e_{j}-1$ and $t_{i} \leq q_{j}$ need to be polynomial in $n$. For this reason we configure $e_{j} = n$ for every $j$. As we have $n \cdot k$ such operations, $k$ should be polynomial in $n$.
+
+\begin{question}
+    Should I talk about how we find generators?(I don't really know how the default function in sagemath does it and what is the complexity, but I could discuss how it happens in theory)
+\end{question}
+
+It is easy to see that step two takes linear time in $n + k$. Step three is LLL algorithm, which is proven to run in polynomial time in $n + k$.
+
+Finally, step four includes matrix multiplication and inversion for matrices which dimention is bounded by $n + k$. They obviously take polynomial time.
+
+We still haven't configured parameters $k, q_{j}, p_{i}$. $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $q_{j}$ to be equal to first $k$ odd prime numbers and $p_{i}$ equal to $2$ and next $n-1$ smallest primes.
+\subsection{Peformance analysis}
+Decoding algorithm extends naturally to the generalized setting. Let us remind tha nomalized decoding $l_{2}$-radius was equal to
+\begin{equation}
+    \bar r^{(2)} = \frac{ln(m/2)}{4 \phi(m)^{1/n} \cdot ln(B)}
+\end{equation}
+where $B$ is a constant bounding all $p_{i}$
+To compare with the initial construction we study how decoding radius changes with growth of $k$.
+
+\begin{lemma}
+
+\end{lemma}
+\begin{proof}
+
+\end{proof}
 
 \end{document}
