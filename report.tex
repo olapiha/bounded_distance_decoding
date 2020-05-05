@@ -6,10 +6,13 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{xcolor}
+\usepackage[normalem]{ulem}
 
 \newcommand{\floor}[1]{\lfloor #1 \rfloor}
 \newcommand{\ZZ}{\mathbb{Z}}
 \newcommand{\LL}{\mathcal{L}}
+\DeclareMathOperator{\Span}{Span}
+
 
 \newtheorem{question}{Question}
 \newtheorem{lemma}{Lemma}
@@ -19,7 +22,9 @@
 
 \title{Report(draft)}
 \author{ Sasha }
-
+\usepackage{xcolor}
+\def\added{\bgroup \markoverwith{\textcolor{green!50!blue}{\lower4.5pt\hbox{\sixly \char58}}}\ULon}
+\def\toimprove{\bgroup \markoverwith{\textcolor{red}{\lower4.5pt\hbox{\sixly \char58}}}\ULon}
 
 
 \begin{document}
@@ -49,7 +54,7 @@ What else should be here in future?
 \end{enumerate}
 
 \subsection{The lattice}
-In this chapter we take $m = \prod_{i=1}^{k} q_{j}^{e_{j}}$ where $\{q_{j}\}$ are odd prime numbers and $\{e_{j}\}$ are positive integers. We work with a group $(\ZZ/m\ZZ)^*$ which is not cyclic anymore so we cannot deploy properties of discrete logarithm right away. Nevertheless, Chinese Remainder Theorem gives us the structure of the group:
+In this chapter we take $m = \prod_{i=1}^{k} q_{j}^{e_{j}}$ where $\{q_{j}\}$ are odd prime numbers and $\{e_{j}\}$ are positive integers. We work with a group $(\ZZ/m\ZZ)^*$ which is not cyclic anymore so we cannot \toimprove{deploy} properties of discrete logarithm right away. Nevertheless, \added{the} Chinese Remainder Theorem \added{(CRT)} gives us the structure of the group:
 \begin{equation}
     (\ZZ/m\ZZ)^* \sim \prod_{j=1}^{k}(\ZZ/q_{j}^{e_{j}}\ZZ)^*
 \end{equation}
@@ -67,21 +72,21 @@ Lattice is defined as the kernel of $\psi$:
 \begin{equation}
     \LL \coloneqq \ker \psi = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
 \end{equation}
-Appying CRT gives us the following equivalence
+Appying \added{the} CRT gives us the following equivalence
 \begin{equation}
     \LL = \ker \psi = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{q_{j}^{e_{j}}}\}
 \end{equation}
 Or going even further, suppose we know for every $j$ a generator ${\beta_{j}}$ of  $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$. Using the isomorphism between cyclic group and group of exponents we get another representation:
 \begin{equation}
-    \LL = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \sum_{i=1}^{n}x_{i}log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
+    \LL = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \sum_{i=1}^{n}x_{i}\added{\log}_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
 \end{equation}
-This is almost a parity check representation of $\LL$ except we have many parity check type conditions at the same time. So, we can think of $\LL$ as an intersection of lattices $\LL_{j}$ where each of them is defined as
+This is almost a parity check representation of $\LL$ except we have many parity check type conditions at the same time. \toimprove{So}, we can \toimprove{think}\footnote{This suggest that the statement is informal or imprecise.} of $\LL$ as an intersection of lattices $\LL_{j}$ where each of them is defined as
 \begin{equation}
-    \LL_{j} \coloneqq \{(x_{1}, ..., x_{n}) \in \ZZ^{n} | \sum_{i=1}^{n}x_{i}log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
+    \LL_{j} \coloneqq \{(x_{1}, ..., x_{n}) \in \ZZ^{n} | \sum_{i=1}^{n}x_{i}\added{\log}_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
 \end{equation}
 
 \subsection{Construction}
-The idea of our construction algorithm is to compute basis of the dual lattice first. %using the fact that the dual of an intersection is union of the duals and also that %parity check representation of the lattice gives us generating set of the dual.
+The idea of our \toimprove{construction}\footnote{Here we are decribing an algorithm to *compute* (a basis of) this lattice. Constructing suggest } algorithm is to compute basis of the dual lattice first. %using the fact that the dual of an intersection is union of the duals and also that %parity check representation of the lattice gives us generating set of the dual.
 Let us remind a definiton of a dual lattice.
 \begin{definition}
     For a lattice $\LL \subseteq \mathbb{R}^{n}$ we define $\LL^{*} \subseteq (\mathbb{R}^{n})^{*}$ as a lattice of all linear maps $f:\mathbb{R}^{n} \rightarrow \mathbb{R}$ such that every lattice point is mapped to an integer value.
@@ -103,7 +108,7 @@ We will describe each of them in detail
 \subsubsection{Dual generating set}
 To justify this step we need two lemmas
 \begin{lemma}
-    Supose $\LL = \bigcap_{i=1}^{k} \LL_{j}$ and $\LL^{*}$, $\LL_{j}^{*}$ are duals of the respective lattices. Then $\LL^{*} = \bigcup_{i=1}^{k} \LL_{j}^{*}$
+    Supose $\LL = \bigcap_{i=1}^{k} \LL_{j}$ and $\LL^{*}$, $\LL_{j}^{*}$ are duals of the respective lattices. Then $\LL^{*} = \toimprove{\bigcup_{i=1}^{k} \LL_{j}^{*}}\footnote{You are conflating three different notions: unions of sets, sums of lattices, and concatenation of basis. Choosing the symbol $\cup$ seems very innadequate here, as the lattice obained *is not* a union.}$
 \end{lemma}
 
 \begin{lemma}
@@ -118,6 +123,9 @@ To justify this step we need two lemmas
 \begin{question}
     Do I need proofs here?
 \end{question}
+{\bf Leo: Your call. Do you consider this to be trivial ? Do you think your intended reader will find this trivial ? The main issue with the section is that you use a union symbol for something that is not a union, and that actually haven't even defined: sums of lattices. Do that, and claim/convice/prove to the reader that it is a lattice.}
+
+
 
 The algorithm takes parity check representations of every lattice $\LL_{j}$ scales them and adds an identity matrix. Output is the union of calculated bases.
 
@@ -127,7 +135,7 @@ The LLL algorithm was originally designed for lattice reduction. It takes as inp
 \textcolor{red}{ToDo}: Make a Figure with LLL
 
 What happens if instead of a basis we give it as input a generating set?
-In the size reduction step we approximate the last vector $b_{n}$ by an integer linear combination of $(b_{1}, ..., b_{n-1})$ and then substitute $b_{n}$ with the error of the approximation. $b_{n}$ is assumed be outside of $span(b_{1}, ..., b_{n-1})$ so the procedure minimises its projection on it. This way the basis becomes "almost" orthogonal. What happens if $b_{n} \in span(b_{1}, ..., b_{n-1})$? The projection of the error on the span is proved to lie in the fundumental domain
+In the size reduction step we approximate the last vector $b_{n}$ by an integer linear combination of $(b_{1}, ..., b_{n-1})$ and then substitute $b_{n}$ with the error of the approximation. $b_{n}$ is assumed be outside of $\added{\Span}(b_{1}, ..., b_{n-1})$ so the procedure minimises its projection on it. This way the basis becomes "almost" orthogonal. What happens if $b_{n} \in \added{\Span}(b_{1}, ..., b_{n-1})$? The projection of the error on the span is proved to lie in the fundumental domain
 
 $P_{sym} = \{ \sum_{i = 1}^{n-1}\alpha_{i}\tilde{b}_{i}| \forall i: \alpha_{i} \in [-\frac{1}{2}, \frac{1}{2})\}$, where $\tilde{b}_{i}$ stands for Gram-Shmidt orthogonalized basis. Since $b_{n}$ belongs to the lattice $\LL = \LL(b_{1}, ..., b_{n-1})$
 this error is equal to zero. So if the dimention of the lattice is $m \leq n$ the output will contain $n-m$ zero vectors in the end.
@@ -135,6 +143,8 @@ this error is equal to zero. So if the dimention of the lattice is $m \leq n$ th
 \begin{question}
     Why do we still run the rest of LLL?
 \end{question}
+{\bf Indeed, LLL is an overkill for this task. And it is a bad idea to discuss it while giving so few details about it. Maybe the "echelon form" a simpler solution here, that the reader is more likely to already know. A key of writing good scientific document is to always minimize the required knowledge (without sacrificing the clarity of your develloppment). The main issue with this section is that: you do not give context ! What is the problem we are trying to solve here ? Well: computing the the basis of a sum of lattices, given bases of each of those lattices. I certainly know that myself, but other people can't read your mind...}
+
 
 \subsubsection{Primal basis from dual basis}
 A way to calculate a basis of primal lattice having the basis of the dual is straight forward having its definition.
@@ -142,7 +152,7 @@ A way to calculate a basis of primal lattice having the basis of the dual is str
 \begin{definition}
     For a basis $B = (b_{1}, ..., b_{n}) \in \mathbb{R}^{m \times n}$, define the dual basis $D = (d_{1}, ..., d_{n}) \in \mathbb{R}^{m \times n}$ as the unique basis that satisfies
     \begin{itemize}
-        \item $span(D) = span(B)$
+        \item $\added{\Span}(D) = \added{\Span}(B)$
         \item $B^{T}D = I$
     \end{itemize}
 \end{definition}
@@ -151,20 +161,22 @@ If B is an invertible matrix $(B^{T})^{-1}$ satisfies the definition. In the gen
 \begin{question}
     Should I write a proof or is this obvious?
 \end{question}
+{\bf Again, what are the purpose of this document ? Who will read it ? Do you wnat to show that you can reinvent a proof ? Or do you prefer to show that you have assimlated lectures, or even better : the litterature ? Do you have more interesting proof to devellop ?}
 
 \subsection{Complexity analysis}
 \textcolor{red}{ToDo}: Citations.
 
-Step one of the algorithm boils down to many computations of discrete logarithm in a finite group. For every distinct prime factor $q_{j}^{e_{j}}$ of the modulus we compute $n$ discrete logarithms(one for every prime $p_{i}$). It is $n \cdot k$ operations in total. Let us refer to $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ as group $G$. Group order is equal to $|G| = \phi(q_{j}^{e_{j}}) =  q_{j}^{e_{j}-1}(q_{j}-1) = \prod_{i=1}^{k} t_{i}^{a_{i}}$.
+\toimprove{Step one}\footnote{You know that you can put a latex `label' ot the items of the algorithm, and then a latex reference to it ? Bonus: when you use the latex package hyperref, this reference will be clickable, sending you back to the label. Vey convenient for readers. In fact, prety much everything can be labeled/referenced this way, theorems, sections, equations...} of \toimprove{the algorithm}\footnote{which algorithm ? A lot has happened since you introduced what the algorithm does, so maybe the reader has already forgotten. Just offer him a name or an adjective that would remind him of the whole thing. This is something to apply systematically. Give discrinating names to things, and keep using them. This is math, not literature. We do not fear repetitions. } boils down to many computations of discrete logarithm in a finite group. For every distinct prime factor $q_{j}^{e_{j}}$ of the modulus we compute $n$ discrete logarithms(one for every prime $p_{i}$). It is $n \cdot k$ operations in total. Let us refer to $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ as group $G$. Group order is equal to $|G| = \phi(q_{j}^{e_{j}}) =  q_{j}^{e_{j}-1}(q_{j}-1) = \prod_{i=1}^{k} t_{i}^{a_{i}}$.
 It is a $q$-smooth integer, so to efficiently calculate discrete logarithms in this group we can use a combinaion of of Pohlig-Hellman and Pollard-$\rho$ algorithms. Overall complexity in group operations is
 \begin{equation}
-    O(\sum_{i=1}^{k} a_{i}(ln(|G|) + \sqrt{t_{i}}))
+    O(\sum_{i=1}^{k} a_{i}(\added{\ln}(|G|) + \sqrt{t_{i}}))
 \end{equation}
 To be polynomial in lattice dimention $a_{i} \leq e_{j}-1$ and $t_{i} \leq q_{j}$ need to be polynomial in $n$. For this reason we configure $e_{j} = n$ for every $j$. As we have $n \cdot k$ such operations, $k$ should be polynomial in $n$.
 
 \begin{question}
     Should I talk about how we find generators?(I don't really know how the default function in sagemath does it and what is the complexity, but I could discuss how it happens in theory)
 \end{question}
+{\bf Why not. }
 
 It is easy to see that step two takes linear time in $n + k$. Step three is LLL algorithm, which is proven to run in polynomial time in $n + k$.
 
