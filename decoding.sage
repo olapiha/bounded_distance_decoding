@@ -75,7 +75,7 @@ def test_decoding(n, t, B):
         modulus *= q**e
 
     # generate coordinates of a lattice point in the basis above
-    coordinates = vector(numpy.random.randint(0, 10, n))
+    coordinates = vector(np.random.randint(0, 10, n))
     lattice_point = basis * coordinates
 
     # generate integer noise of l_2 norm <= B
@@ -87,6 +87,6 @@ def test_decoding(n, t, B):
     return (discrete_error(primes, modulus, point_t), noise)
 
 
-result = test_decoding(10, 3, 3)
+result = test_decoding(5, 3, 3)
 print result[0]
 print result[1]

@@ -3,12 +3,16 @@
 \usepackage{amsfonts}
 \usepackage{amsthm}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage[normalem]{ulem}
 
 \newcommand{\floor}[1]{\lfloor #1 \rfloor}
-\newcommand{\FF}{\mathbb{F}}
-\newcommand{\zz}{\mathbb{Z}}
+\newcommand{\ZZ}{\mathbb{Z}}
 \newcommand{\LL}{\mathcal{L}}
+\DeclareMathOperator{\Span}{Span}
+
 
 \newtheorem{question}{Question}
 \newtheorem{lemma}{Lemma}
@@ -16,138 +20,198 @@
 \newtheorem{definition}{Definition}
 
 
-
-
-\title{Thoughts :)}
+\title{Report(draft)}
 \author{ Sasha }
-
+\usepackage{xcolor}
+\def\added{\bgroup \markoverwith{\textcolor{green!50!blue}{\lower4.5pt\hbox{\sixly \char58}}}\ULon}
+\def\toimprove{\bgroup \markoverwith{\textcolor{red}{\lower4.5pt\hbox{\sixly \char58}}}\ULon}
+\def\improved{\bgroup \markoverwith{\textcolor{black}{\lower4.5pt\hbox{\sixly \char58}}}\ULon}
 
 
 \begin{document}
 
 \maketitle
 
-\section{Lattice construction for product of fields}
-Let us set parameters a prime power $q$ and integers $k$, $d$ and $n$. Let $\FF_{q}[x]$ be polynomial ring over a field  $\FF_{q}$. We take a set of $k$ irreducible polynomials $c_{j}(x) \in \FF_{q}[x]$, $j =1, ...,k$ of degree $d$. According to the analogue of the prime number theorem for polynomials $k$ must not be greater than $\frac{q^d}{d}$.
-
-Define $c(x) \coloneqq \prod_{j = 1}^{k} c_{j}(x)$. We are going to work in the multiplicative group of the quotient ring of  $\FF_{q}[x]$ with respect to $c(x)$.
-Chinese Remainder Theorem helps to determine the structure of $\big(\FF_{q}[x]/c(x)\big)^{*}$:
-\begin{equation}
-    \big(\FF_{q}[x]/c(x)\big)^{*} \sim \prod_{i=1}^{k}\FF_{q^{d}}^*
-\end{equation}
-Multiplicative group of a field is cyclic, therefore, we can consider discrete logarithms in every component of the product to find a lattice basis.
-
-Consider a vector $a = (\alpha_{1}, ... , \alpha_{n}) \in \FF_{q}^{n}$ where $\alpha_{i}$s are pairwise different. Since polynomials $c_{j}(\cdot)$ are irreducible over $\FF_{q}$ neither of $\alpha_{i}$ can be their root. So for all $\alpha_{i}$ we also have: $c(\alpha_{i}) \neq 0$.
-
-Now consider a group morphism:
-\begin{equation}
-    \psi : \zz^{n} \rightarrow \big(\FF_{q}[x]/c(x)\big)^{*}
-\end{equation}
-\begin{equation}
-    (u_{1}, ..., u_{n}) \mapsto \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \pmod{c(x)}
-\end{equation}
-
-Lattice is defined as the kernel of the morphism:
-\begin{equation}
-    \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \zz^{n} | \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c(x)}\}
-\end{equation}
-Appying CRT gives us the following equivalence
-\begin{equation}
-    \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \zz^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c_{j}(x)}\}
-\end{equation}
-Or going even further suppose we know $\beta$ a generator of  $\FF_{q^{d}}^*$. Then using the isomorphism between cyclic group $\FF_{q^{d}}^*$ of order $q^{d} - 1$ and group of exponents we get another representation:
-\begin{equation}
-    \LL = \{(u_{1}, ..., u_{n}) \in \zz^{n} | \sum_{i=1}^{n}u_{i}log_{\beta}(x - \alpha_{i}) \equiv 0 \pmod{\phi(q^{d}-1)}\}
-\end{equation}
-This is a parity check representation of $\LL$.
-
-\section{Building blocks}
-\subsection{Factorization by trial division}
-Input: A polynomial $g$ such that $deg(g) \leq m$ whose roots are among $\alpha_1, \dots , \alpha_n \in \mathbb{F}_q$\\
-Output: $e_1, \dots , e_n$ s.t. $g = \prod_{i = 1}^{n}(x - \alpha_i)^{e_i}$\\
-There's only $n$ possible roots, one trial division takes $O(m)$ time and the number of factors is bounded by $m$. So overall complexity is $O(m^2n)$.
-
-
-\subsection{Rational function reconstruction}
-I found here: http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf and then here: http://www.cecm.sfu.ca/~mmonagan/papers/fastRFR.pdf
-an algorithm which they call Wang's algorithm for rational function reconstruction.\\
-Goal: Given $g,f$ find $n, d \in \mathbb{F}[x]$ that $deg(n) \leq N$, $deg(d) \leq D$, $N + D < deg(f)$ and $\frac{n}{d} = g \pmod{f}$\\
-Algorithm:(function $lc()$ outputs the leading coefficient)
+\section{Generalization of the construction for integers}
+Plan:
 \begin{enumerate}
-	\item Set $N = \floor{\frac{deg(f)}{2}}$ $D = deg(f) - N - 1$\\
-			$r_0 = f$  $t_0 = 0$\\
-			$r_1 = g$  $t_1 = 1$\\
-	\item While $deg(r_1) > N$ do\\
-			$q = r_0 // r_1$\\
-			$(r_0, r_1) = (r_1, r_0 - qr_1)$\\
-			$(t_0, t_1) = (t_1, t_0 - qt_1)$\\
-	\item if $GCD(r_1, t_1) \neq 1$:\\
-			return FAIL\\
-		  else:\\
-			return $(\frac{r_1}{lc(t_1)}, \frac{t_1}{lc(t_1)})$
+    \item (+) How to construct the lattice for non-prime modulus. Definition. (Maybe on why it's a lattice?)
+    \item (+) How does decoding algorithm work:
+    \begin{itemize}
+        \item (+) parity check representation
+        \item (+) lattice as an intersection
+        \item (+) dual basis of the intersection
+        \item (+) getting primal basis from dual
+    \end{itemize}
+    \item (+) How to configure the parameters such that complexity is polynomial
+    \item Argument about loglog n an that having more factors does not give us an advantage
 \end{enumerate}
+
+What else should be here in future?
+\begin{enumerate}
+    \item Short description of the initial construction
+    \item Description of the decoding algorithm and its extension
+    \item Why are we interested in the generalization
+\end{enumerate}
+
+\subsection{Definition of the lattice}
+In this chapter we take $m = \prod_{i=1}^{k} q_{j}^{e_{j}}$ where $\{q_{j}\}$ are odd prime numbers and $\{e_{j}\}$ are positive integers. We work with a group $(\ZZ/m\ZZ)^*$ which is not cyclic anymore so we cannot \improved{use?} properties of discrete logarithm right away. Nevertheless, the Chinese Remainder Theorem (CRT) gives us the structure of the group:
+\begin{equation}
+    (\ZZ/m\ZZ)^* \sim \prod_{j=1}^{k}(\ZZ/q_{j}^{e_{j}}\ZZ)^*
+\end{equation}
+For every prime $q_{j} > 2$ and every $e_{j} \geq 1$ the group $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ is known to be cyclic. So now, we can consider discrete logarithms in every component of the product to find a lattice basis.
+
+Similarly to the initial construction we take numbers $n$ and $B$ such that we can find $n$ primes $p_{1}, ... , p_{n}$ different from every $q_{j}$ and bounded by $B$. We consider a group morphism:
+\begin{equation}
+    \psi : \ZZ^{n} \rightarrow (\ZZ/m\ZZ)^*
+\end{equation}
+\begin{equation}
+    (x_{1}, ..., x_{n}) \mapsto \prod_{i=1}^{n}p_{i}^{x_{i}} \pmod{m}
+\end{equation}
+
+\textcolor{red}{ToDo}: Add a comment on why the image is always invertible
+\textcolor{red}{ToDo}: Why kernel is a lattice
+
+Lattice is defined as the kernel of $\psi$:
+\begin{equation}
+    \LL \coloneqq \ker \psi = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
+\end{equation}
+Appying the CRT gives us the following equivalence
+\begin{equation}
+    \LL = \ker \psi = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{q_{j}^{e_{j}}}\}
+\end{equation}
+Or going even further, suppose we know for every $j$ a generator ${\beta_{j}}$ of  $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$. Using the morphism between cyclic group and group of exponents we get another representation:
+\begin{equation}
+    \LL = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
+\end{equation}
+This is almost a parity check representation of $\LL$ except we have many parity check type conditions at the same time. \improved{Therefore, }\footnote{This suggest that the statement is informal or imprecise.} $\LL$ \improved{is} an intersection of lattices $\LL_{j}$ where each of them is defined as
+\begin{equation}
+    \LL_{j} \coloneqq \{(x_{1}, ..., x_{n}) \in \ZZ^{n} | \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
+\end{equation}
+
+\subsection{Computing lattice basis}
+The idea of our \improved{algorithm for explicit construction of a basis}\footnote{Here we are decribing an algorithm to *compute* (a basis of) this lattice. Constructing suggest } is to compute a basis of the dual lattice first.
+Let us remind a definiton of a dual lattice.
+\begin{definition}
+    For a lattice $\LL \subseteq \mathbb{R}^{n}$ we define $\LL^{*} \subseteq (\mathbb{R}^{n})^{*}$ as a lattice of all linear maps $f:\mathbb{R}^{n} \rightarrow \mathbb{R}$ such that every lattice point is mapped to an integer value.
+\end{definition}
+Linear maps can be represented as inner poduct with a fixed vector. So equivalently
+\begin{equation}
+    \LL^{*} = \{y \in \mathbb{R} | \forall x \in \LL:  \langle y,x\rangle \in \ZZ \}
+\end{equation}
+
+
+ The algorithm has the following steps
+\begin{enumerate}
+    \item Calculate parity check representations for every $\LL_{j}$
+    \item Get dual generating set of their intersection
+    \item Eliminate linear dependencies using LLL algorithm
+    \item Obtain the basis of the primal lattice from the dual
+\end{enumerate}
+We will describe each of them in detail
+
+\textcolor{red}{ToDo}: Describe shortly the step 1
+
+\subsubsection{Dual generating set}
+To justify this step we need two lemmas
+\begin{definition}
+    For two lattices $\LL_1$, $\LL_2$ we define their sum
+\[
+    \LL_1 + \LL_2 \coloneqq \{x+y | x \in \LL_1, y \in \LL_2\}
+\]
+\end{definition}
+\textcolor{red}{ToDo}: Prove it's a lattice, prove that its basis is the concatenation
+
 \begin{lemma}
-Let $\mathbb{F}$ be a field, $f, g, r, s, t \in \mathbb{F}[x]$ with $r = sf + tg$, $t \neq 0$, $deg(f) > 0$, and $deg(r) + deg(t) <deg(f)$.
-Suppose $r_i, s_i, t_i$ for $0 \leq i \leq l + 1$ be the elements of the ith iteration in the Extended Euclidean Algorithm for $f$ and $g$ (e.i. $r_i = s_if + t_ig$). \\
-Then there exists a nonzero element $\alpha \in \mathbb{F}[x]$ such that $r = \alpha r_j$, $s = \alpha s_j$, $t = \alpha t_j$, where $deg(r_j) \leq deg(r) < deg(r_{j-1})$
+    Supose $\LL = \bigcap_{i=1}^{k} \LL_{j}$ and $\LL^{*}$, $\LL_{j}^{*}$ are duals of the respective lattices. Then $\LL^{*} = \toimprove{\sum_{i=1}^{k} \LL_{j}^{*}}\footnote{You are conflating three different notions: unions of sets, sums of lattices, and concatenation of basis. Choosing the symbol $\cup$ seems very innadequate here, as the lattice obained *is not* a union.}$
+\end{lemma}
+\textcolor{red}{ToDo}: Proof
+\begin{lemma}
+    Suppose a lattice $\LL = \{x = (x_{1}, ..., x_{n}) \in \ZZ^{n} | Bx \equiv 0 \pmod{p}\}$
+    Then
+    \[
+    \binom{\frac{1}{p} \cdot B}{I_{n}}
+    \]
+    forms a generating set of the dual lattice.
+\end{lemma}
+\textcolor{red}{ToDo}: Find a nice geometric explanation of why this is the basis.
+
+%\begin{question}
+%    Do I need proofs here?
+%\end{question}
+%{\bf Leo: Your call. Do you consider this to be trivial ? Do you think your intended reader will find this trivial ? The main issue with the section is that you use a union symbol for something that is not a union, and that actually haven't even defined: sums of lattices. Do that, and claim/convice/prove to the reader that it is a lattice.}
+
+The algorithm takes parity check representations of every lattice $\LL_{j}$ scales them and adds an identity matrix. Output is the union of calculated bases.
+
+\subsubsection{LLL algorithm}
+The LLL algorithm was originally designed for lattice reduction. It takes as input lattice basis and outputs a relatively short one. It operates as follows:
+
+\textcolor{red}{ToDo}: Make a Figure with LLL
+
+What happens if instead of a basis we give it as input a generating set?
+In the size reduction step we approximate the last vector $b_{n}$ by an integer linear combination of $(b_{1}, ..., b_{n-1})$ and then substitute $b_{n}$ with the error of the approximation. $b_{n}$ is assumed be outside of $\Span(b_{1}, ..., b_{n-1})$ so the procedure minimises its projection on it. This way the basis becomes "almost" orthogonal. What happens if $b_{n} \in \Span(b_{1}, ..., b_{n-1})$? The projection of the error on the span is proved to lie in the fundumental domain
+
+$P_{sym} = \{ \sum_{i = 1}^{n-1}\alpha_{i}\tilde{b}_{i}| \forall i: \alpha_{i} \in [-\frac{1}{2}, \frac{1}{2})\}$, where $\tilde{b}_{i}$ stands for Gram-Shmidt orthogonalized basis. Since $b_{n}$ belongs to the lattice $\LL = \LL(b_{1}, ..., b_{n-1})$
+this error is equal to zero. So if the dimention of the lattice is $m \leq n$ the output will contain $n-m$ zero vectors in the end.
+
+\begin{question}
+    Why do we still run the rest of LLL?
+\end{question}
+{\bf Indeed, LLL is an overkill for this task. And it is a bad idea to discuss it while giving so few details about it. Maybe the "echelon form" a simpler solution here, that the reader is more likely to already know. A key of writing good scientific document is to always minimize the required knowledge (without sacrificing the clarity of your develloppment). The main issue with this section is that: you do not give context ! What is the problem we are trying to solve here ? Well: computing the the basis of a sum of lattices, given bases of each of those lattices. I certainly know that myself, but other people can't read your mind...}
+
+
+\subsubsection{Primal basis from dual basis}
+A way to calculate a basis of primal lattice having the basis of the dual is straight forward having its definition.
+
+\begin{definition}
+    For a basis $B = (b_{1}, ..., b_{n}) \in \mathbb{R}^{m \times n}$, define the dual basis $D = (d_{1}, ..., d_{n}) \in \mathbb{R}^{m \times n}$ as the unique basis that satisfies
+    \begin{itemize}
+        \item $\Span(D) = \Span(B)$
+        \item $B^{T}D = I$
+    \end{itemize}
+\end{definition}
+If B is an invertible matrix $(B^{T})^{-1}$ satisfies the definition. In the general case one can easily verify that $D = B(B^{T}B)^{-1}$ is the dual basis.
+
+\begin{question}
+    Should I write a proof or is this obvious?
+\end{question}
+{\bf Again, what are the purpose of this document ? Who will read it ? Do you wnat to show that you can reinvent a proof ? Or do you prefer to show that you have assimlated lectures, or even better : the litterature ? Do you have more interesting proof to devellop ?}
+
+ \textcolor{red}{ToDo}:  Say that I'm removing the zero rows in the implementation
+
+\subsection{Complexity analysis}
+\textcolor{red}{ToDo}: Citations.
+
+\toimprove{Step one}\footnote{You know that you can put a latex `label' ot the items of the algorithm, and then a latex reference to it ? Bonus: when you use the latex package hyperref, this reference will be clickable, sending you back to the label. Vey convenient for readers. In fact, prety much everything can be labeled/referenced this way, theorems, sections, equations...} of \toimprove{the algorithm}\footnote{which algorithm ? A lot has happened since you introduced what the algorithm does, so maybe the reader has already forgotten. Just offer him a name or an adjective that would remind him of the whole thing. This is something to apply systematically. Give discrinating names to things, and keep using them. This is math, not literature. We do not fear repetitions. } boils down to many computations of discrete logarithm in a finite group. For every distinct prime factor $q_{j}^{e_{j}}$ of the modulus we compute $n$ discrete logarithms(one for every prime $p_{i}$). It is $n \cdot k$ operations in total. Let us refer to $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ as group $G$. Group order is equal to $|G| = \phi(q_{j}^{e_{j}}) =  q_{j}^{e_{j}-1}(q_{j}-1) = \prod_{i=1}^{k} t_{i}^{a_{i}}$.
+It is a $q$-smooth integer, so to efficiently calculate discrete logarithms in this group we can use a combinaion of of Pohlig-Hellman and Pollard-$\rho$ algorithms. Overall complexity in group operations is
+\begin{equation}
+    O(\sum_{i=1}^{k} a_{i}(\ln(|G|) + \sqrt{t_{i}}))
+\end{equation}
+To be polynomial in lattice dimention $a_{i} \leq e_{j}-1$ and $t_{i} \leq q_{j}$ need to be polynomial in $n$. For this reason we configure $e_{j} = n$ for every $j$. As we have $n \cdot k$ such operations, $k$ should be polynomial in $n$.
+
+\begin{question}
+    Should I talk about how we find generators?(I don't really know how the default function in sagemath does it and what is the complexity, but I could discuss how it happens in theory)
+\end{question}
+{\bf Why not. }
+
+It is easy to see that step two takes linear time in $n + k$. Step three is LLL algorithm, which is proven to run in polynomial time in $n + k$.
+
+Finally, step four includes matrix multiplication and inversion for matrices which dimention is bounded by $n + k$. They obviously take polynomial time.
+
+We still haven't configured parameters $k, q_{j}, p_{i}$. $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $q_{j}$ to be equal to first $k$ odd prime numbers and $p_{i}$ equal to $2$ and next $n-1$ smallest primes.
+\subsection{Peformance analysis}
+Decoding algorithm extends naturally to the generalized setting. Let us remind tha nomalized decoding $l_{2}$-radius was equal to
+\begin{equation}
+    \bar r^{(2)} = \frac{\ln(m/2)}{4 \phi(m)^{1/n} \cdot \ln(B)}
+\end{equation}
+where $B$ is a constant bounding all $p_{i}$
+To compare with the initial construction we study how decoding radius changes with growth of $k$.
+
+\begin{lemma}
+
 \end{lemma}
 \begin{proof}
-http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf \\(Lemma 3.2 page 35)
+
 \end{proof}
 
-So if the solution exists it must be one of the pairs $(r_i, t_i)$ of the EEA.
-
-\begin{question}
-Why do we give up if the first gcd check fails instead of coming back to the while loop?
-\end{question}
-{\bf LEO: I do not know those algorithms, so I don't know... How about trying them on many random instance, and see if your variation also works ?}
-
-
-Note $n = deg(f)$.
-Complexity of the algorithm is one of the Extended Euclidean Algorithm $O(n^2)$. Or we can maybe use Fast Extended Euclidean Algorithm whose complexity is $O(M(n)log(n))$ where $M(n)$ is the complexity of multiplication of polynomials, so $O(nlog^2(n))$
-\begin{question}
-Check if we can actually use FEEA.
-\end{question}
-\begin{remark}
-In the paper they also give an algorithm for the case where the bounds for degrees are not set in advance, but it works only with high probability(should I look into it in more detail?)
-\end{remark}
-\subsection{Computing logs}
-\begin{question}
-In LLXY17 what do they mean when using the same generator $\beta$ for every $c_j(x)$? In reality we would need to find $t$ generators one for every "coordinate"?
-\end{question}
-{\bf LEO: Hum, maybe most elements of $F_q[X]/(c_j(X))$ are generators, in which case it is possible that a single $\beta \in F_q[X]$ of small degree is a generator of each of them ?}
-
-To construct the lattice we need to compute the following:
-$\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{c_j(x)}$. The order of multiplicative group is $q^{d_0} - 1$ which might not be a smooth integer so we cannot use Pohlig-Hellman+Pollard pho. Maybe we can just take small parameters $q, d_0$: $q=constant$ and $d_0 = \theta(\sqrt n)$? If not we would need to use some smart DL algorithm that runs in quasi-polynomial time...
-
-{\bf LEO: I guess all you need is $q^{d_0} = n^{O(1)}$ ($poly(n)$), for example $d_0 = constant$ and $q=n^{O(1)}$ does works, so does $q=constant$ and $d_0 = O(\log n)$.}
-
-\section{Decoding radius}
-
-\subsection{Only positive discrete error}
-Suppose we receive $t = u + e$ where $u \in \mathcal{L}$, $\|e\|_1 \leq r_1$ and $\forall i: e_i \in \mathbb{N}$. Then we can compute
-\begin{equation}
-\prod_{i = 1}^{n}(x - \alpha_i)^{t_i} = \prod_{i = 1}^{n}(x - \alpha_i)^{u_i}\prod_{i = 1}^{n}(x - \alpha_i)^{e_i} \pmod{c(x)}
-\end{equation}
-If $\|e\|_1 = \sum_{i =1}^{n} e_i \leq deg(c) = d_0t$ the operation above will give us exactly the polynomial $\prod_{i = 1}^{n}(x - \alpha_i)^{e_i}$. Then we can recover $e_i$, $1 \leq i \leq n$ from the factorization.\\
-So $r_1 = d_0t$.
-\subsection{Arbitrary discrete error}
-Now we have $\forall i: e_i \in \mathbb{Z}$. Then
-\begin{equation}
-\prod_{i = 1}^{n}(x - \alpha_i)^{t_i} \pmod{c(x)} = \prod_{i = 1}^{n}(x - \alpha_i)^{e_i} = \frac{\prod_{i \in I}(x - \alpha_i)^{e_i}}{\prod_{j \in J}(x - \alpha_j)^{-e_j}}
-\end{equation}
-\begin{lemma}
-Given $g,c$ where $deg(c) = d_0t$ we can recover $n, d \in \mathbb{F}[x]$ that $deg(n) \leq \floor{\frac{d_0t}{2}}$, $deg(d) \leq \floor{\frac{d_0t}{2}}$ and $\frac{n}{d} = g \pmod{c}$ in polynomial time.
-\end{lemma}
-So we can decode every message for which $\|e\|_1 = \sum_{i =1}^{n} |e_i| \leq \floor{\frac{d_0t}{2}}$
-
-\subsection{Continuous error and $l_2$ norm}
-Directly follows from DP19. $r_2 = \frac{\floor{\frac{d_0t}{2}}}{\sqrt{n} det(\mathcal{L})^{1/n}}$ where $det(\mathcal{L}) = \Phi(c(x)) = (q^{d_0} - 1)^{t}$.
-\begin{equation}
-r_2 = \frac{\floor{\frac{d_0t}{2}}}{\sqrt{n} (q^{d_0} - 1)^{t/n}}
-\end{equation}
-\begin{question}
-What should be the values of $d_0$ and $t$? It must be $\sqrt{n} < d_0t < n^{1+\epsilon}$(otherwise the tends to 0). If $d_0t = n$ it is very close to Minkowski's bound. It looks too good to be true?
-\end{question}
-{\bf LEO: I am a bit lost: there are several constraints on the parameters, and you need to instantiate them all verifying all the constraints to conclude. At the moment you've chosen $d_0t$ but not $d_0$ and $t$ themselves so I am unsure you can conclude...}
 \end{document}

@@ -1,5 +1,7 @@
 #!/usr/bin/env sage
 
+import sage.matrix.matrix_integer_dense_hnf as hnf
+
 # As input we are given an interger m and its factorization
 # m = \Pi_{1}^{t} q_{i}^{e_{i}}, q_i its prime factors
 # We are also given a set of p_{i} 1 \leq i \leq n ->
@@ -33,12 +35,12 @@ def parity_check_representation((q, e), primes):
 
 
 def compute_log(order, generator, element):
-    #print "in LOG"
+    print "in LOG"
     return discrete_log(element, generator, order)
 
 
 def dual_generating_set(modulus_factors, primes):
-    #print "in DUAL GEN SET"
+    print "in DUAL GEN SET"
     dual_gens = identity_matrix(QQ, len(primes))
     for q, e in modulus_factors:
         euler_phi = q**e - q**(e-1)
@@ -47,18 +49,20 @@ def dual_generating_set(modulus_factors, primes):
     return dual_gens
 
 
-# input type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'
-# output type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'
-def lll_wrapper(B):
-    #print "in LLL"
-    res = B.LLL()
-    return res
+# input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
+# input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
+def hermite_form(B):
+    #print "in HERMITE FORM"
+    den = B.denominator()
+    int_B = (den*B).change_ring(ZZ)
+    (H, U) = int_B.hermite_form(transformation = True)
+    return (1/den)*H
 
 
-# input type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'
+# input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
 # input type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'
 def primal_basis_from_dual(B):
-    #print "in PRIMAL FROM DUAL"
+    print "in PRIMAL FROM DUAL"
     try:
         return (B * ~(B.T * B)).change_ring(ZZ)
     except Exception as msg:
@@ -77,11 +81,12 @@ def lattice_construction(modulus_factors, primes):
     #time
     dual_gens = dual_generating_set(modulus_factors, primes)
     #time
-    dual_basis = lll_wrapper(dual_gens)
+    dual_basis = hermite_form(dual_gens)
     # Let  n= number of primes, t= number of factors
     # number of generators is n+t but the dimention of the lattice is n
-    # lll outputs zero rows first and we know there will be exactly t of them so:
-    dual_basis = dual_basis.delete_rows(range(len(modulus_factors)))
+    # hermite_form outputs zero rows last and we know there will be exactly t of them so:
+    dual_basis = dual_basis.matrix_from_rows(range(len(primes)))
+    print dual_basis
     # matrix dimention is (n+t) * n
     #time
     primal_basis = primal_basis_from_dual(dual_basis)
