@@ -36,8 +36,8 @@ def discrete_error(primes, modulus, point_t):
         for i in range(n):
             prod_modulo = Zm(prod_modulo * Zm(primes[i]**point_t[i]))
         (numerator, denominator) = rational_number_reconstruction(prod_modulo, modulus)
-        print numerator.factor()
-        print denominator.factor()
+        #print numerator.factor()
+        #print denominator.factor()
         numerator_error = []
         for p in primes:
             e = 0

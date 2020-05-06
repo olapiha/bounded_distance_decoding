@@ -1,6 +1,5 @@
 #!/usr/bin/env sage
 
-import sage.matrix.matrix_integer_dense_hnf as hnf
 
 # As input we are given an interger m and its factorization
 # m = \Pi_{1}^{t} q_{i}^{e_{i}}, q_i its prime factors
@@ -35,12 +34,12 @@ def parity_check_representation((q, e), primes):
 
 
 def compute_log(order, generator, element):
-    print "in LOG"
+    #print "in LOG"
     return discrete_log(element, generator, order)
 
 
 def dual_generating_set(modulus_factors, primes):
-    print "in DUAL GEN SET"
+    #print "in DUAL GEN SET"
     dual_gens = identity_matrix(QQ, len(primes))
     for q, e in modulus_factors:
         euler_phi = q**e - q**(e-1)
@@ -62,7 +61,7 @@ def hermite_form(B):
 # input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
 # input type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'
 def primal_basis_from_dual(B):
-    print "in PRIMAL FROM DUAL"
+    #print "in PRIMAL FROM DUAL"
     try:
         return (B * ~(B.T * B)).change_ring(ZZ)
     except Exception as msg:
@@ -86,7 +85,6 @@ def lattice_construction(modulus_factors, primes):
     # number of generators is n+t but the dimention of the lattice is n
     # hermite_form outputs zero rows last and we know there will be exactly t of them so:
     dual_basis = dual_basis.matrix_from_rows(range(len(primes)))
-    print dual_basis
     # matrix dimention is (n+t) * n
     #time
     primal_basis = primal_basis_from_dual(dual_basis)
