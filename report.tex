@@ -39,26 +39,24 @@
 \maketitle
 
 \section{Generalization of the construction for integers}
-Plan:
-\begin{enumerate}
-    \item (+) How to construct the lattice for non-prime modulus. Definition. (Maybe on why it's a lattice?)
-    \item (+) How does decoding algorithm work:
-    \begin{itemize}
-        \item (+) parity check representation
-        \item (+) lattice as an intersection
-        \item (+) dual basis of the intersection
-        \item (+) getting primal basis from dual
-    \end{itemize}
-    \item (+) How to configure the parameters such that complexity is polynomial
-    \item Argument about loglog n an that having more factors does not give us an advantage
-\end{enumerate}
+In this section we present first generalization of the decoding algorithm presented in [DP19]. In their paper Léo Ducas and Cécile Pierrot use properties of the group $(\ZZ/m\ZZ)^*$ for modulus $m$ which is a prime power. The decoding radius the obtain  depends on the ratio
+\[
+\frac{m}{\phi(m)}
+\]
+The higher the ratio the biggier the radius is. In our generalization we take $m'$ a product of prime powers. If $m$ and $m'$ are of the same size, as $m'$ is smoother $\phi(m')$ will be smaller which gives us a better decoding radius.
+
+In the construction for $m$ prime power authors compute lattice basis directly using the fact that $(\ZZ/m\ZZ)^*$ is cyclic and we can calculate discrete logarithms of its elements.
+
+The novelty of our result is a deterministic efficient algorithm for computation of the basis for any integer $m$. We exploit the stucture of the group $(\ZZ/m\ZZ)^*$ in a new way and compute lattice basis through the beauty of duality.
+
+In this chapter by efficient algorithm we mean an algorithm that runs in polynomial time.
 
 What else should be here in future?
 \begin{enumerate}
-    \item Short description of the initial construction
+    \item Short description of the initial construction ?
     \item Description of the decoding algorithm and its extension
-    \item Why are we interested in the generalization
 \end{enumerate}
+
 
 \subsection{Definition of discrete logarithm lattice }
 \label{definition section}
@@ -203,7 +201,6 @@ And the other way:
 A generating set of the sum of lattices can be obtained by concatenation of their bases, so we obtain our desired result.
 \end{proof}
 
-
 The algorithm takes parity check representations of every lattice $\LL_{j}$ scales them and adds an identity matrix. Output is the concatenation of calculated generating sets.
 
 \subsubsection{Eliminating linear dependencies using elementary martix transformations (\ref{step3})}
@@ -245,25 +242,53 @@ To be polynomial in lattice dimention $a_{i} \leq e_{j}-1$ and $t_{i} \leq q_{j}
 %\end{question}
 %{\bf Why not. }
 
-It is easy to see that step two takes linear time in $n + k$. Step three is LLL algorithm, which is proven to run in polynomial time in $n + k$.
+It is easy to see that step two (\ref{step2}) takes linear time in $n + k$. Step three (\ref{step3}) is LLL algorithm, which is proven to run in polynomial time in $n + k$.
 
-Finally, step four includes matrix multiplication and inversion for matrices which dimention is bounded by $n + k$. They obviously take polynomial time.
+Finally, step four (\ref{step4}) includes matrix multiplication and inversion for matrices which dimention is bounded by $n + k$. They obviously take polynomial time.
 
 We still haven't configured parameters $k, q_{j}, p_{i}$. $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $q_{j}$ to be equal to first $k$ odd prime numbers and $p_{i}$ equal to $2$ and next $n-1$ smallest primes.
-\subsection{Peformance analysis}
+\subsection{Was it all worth it?}
 Decoding algorithm extends naturally to the generalized setting. Let us remind tha nomalized decoding $l_{2}$-radius was equal to
 \[
-    \bar r^{(2)} = \frac{\ln(m/2)}{4 \phi(m)^{1/n} \cdot \ln(B)}
+    \bar r^{(2)} = \frac{\ln(m/2)}{4 \varphi(m)^{1/n} \cdot \sqrt{n} \cdot \ln(B)}
 \]
 where $B$ is a constant bounding all $p_{i}$
-To compare with the initial construction we study how decoding radius changes with growth of $k$.
+As it turns out factorization of $m$ does not affect the decoding radius substantially. It can only introduce a minor improvement. We prove that with a following lemma:
 
 \begin{lemma}
-
+Assume the primes $p_{1}, ..., p_{n}$ are the same for both lattices. If $a \cdot m \sim b \cdot m' \sim n$, when $n \rightarrow \infty$ Then
+\[
+    \frac{\bar r_{m}^{(2)}}{\bar r_{m'}^{(2)}} \rightarrow 1, n \rightarrow \infty
+\]
 \end{lemma}
 \begin{proof}
-
+Since the primes are the same, they are also bounded by the same constant $B$ so the term $\frac{1}{4 \sqrt{n} \cdot \ln(B)}$ cancels out in the numerator and denominator.
+\[
+\begin{split}
+\frac{\bar r_{m}^{(2)}}{\bar r_{m'}^{(2)}}
+& = \frac{\ln(m/2) \cdot \varphi(m')^{1/n}}{\ln(m'/2) \cdot \varphi(m)^{1/n}} \\
+& = \frac{\ln(n/2a) \cdot \varphi(m')^{1/n}}{\ln(n/2b) \cdot \varphi(m)^{1/n}} \\
+& = \frac{\varphi(m')^{1/n}}{\varphi(m)^{1/n}}
+\end{split}
+\]
+We apply a few classic results to estimate the growth of $\varphi(n)$ \cite{[HW09]}:
+\[
+    \limsup\limits_{n \rightarrow \infty} \frac{\varphi(n)}{n} = 1
+\]
+\[
+    \liminf\limits_{n \rightarrow \infty} \frac{\varphi(n) \cdot \ln\ln(n)}{n} = e^{-\gamma}
+\]
+where $\gamma$ is the Euler constant, $e^{-\gamma} = 0.56145948...$
+\[
+\begin{split}
+\lim_{n \rightarrow \infty} \frac{\varphi(m')^{1/n}}{\varphi(m)^{1/n}}
+& \leq \frac{\limsup\limits_{n \rightarrow \infty} \varphi(m')^{1/n}}{\liminf\limits_{n \rightarrow\infty}\varphi(m)^{1/n}} \\
+& = \lim_{n \rightarrow \infty} \bigg(\frac{m \cdot \ln\ln (m')}{m'}\bigg)^{1/n} \\
+& = \lim_{n \rightarrow \infty} (\ln\ln(n))^{1/n} = 1
+\end{split}
+\]
 \end{proof}
+
 
 \bibliography{report}
 \bibliographystyle{ieeetr}
