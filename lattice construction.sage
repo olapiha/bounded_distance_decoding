@@ -50,12 +50,27 @@ def dual_generating_set(modulus_factors, primes):
 
 # input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
 # input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
-def hermite_form(B):
+def hermite_form(B, indep_length):
     #print "in HERMITE FORM"
     den = B.denominator()
     int_B = (den*B).change_ring(ZZ)
     (H, U) = int_B.hermite_form(transformation = True)
-    return (1/den)*H
+    basis = (1/den)*H
+    # Let  n= number of primes, t= number of factors
+    # number of generators is n+t but the dimention of the lattice is n
+    # hermite_form outputs zero rows last and we know there will be exactly t of them so:
+    basis = basis.matrix_from_rows(range(indep_length))
+    return basis
+
+
+def lll_wrap(B, indep_length):
+    basis = B.LLL()
+    rows_number = len(B.rows())
+    # Let  n= number of primes, t= number of factors
+    # number of generators is n+t but the dimention of the lattice is n
+    # hermite_form outputs zero rows first and we know there will be exactly t of them so:
+    basis = basis.matrix_from_rows(range(rows_number - indep_length, rows_number))
+    return basis
 
 
 # input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
@@ -80,21 +95,17 @@ def lattice_construction(modulus_factors, primes):
     #time
     dual_gens = dual_generating_set(modulus_factors, primes)
     #time
-    dual_basis = hermite_form(dual_gens)
-    # Let  n= number of primes, t= number of factors
-    # number of generators is n+t but the dimention of the lattice is n
-    # hermite_form outputs zero rows last and we know there will be exactly t of them so:
-    dual_basis = dual_basis.matrix_from_rows(range(len(primes)))
+    #dual_basis = hermite_form(dual_gens, len(primes))
+    dual_basis = lll_wrap(dual_gens, len(primes))
+    print dual_basis
     # matrix dimention is (n+t) * n
     #time
     primal_basis = primal_basis_from_dual(dual_basis)
-
     #determinant check
     phi_of_modulus = 1
     for (q, n) in modulus_factors:
         phi_of_modulus *= q**n - q**(n-1)
     #print abs(det(primal_basis)) == phi_of_modulus
-
     # In all test runs the result was an integer matrix,
     # no function threw an exception
 

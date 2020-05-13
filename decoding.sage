@@ -87,6 +87,7 @@ def test_decoding(n, t, B):
     return (discrete_error(primes, modulus, point_t), noise)
 
 
-result = test_decoding(5, 3, 3)
+
+result = test_decoding(5, 3, 2)
 print result[0]
 print result[1]
