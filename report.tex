@@ -38,16 +38,18 @@
 
 \maketitle
 
+{\bf LEO: Replaced all $...$ by $\dots$}
+
 \section{Generalization of the construction for integers}
-In this section we present first generalization of the decoding algorithm presented in \cite{[DP19]}. In their paper Léo Ducas and Cécile Pierrot use properties of the group $(\ZZ/m\ZZ)^*$ for modulus $m$ which is a prime power. The decoding radius the obtain  depends on the ratio
+In this section we present first generalization of the decoding algorithm presented in \cite{[DP19]}. In their paper Léo Ducas and Cécile Pierrot use properties of the group $(\ZZ/m\ZZ)^*$ for modulus $m$ which is a prime power. The decoding radius achievable in polynomial-time depends on the ratio
 \[
 \frac{m}{\phi(m)}
 \]
-The higher the ratio the biggier the radius is. In our generalization we take $m'$ a product of prime powers. If $m$ and $m'$ are of the same size, as $m'$ is smoother $\phi(m')$ will be smaller which gives us a better decoding radius.
+The higher the ratio the \toimprove{biggier} the \added{achievable decoding} radius is. In our generalization we take $m'$ an \added{arbitrary} product of prime powers. If $m$ and $m'$ are of the same size, as $m'$ is smoother $\phi(m')$ will be smaller which gives us a better decoding radius.
 
 In the construction for $m$ prime power authors compute lattice basis directly using the fact that $(\ZZ/m\ZZ)^*$ is cyclic and we can calculate discrete logarithms of its elements.
 
-The novelty of our result is a deterministic efficient algorithm for computation of the basis for any integer $m$. We exploit the stucture of the group $(\ZZ/m\ZZ)^*$ in a new way and compute lattice basis through the beauty of duality.
+The \toimprove{novelty} of our result is a deterministic efficient algorithm for computation of the basis for any integer $m$. We \toimprove{exploit} the structure of the group $(\ZZ/m\ZZ)^*$ in a \toimprove{new} way and compute lattice basis through the beauty of duality. {\bf LEO : It is more that we have to {\em deal} with a more complicated structure, than that we {\em exploit} those complication. Also, keep words such as "new" and "novel" for more significant contributions. Smart researcher doing good work do not need to overstate their contributions.}
 
 In this chapter by efficient algorithm we mean an algorithm that runs in polynomial time.
 
@@ -64,33 +66,33 @@ In this chapter we take $m = \prod_{i=1}^{k} q_{j}^{e_{j}}$ where $\{q_{j}\}$ ar
 \[
     (\ZZ/m\ZZ)^* \sim \prod_{j=1}^{k}(\ZZ/q_{j}^{e_{j}}\ZZ)^*
 \]
-For every prime $q_{j} > 2$ and every $e_{j} \geq 1$ the group $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ is known to be cyclic. So now, we can consider discrete logarithms in every component of the product to find a lattice basis.
+For every prime $q_{j} > 2$ and every $e_{j} \geq 1$ the group $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ is known to be cyclic. So now, we can consider discrete logarithms in every component of the product to \toimprove{find a lattice basis}.\footnote{Not clear yet what is the lattice you are talking about. Maybe you can swap this paragraph with the definition that follows. When done, you can then say "the lattice $\LL$" rather than just "the lattice".}
 
-Similarly to the initial construction we take numbers $n$ and $B$ such that we can find $n$ primes $p_{1}, ... , p_{n}$ different from every $q_{j}$ and bounded by $B$. We consider a group morphism:
+Similarly to the initial construction we take numbers $n$ and $B$ such that we can find $n$ primes $p_{1}, \dots , p_{n}$ different from every $q_{j}$ and bounded by $B$. We consider a group morphism:
 \[
     \psi : \ZZ^{n} \rightarrow (\ZZ/m\ZZ)^*
 \]
 \[
-    (x_{1}, ..., x_{n}) \mapsto \prod_{i=1}^{n}p_{i}^{x_{i}} \pmod{m}\footnote{Since  $p_{1}, ... , p_{n}$ are relatively prime with $m$ for every element of $\ZZ^{n}$ its image is indeed a part of $ (\ZZ/m\ZZ)^*$.}
+    (x_{1}, \dots, x_{n}) \mapsto \prod_{i=1}^{n}p_{i}^{x_{i}} \pmod{m}\footnote{Since  $p_{1}, \dots , p_{n}$ are relatively prime with $m$ for every element of $\ZZ^{n}$ its image is indeed a part of $ (\ZZ/m\ZZ)^*$.}
 \]
 
 
 The kernel of $\psi$ is a subgroup of $\ZZ^{n}$ so it is a lattice. We will call it discrete logarithm lattice from now on.
 \[
-    \LL \coloneqq \ker \psi = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
+    \LL \coloneqq \ker \psi = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
 \]
 Appying the CRT gives us the following equivalence
 \[
-    \LL = \ker \psi = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{q_{j}^{e_{j}}}\}
+    \LL = \ker \psi = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{q_{j}^{e_{j}}}\}
 \]
 Or going even further, suppose we know for every $j$ a generator ${\beta_{j}}$ of  $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$. Using the morphism between cyclic group and group of exponents we get another representation:
 \[
-    \LL = \{(x_{1}, ..., x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
+    \LL = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
 \]
 This is almost a parity check representation of $\LL$ except we have many parity check type conditions at the same time. Therefore, $\LL$ is an intersection of lattices $\LL_{j}$ where each of them is defined as
 \[
 \label{parity check}
-    \LL_{j} \coloneqq \{(x_{1}, ..., x_{n}) \in \ZZ^{n} | \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
+    \LL_{j} \coloneqq \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
 \]
 
 \subsection{Computing lattice basis}
@@ -105,7 +107,7 @@ Linear maps can be represented as inner poduct with a fixed vector. So equivalen
 \]
 
 \begin{definition}
-    For a basis $B = (b_{1}, ..., b_{n}) \in \mathbb{R}^{m \times n}$, define the dual basis $D = (d_{1}, ..., d_{n}) \in \mathbb{R}^{m \times n}$ as the unique basis that satisfies
+    For a basis $B = (b_{1}, \dots, b_{n}) \in \mathbb{R}^{m \times n}$, define the dual basis $D = (d_{1}, \dots, d_{n}) \in \mathbb{R}^{m \times n}$ as the unique basis that satisfies
     \begin{itemize}
         \item $\Span(D) = \Span(B)$
         \item $B^{T}D = I$
@@ -124,9 +126,9 @@ If B is an invertible square matrix $(B^{T})^{-1}$ satisfies the definition. In 
 We will describe each of them in more details
 
 \subsubsection{Parity check representation (\ref{step1})}
-We have discussed this representation a lot in the previous section \ref{definition section}.
+We have discussed this representation \toimprove{a lot} in the previous section \ref{definition section}.
 \[
-    \LL_{j} \coloneqq \{(x_{1}, ..., x_{n}) \in \ZZ^{n} | \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
+    \LL_{j} \coloneqq \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\phi(q_{j}^{e_{j}})}\}
 \]
 To compute it we calculate many discrete logarithms if finite groups. As you probably know it is a hard problem for a general case of which no polynomial algorithm is known. We will discuss how to compute them efficiently later in this document.
 
@@ -146,16 +148,16 @@ This space $\LL_{1} + \LL_{2}$ can be generated by concatenation of bases of $\L
     Supose $\LL = \bigcap_{j=1}^{k} \LL_{j} \neq \{0\}$ and $\LL^{*}$, $\LL_{j}^{*}$ are duals of the respective lattices. Then $\LL^{*} = \sum_{j=1}^{k} \LL_{j}^{*}$
 \end{lemma}
 \begin{proof}
-    Let us start from the end. Take lattices $\LL_{1}, ..., \LL_{n}$ what is the dual of their sum.
+    Let us start from the end. Take lattices $\LL_{1}, \dots, \LL_{n}$ what is the dual of their sum.
     \footnote{We can take all $x_{i}$ equal to 0 but 1 of them}
 \[
 \begin{split}
-(\sum_{j=1}^{n}\LL_j)^{*} & = \{y \in \ZZ^{n} | \forall x_{1} \in \LL_1, ..., \forall x_{n} \in \LL_n: \langle y, \sum_{j=1}^{n} x_{j} \rangle \in \ZZ \} \\
+(\sum_{j=1}^{n}\LL_j)^{*} & = \{y \in \ZZ^{n} | \forall x_{1} \in \LL_1, \dots, \forall x_{n} \in \LL_n: \langle y, \sum_{j=1}^{n} x_{j} \rangle \in \ZZ \} \\
 & = \{y \in \ZZ^{n} | \forall 1 \leq j \leq n, \forall x_{j} \in \LL_j: \langle y,  x_{j} \rangle \in \ZZ \}
 \end{split}
 \]
 
-So $y$ must be an element of every $\LL_{j}^{*}$. Therefore, $(\sum_{j=1}^{n}\LL_j)^{*} = \bigcap_{j=1}^{k} \LL_{j}^{*}$. Applying this assertion to lattices $\LL_{1}^{*}, ..., \LL_{n}^{*}$ we have
+So $y$ must be an element of every $\LL_{j}^{*}$. Therefore, $(\sum_{j=1}^{n}\LL_j)^{*} = \bigcap_{j=1}^{k} \LL_{j}^{*}$. Applying this assertion to lattices $\LL_{1}^{*}, \dots, \LL_{n}^{*}$ we have
 \[
 (\sum_{j=1}^{n}\LL_j^{*})^{*} = \bigcap_{j=1}^{k} \LL_{j} = \LL
 \]
@@ -205,7 +207,7 @@ The algorithm takes parity check representations of every lattice $\LL_{j}$ scal
 
 \subsubsection{Eliminating linear dependencies using elementary martix transformations (\ref{step3})}
 
-Now we have obtained a generating set of the dual lattice but we would like to have its basis. We need to remove linear dependencies such that resulting set is still generating the lattice. Lattice bases can only differ by a unimodular matrix. We can use an algorithm for reducing the matrix to its Hermite normal form. It is an equivalent of row echelon form for matrices over $\ZZ$ where we are only allowed transformations by unimodular matrices. The input matrix can have rational coefficients so we first transform them into integers multiplying by least common multiple of all denominators.
+Now we have obtained a generating set of the dual lattice but we would like to have its basis. We need to remove linear dependencies such that resulting set is still generating the lattice. \toimprove{Lattice bases can only differ by a unimodular matrix. We can use an algorithm for reducing the matrix to its Hermite normal form. It is an equivalent of row echelon form for matrices over $\ZZ$ where we are only allowed transformations by unimodular matrices}. The input matrix can have rational coefficients so we first transform them into integers multiplying by least common multiple of all denominators.
 
 Unfortunately, this approach soon becomes inefficient. As lattice dimention grows entries of the intermediate integer matrix
 
@@ -224,12 +226,12 @@ To control the size of the basis we can use LLL algorithm instead.
 
 %\textcolor{red}{ToDo}: Make a Figure with LLL
 
-%In the size reduction step we approximate the last vector $b_{n}$ by an integer linear combination of $(b_{1}, ..., b_{n-1})$ and then substitute $b_{n}$ with the error of the approximation. $b_{n}$ is assumed be outside of $\Span(b_{1}, ..., b_{n-1})$ so the procedure minimises its projection on it. This way the basis becomes "almost" orthogonal. What happens if $b_{n} \in \Span(b_{1}, ..., b_{n-1})$? The projection of the error on the span is proved to lie in the fundumental domain
+%In the size reduction step we approximate the last vector $b_{n}$ by an integer linear combination of $(b_{1}, \dots, b_{n-1})$ and then substitute $b_{n}$ with the error of the approximation. $b_{n}$ is assumed be outside of $\Span(b_{1}, \dots, b_{n-1})$ so the procedure minimises its projection on it. This way the basis becomes "almost" orthogonal. What happens if $b_{n} \in \Span(b_{1}, \dots, b_{n-1})$? The projection of the error on the span is proved to lie in the fundumental domain
 
-%$P_{sym} = \{ \sum_{i = 1}^{n-1}\alpha_{i}\tilde{b}_{i}| \forall i: \alpha_{i} \in [-\frac{1}{2}, \frac{1}{2})\}$, where $\tilde{b}_{i}$ stands for Gram-Shmidt orthogonalized basis. Since $b_{n}$ belongs to the lattice $\LL = \LL(b_{1}, ..., b_{n-1})$
+%$P_{sym} = \{ \sum_{i = 1}^{n-1}\alpha_{i}\tilde{b}_{i}| \forall i: \alpha_{i} \in [-\frac{1}{2}, \frac{1}{2})\}$, where $\tilde{b}_{i}$ stands for Gram-Shmidt orthogonalized basis. Since $b_{n}$ belongs to the lattice $\LL = \LL(b_{1}, \dots, b_{n-1})$
 %this error is equal to zero. So if the dimention of the lattice is $m \leq n$ the output will contain $n-m$ zero vectors in the end.
 
-%{\bf  The main issue with this section is that: you do not give context ! What is the problem we are trying to solve here ? Well: computing the the basis of a sum of lattices, given bases of each of those lattices. I certainly know that myself, but other people can't read your mind...}
+%{\bf  The main issue with this section is that: you do not give context ! What is the problem we are trying to solve here ? Well: computing the the basis of a sum of lattices, given bases of each of those lattices. I certainly know that myself, but other people can't read your mind\dots}
 
 \subsubsection{Primal basis from dual basis (\ref{step4})}
 
@@ -263,7 +265,7 @@ where $B$ is a constant bounding all $p_{i}$
 As it turns out factorization of $m$ does not affect the decoding radius substantially. It can only introduce a minor improvement. We prove that with a following lemma:
 
 \begin{lemma}
-Assume the primes $p_{1}, ..., p_{n}$ are the same for both lattices. If $a \cdot m \sim b \cdot m' \sim n$, when $n \rightarrow \infty$ Then
+Assume the primes $p_{1}, \dots, p_{n}$ are the same for both lattices. If $a \cdot m \sim b \cdot m' \sim n$, when $n \rightarrow \infty$ Then
 \[
     \frac{\bar r_{m}^{(2)}}{\bar r_{m'}^{(2)}} \rightarrow 1, n \rightarrow \infty
 \]
@@ -285,7 +287,7 @@ We apply a few classic results to estimate the growth of $\varphi(n)$ \cite{[HW0
 \[
     \liminf\limits_{n \rightarrow \infty} \frac{\varphi(n) \cdot \ln\ln(n)}{n} = e^{-\gamma}
 \]
-where $\gamma$ is the Euler constant, $e^{-\gamma} = 0.56145948...$
+where $\gamma$ is the Euler constant, $e^{-\gamma} = 0.56145948\dots$
 \[
 \begin{split}
 \lim_{n \rightarrow \infty} \frac{\varphi(m')^{1/n}}{\varphi(m)^{1/n}}
