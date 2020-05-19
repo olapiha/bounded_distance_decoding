@@ -18,7 +18,7 @@
 
 
 
-\title{Thoughts :)}
+\title{Thoughts about polynomial case}
 \author{ Sasha }
 
 
@@ -27,39 +27,40 @@
 
 \maketitle
 
-\section{Lattice construction for product of fields}
+\section{Lattice computation for polynomials}
 Let us set parameters a prime power $q$ and integers $k$, $d$ and $n$. Let $\FF_{q}[x]$ be polynomial ring over a field  $\FF_{q}$. We take a set of $k$ irreducible polynomials $c_{j}(x) \in \FF_{q}[x]$, $j =1, ...,k$ of degree $d$. According to the analogue of the prime number theorem for polynomials $k$ must not be greater than $\frac{q^d}{d}$.
 
 Define $c(x) \coloneqq \prod_{j = 1}^{k} c_{j}(x)$. We are going to work in the multiplicative group of the quotient ring of  $\FF_{q}[x]$ with respect to $c(x)$.
 Chinese Remainder Theorem helps to determine the structure of $\big(\FF_{q}[x]/c(x)\big)^{*}$:
-\begin{equation}
-    \big(\FF_{q}[x]/c(x)\big)^{*} \sim \prod_{i=1}^{k}\FF_{q^{d}}^*
-\end{equation}
+\[
+    \big(\FF_{q}[x]/c(x)\big)^{*} \sim \prod_{i=1}^{k}\big(\FF_{q}[x]/c_{i}(x)\big)^{*} \sim \prod_{i=1}^{k}\FF_{q^{d}}^*
+\]
 Multiplicative group of a field is cyclic, therefore, we can consider discrete logarithms in every component of the product to find a lattice basis.
 
 Consider a vector $a = (\alpha_{1}, ... , \alpha_{n}) \in \FF_{q}^{n}$ where $\alpha_{i}$s are pairwise different. Since polynomials $c_{j}(\cdot)$ are irreducible over $\FF_{q}$ neither of $\alpha_{i}$ can be their root. So for all $\alpha_{i}$ we also have: $c(\alpha_{i}) \neq 0$.
 
 Now consider a group morphism:
-\begin{equation}
+\[
     \psi : \zz^{n} \rightarrow \big(\FF_{q}[x]/c(x)\big)^{*}
-\end{equation}
-\begin{equation}
+\]
+\[
     (u_{1}, ..., u_{n}) \mapsto \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \pmod{c(x)}
-\end{equation}
+\]
 
 Lattice is defined as the kernel of the morphism:
-\begin{equation}
+\[
     \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \zz^{n} | \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c(x)}\}
-\end{equation}
+\]
 Appying CRT gives us the following equivalence
-\begin{equation}
+\[
     \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \zz^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c_{j}(x)}\}
-\end{equation}
-Or going even further suppose we know $\beta$ a generator of  $\FF_{q^{d}}^*$. Then using the isomorphism between cyclic group $\FF_{q^{d}}^*$ of order $q^{d} - 1$ and group of exponents we get another representation:
-\begin{equation}
-    \LL = \{(u_{1}, ..., u_{n}) \in \zz^{n} | \sum_{i=1}^{n}u_{i}log_{\beta}(x - \alpha_{i}) \equiv 0 \pmod{\phi(q^{d}-1)}\}
-\end{equation}
+\]
+Supposing we know $\beta_{j}$ a generator of $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ for every $j$ we get another representation:
+\[
+    \LL = \{(u_{1}, ..., u_{n}) \in \zz^{n} | \forall 1 \leq j \leq k: \sum_{i=1}^{n}u_{i}log_{\beta_{j}}(x - \alpha_{i}) \equiv 0 \pmod{\phi(q^{d} -1)}\}
+\]
 This is a parity check representation of $\LL$.
+To calculate a basis of $\LL$ we can follow simplified version of the algorithm for integers. We obtain dual basis by scaling parity check matrix and concatenating it with $I_{n}$. Then we remove linear dependencies and finally we obtain primal basis from the dual.
 
 \section{Building blocks}
 \subsection{Factorization by trial division}
@@ -126,28 +127,31 @@ $\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{c_j(x)}$. The o
 
 \subsection{Only positive discrete error}
 Suppose we receive $t = u + e$ where $u \in \mathcal{L}$, $\|e\|_1 \leq r_1$ and $\forall i: e_i \in \mathbb{N}$. Then we can compute
-\begin{equation}
+\[
 \prod_{i = 1}^{n}(x - \alpha_i)^{t_i} = \prod_{i = 1}^{n}(x - \alpha_i)^{u_i}\prod_{i = 1}^{n}(x - \alpha_i)^{e_i} \pmod{c(x)}
-\end{equation}
+\]
 If $\|e\|_1 = \sum_{i =1}^{n} e_i \leq deg(c) = d_0t$ the operation above will give us exactly the polynomial $\prod_{i = 1}^{n}(x - \alpha_i)^{e_i}$. Then we can recover $e_i$, $1 \leq i \leq n$ from the factorization.\\
 So $r_1 = d_0t$.
 \subsection{Arbitrary discrete error}
 Now we have $\forall i: e_i \in \mathbb{Z}$. Then
-\begin{equation}
+\[
 \prod_{i = 1}^{n}(x - \alpha_i)^{t_i} \pmod{c(x)} = \prod_{i = 1}^{n}(x - \alpha_i)^{e_i} = \frac{\prod_{i \in I}(x - \alpha_i)^{e_i}}{\prod_{j \in J}(x - \alpha_j)^{-e_j}}
-\end{equation}
+\]
 \begin{lemma}
 Given $g,c$ where $deg(c) = d_0t$ we can recover $n, d \in \mathbb{F}[x]$ that $deg(n) \leq \floor{\frac{d_0t}{2}}$, $deg(d) \leq \floor{\frac{d_0t}{2}}$ and $\frac{n}{d} = g \pmod{c}$ in polynomial time.
 \end{lemma}
 So we can decode every message for which $\|e\|_1 = \sum_{i =1}^{n} |e_i| \leq \floor{\frac{d_0t}{2}}$
 
 \subsection{Continuous error and $l_2$ norm}
-Directly follows from DP19. $r_2 = \frac{\floor{\frac{d_0t}{2}}}{\sqrt{n} det(\mathcal{L})^{1/n}}$ where $det(\mathcal{L}) = \Phi(c(x)) = (q^{d_0} - 1)^{t}$.
-\begin{equation}
+Directly follows from \cite{[DP19]}. $r_2 = \frac{\floor{\frac{d_0t}{2}}}{\sqrt{n} det(\mathcal{L})^{1/n}}$ where $det(\mathcal{L}) = \Phi(c(x)) = (q^{d_0} - 1)^{t}$.
+\[
 r_2 = \frac{\floor{\frac{d_0t}{2}}}{\sqrt{n} (q^{d_0} - 1)^{t/n}}
-\end{equation}
+\]
 \begin{question}
 What should be the values of $d_0$ and $t$? It must be $\sqrt{n} < d_0t < n^{1+\epsilon}$(otherwise the tends to 0). If $d_0t = n$ it is very close to Minkowski's bound. It looks too good to be true?
 \end{question}
 {\bf LEO: I am a bit lost: there are several constraints on the parameters, and you need to instantiate them all verifying all the constraints to conclude. At the moment you've chosen $d_0t$ but not $d_0$ and $t$ themselves so I am unsure you can conclude...}
+
+\bibliographystyle{ieeetr}
+\bibliography{main}
 \end{document}
