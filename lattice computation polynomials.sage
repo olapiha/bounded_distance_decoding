@@ -16,15 +16,17 @@
 # 2.Compute logs of x - \alpha_i with respect to it using any algorithm
 # 3.output the list of log_{\beta_j}(x - \alpha_i) j = 1, ..., n
 
-
-def parity_check_representation(field_params, modulus, alphas):
+#HERE I HAVE A PROBLEM BECAUSE TRYING TO ADD ELEMENTS OF DIFFERENT FIELDS
+#NEED TO PASS THE FIEL AS AN ARGUMENT !
+def parity_check_representation(field_order, modulus, alphas):
     #print "in PARITY CHECK"
-    f = GF(field_params[0]**field_params[1], 'x', modulus = modulus)
+    d = list(factor(field_order))[0][1]
+    f.<x> = GF(field_order, modulus = modulus)
     #The way we constructed it x is a generator
-
     logs = []
-    for p in primes:
-        log = compute_log(order, gen, p)
+    for alpha in alphas:
+        log = compute_log(field_order-1, x, x - alpha)
+        log =0
         logs.append(log)
     return vector(logs)
 
@@ -34,13 +36,12 @@ def compute_log(order, generator, element):
     return discrete_log(element, generator, order)
 
 
-def dual_generating_set(modulus_factors, primes):
+def dual_generating_set(field_order, modulai, alphas):
     #print "in DUAL GEN SET"
-    dual_gens = identity_matrix(QQ, len(primes))
-    for q, e in modulus_factors:
-        euler_phi = q**e - q**(e-1)
-        dual_gens = dual_gens.stack(parity_check_representation((q, e), primes)
-                                    / euler_phi)
+    dual_gens = identity_matrix(QQ, len(alphas))
+    for modulus in modulai:
+        dual_gens = dual_gens.stack(parity_check_representation(field_order, modulus, alphas)
+                                    /field_order-1 )
     return dual_gens
 
 
@@ -78,29 +79,36 @@ def primal_basis_from_dual(B):
     except Exception as msg:
         print "exception: ", msg
 
+#Don't forget: q should be prime or prime power!
+def test_lattice_construction(q, d, n, k):
+    field_order = q^d
+    F = GF(field_order)
+    Fx.<x> = GF(field_order)[]
+    modulai = Set([])
+    while True:
+        modulai += Set([Fx.irreducible_element(d, algorithm = "random")])
+        if modulai.cardinality() == k: break
+    alphas = Set([])
+    while True:
+        alphas = alphas + Set([F.random_element()])
+        if alphas.cardinality() == n: break
+    return lattice_construction(field_order, list(modulai), list(alphas))
 
-def test_lattice_construction(n, t):
-    primes = primes_first_n(n+t)
-    modulus_factors = primes[1:t+1]
-    primes = [2] + primes[t+1:]
-    modulus_factors = [(q, n) for q in modulus_factors]
-    return (modulus_factors, primes, lattice_construction(modulus_factors, primes))
 
-
-def lattice_construction(modulus_factors, primes):
+def lattice_construction(field_order, modulai, alphas):
     #time
-    dual_gens = dual_generating_set(modulus_factors, primes)
+    dual_gens = dual_generating_set(field_order, modulai, alphas)
     #time
-    #dual_basis = hermite_form(dual_gens, len(primes))
-    dual_basis = lll_wrap(dual_gens, len(primes))
+    #dual_basis = hermite_form(dual_gens, len(alphas))
+    dual_basis = lll_wrap(dual_gens, len(alphas))
     print dual_basis
     # matrix dimention is (n+t) * n
     #time
     primal_basis = primal_basis_from_dual(dual_basis)
     #determinant check
-    phi_of_modulus = 1
-    for (q, n) in modulus_factors:
-        phi_of_modulus *= q**n - q**(n-1)
+    #phi_of_modulus = 1
+    #for (q, n) in modulus_factors:
+    #    phi_of_modulus *= q**n - q**(n-1)
     #print abs(det(primal_basis)) == phi_of_modulus
     # In all test runs the result was an integer matrix,
     # no function threw an exception
@@ -109,4 +117,4 @@ def lattice_construction(modulus_factors, primes):
     return primal_basis.T
 
 
-#print test_lattice_construction(18, 4)
+print test_lattice_construction(3, 5, 10, 3)
