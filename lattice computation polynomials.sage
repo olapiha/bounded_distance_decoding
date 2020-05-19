@@ -1,31 +1,27 @@
 #!/usr/bin/env sage
 
 
-# As input we are given an interger m and its factorization
-# m = \Pi_{1}^{t} q_{i}^{e_{i}}, q_i its prime factors
-# We are also given a set of p_{i} 1 \leq i \leq n ->
-# prime numbers that don't divide m and bounded by some constant B
+# As input we are given
 
-# Target lattice L a is an intersection of
-# L_i = ((x_1, ..., x_n) \in Z | \sum_{1}^{n} x_j * log_{\beta_i}(p_j) = 0 \pmod(\phi(q_{i}^{e_i})))
-# The following function takes as input q_{i}^{e_i} and
-# produces the representation of L_i stated above
-# More specifically it gives a list of log_{\beta_i}(p_j) j = 1, ..., n
+# Target lattice
+#L = {(u_{1}, ..., u_{n}) \in \zz^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c_{j}(x)}}
+
+
+# The following function takes as input c_{j}(x) and a list of \alpha_{i} and
+# produces the representation of L stated above
+# More specifically it gives a list of log_{\beta_j}(x- \alpha_{i}) j = 1, ..., n
 
 # The algorithm proceeds as follows:
-# 1.Find a generator of multiplicative groups Z / q_{i}^{e_i}}Z
-# 2.Compute logs of p_j with respect to it using PH & Pollard-rho algorithms
-# 3.output the list of log_{\beta_i}(p_j) j = 1, ..., n
+# 1.Find a generator of multiplicative groups (F_q[x] / c_j(x))*
+# 2.Compute logs of x - \alpha_i with respect to it using any algorithm
+# 3.output the list of log_{\beta_j}(x - \alpha_i) j = 1, ..., n
 
 
-def parity_check_representation((q, e), primes):
+def parity_check_representation(field_params, modulus, alphas):
     #print "in PARITY CHECK"
-    order = q**e - q**(e-1)
-    q = q**e
-    Zq = Zmod(q)
-    multiplicative_group = Zq.unit_group()
-    # I checked on few examples the group is actually cyclic
-    gen = multiplicative_group.gens_values()[0]
+    f = GF(field_params[0]**field_params[1], 'x', modulus = modulus)
+    #The way we constructed it x is a generator
+
     logs = []
     for p in primes:
         log = compute_log(order, gen, p)
