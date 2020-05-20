@@ -18,15 +18,14 @@
 
 #HERE I HAVE A PROBLEM BECAUSE TRYING TO ADD ELEMENTS OF DIFFERENT FIELDS
 #NEED TO PASS THE FIEL AS AN ARGUMENT !
-def parity_check_representation(field_order, modulus, alphas):
+def parity_check_representation(field_order, modulus, alphas, Fx):
     #print "in PARITY CHECK"
-    d = list(factor(field_order))[0][1]
-    f.<x> = GF(field_order, modulus = modulus)
-    #The way we constructed it x is a generator
+    I = modulus * Fx
+    Fx_quotient = Fx.quotient_by_principal_ideal(I)
+    generator = Fx_quotient.gen()
     logs = []
     for alpha in alphas:
-        log = compute_log(field_order-1, x, x - alpha)
-        log =0
+        log = compute_log(field_order - 1, generator, generator - alpha)
         logs.append(log)
     return vector(logs)
 
@@ -36,11 +35,11 @@ def compute_log(order, generator, element):
     return discrete_log(element, generator, order)
 
 
-def dual_generating_set(field_order, modulai, alphas):
+def dual_generating_set(field_order, modulai, alphas, Fx):
     #print "in DUAL GEN SET"
     dual_gens = identity_matrix(QQ, len(alphas))
     for modulus in modulai:
-        dual_gens = dual_gens.stack(parity_check_representation(field_order, modulus, alphas)
+        dual_gens = dual_gens.stack(parity_check_representation(field_order, modulus, alphas, Fx)
                                     /field_order-1 )
     return dual_gens
 
@@ -83,7 +82,7 @@ def primal_basis_from_dual(B):
 def test_lattice_construction(q, d, n, k):
     field_order = q^d
     F = GF(field_order)
-    Fx.<x> = GF(field_order)[]
+    Fx = PolynomialRing(F, 'x')
     modulai = Set([])
     while True:
         modulai += Set([Fx.irreducible_element(d, algorithm = "random")])
@@ -92,12 +91,12 @@ def test_lattice_construction(q, d, n, k):
     while True:
         alphas = alphas + Set([F.random_element()])
         if alphas.cardinality() == n: break
-    return lattice_construction(field_order, list(modulai), list(alphas))
+    return lattice_construction(field_order, list(modulai), list(alphas), Fx)
 
 
-def lattice_construction(field_order, modulai, alphas):
+def lattice_construction(field_order, modulai, alphas, Fx):
     #time
-    dual_gens = dual_generating_set(field_order, modulai, alphas)
+    dual_gens = dual_generating_set(field_order, modulai, alphas, Fx)
     #time
     #dual_basis = hermite_form(dual_gens, len(alphas))
     dual_basis = lll_wrap(dual_gens, len(alphas))
