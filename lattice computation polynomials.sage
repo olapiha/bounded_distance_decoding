@@ -16,16 +16,18 @@
 # 2.Compute logs of x - \alpha_i with respect to it using any algorithm
 # 3.output the list of log_{\beta_j}(x - \alpha_i) j = 1, ..., n
 
-#HERE I HAVE A PROBLEM BECAUSE TRYING TO ADD ELEMENTS OF DIFFERENT FIELDS
-#NEED TO PASS THE FIEL AS AN ARGUMENT !
+
 def parity_check_representation(field_order, modulus, alphas, Fx):
     #print "in PARITY CHECK"
     I = modulus * Fx
     Fx_quotient = Fx.quotient_by_principal_ideal(I)
     generator = Fx_quotient.gen()
+    from_L, to_L, L = Fx_quotient._isomorphic_ring()
+    gen_in_L = to_L(generator)
     logs = []
     for alpha in alphas:
-        log = compute_log(field_order - 1, generator, generator - alpha)
+        element_in_L = to_L(generator - alpha)
+        log = discrete_log(element_in_L,  gen_in_L, L.order())
         logs.append(log)
     return vector(logs)
 
@@ -78,10 +80,10 @@ def primal_basis_from_dual(B):
     except Exception as msg:
         print "exception: ", msg
 
-#Don't forget: q should be prime or prime power!
+#Don't forget: q should be prime or prime power! n< q
 def test_lattice_construction(q, d, n, k):
-    field_order = q^d
-    F = GF(field_order)
+    field_order = q
+    F = GF(field_order, 'y')
     Fx = PolynomialRing(F, 'x')
     modulai = Set([])
     while True:
@@ -116,4 +118,4 @@ def lattice_construction(field_order, modulai, alphas, Fx):
     return primal_basis.T
 
 
-print test_lattice_construction(3, 5, 10, 3)
+print test_lattice_construction(3^5, 4, 5, 6)
