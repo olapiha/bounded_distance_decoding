@@ -7,7 +7,7 @@
 
 \newcommand{\floor}[1]{\lfloor #1 \rfloor}
 \newcommand{\FF}{\mathbb{F}}
-\newcommand{\zz}{\mathbb{Z}}
+\newcommand{\ZZ}{\mathbb{Z}}
 \newcommand{\LL}{\mathcal{L}}
 
 \newtheorem{question}{Question}
@@ -41,7 +41,7 @@ Consider a vector $a = (\alpha_{1}, ... , \alpha_{n}) \in \FF_{q}^{n}$ where $\a
 
 Now consider a group morphism:
 \[
-    \psi : \zz^{n} \rightarrow \big(\FF_{q}[x]/c(x)\big)^{*}
+    \psi : \ZZ^{n} \rightarrow \big(\FF_{q}[x]/c(x)\big)^{*}
 \]
 \[
     (u_{1}, ..., u_{n}) \mapsto \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \pmod{c(x)}
@@ -49,18 +49,20 @@ Now consider a group morphism:
 
 Lattice is defined as the kernel of the morphism:
 \[
-    \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \zz^{n} | \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c(x)}\}
+    \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c(x)}\}
 \]
 Appying CRT gives us the following equivalence
 \[
-    \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \zz^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c_{j}(x)}\}
+    \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c_{j}(x)}\}
 \]
 Supposing we know $\beta_{j}$ a generator of $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ for every $j$ we get another representation:
 \[
-    \LL = \{(u_{1}, ..., u_{n}) \in \zz^{n} | \forall 1 \leq j \leq k: \sum_{i=1}^{n}u_{i}log_{\beta_{j}}(x - \alpha_{i}) \equiv 0 \pmod{\phi(q^{d} -1)}\}
+    \LL = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} | \forall 1 \leq j \leq k: \sum_{i=1}^{n}u_{i}log_{\beta_{j}}(x - \alpha_{i}) \equiv 0 \pmod{q^{d} -1}\}
 \]
-This is a parity check representation of $\LL$.
-To calculate a basis of $\LL$ we can follow simplified version of the algorithm for integers. We obtain dual basis by scaling parity check matrix and concatenating it with $I_{n}$. Then we remove linear dependencies and finally we obtain primal basis from the dual.
+What might be confusing is that each $\log_{\beta_{j}}$ has a different input domain. For every $j$:  $\log_{\beta_{j}}$ acts from $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ into $(\ZZ/(q^{d} - 1)\ZZ)$.
+
+We obtained a parity check representation of $\LL$.
+To calculate a basis of $\LL$ we can follow simplified version of the algorithm for integers. We obtain dual basis by scaling parity check matrix and concatenating it with $I_{n}$. Then we remove linear dependencies and finally obtain primal basis from the dual.
 
 \section{Building blocks}
 \subsection{Factorization by trial division}

@@ -146,4 +146,4 @@ def lattice_construction(field_order, modulai, alphas, Fx):
     return primal_basis.T
 
 
-print test_lattice_construction(3 ^ 5, 2, 10, 6)
+print test_lattice_construction(3 ^ 10, 2, 50, 6)
