@@ -4,6 +4,7 @@
 \usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{mathtools}
+\usepackage{xcolor}
 
 \newcommand{\floor}[1]{\lfloor #1 \rfloor}
 \newcommand{\FF}{\mathbb{F}}
@@ -115,15 +116,9 @@ Check if we can actually use FEEA.
 In the paper they also give an algorithm for the case where the bounds for degrees are not set in advance, but it works only with high probability(should I look into it in more detail?)
 \end{remark}
 \subsection{Computing logs}
-\begin{question}
-In LLXY17 what do they mean when using the same generator $\beta$ for every $c_j(x)$? In reality we would need to find $t$ generators one for every "coordinate"?
-\end{question}
-{\bf LEO: Hum, maybe most elements of $F_q[X]/(c_j(X))$ are generators, in which case it is possible that a single $\beta \in F_q[X]$ of small degree is a generator of each of them ?}
 
 To construct the lattice we need to compute the following:
-$\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{c_j(x)}$. The order of multiplicative group is $q^{d_0} - 1$ which might not be a smooth integer so we cannot use Pohlig-Hellman+Pollard pho. Maybe we can just take small parameters $q, d_0$: $q=constant$ and $d_0 = \theta(\sqrt n)$? If not we would need to use some smart DL algorithm that runs in quasi-polynomial time...
-
-{\bf LEO: I guess all you need is $q^{d_0} = n^{O(1)}$ ($poly(n)$), for example $d_0 = constant$ and $q=n^{O(1)}$ does works, so does $q=constant$ and $d_0 = O(\log n)$.}
+$\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$. The order of multiplicative group is $q^{d} - 1$ which might not be a smooth integer so we cannot use Pohlig-Hellman+Pollard pho. We can choose $q^{d} = n^{O(1)}$ ($poly(n)$) so group order is overall small(e.g. $d = constant$ and $q=n^{O(1)}$ does work, so does $q=constant$ and $d = O(\log n)$).
 
 \section{Decoding radius}
 
@@ -132,27 +127,29 @@ Suppose we receive $t = u + e$ where $u \in \mathcal{L}$, $\|e\|_1 \leq r_1$ and
 \[
 \prod_{i = 1}^{n}(x - \alpha_i)^{t_i} = \prod_{i = 1}^{n}(x - \alpha_i)^{u_i}\prod_{i = 1}^{n}(x - \alpha_i)^{e_i} \pmod{c(x)}
 \]
-If $\|e\|_1 = \sum_{i =1}^{n} e_i \leq deg(c) = d_0t$ the operation above will give us exactly the polynomial $\prod_{i = 1}^{n}(x - \alpha_i)^{e_i}$. Then we can recover $e_i$, $1 \leq i \leq n$ from the factorization.\\
-So $r_1 = d_0t$.
+If $\|e\|_1 = \sum_{i =1}^{n} e_i \leq deg(c) = d \cdot k$ the operation above will give us exactly the polynomial $\prod_{i = 1}^{n}(x - \alpha_i)^{e_i}$. Then we can recover $e_i$, $1 \leq i \leq n$ from the factorization.\\
+So $r_1 = d \cdot k$.
 \subsection{Arbitrary discrete error}
 Now we have $\forall i: e_i \in \mathbb{Z}$. Then
 \[
 \prod_{i = 1}^{n}(x - \alpha_i)^{t_i} \pmod{c(x)} = \prod_{i = 1}^{n}(x - \alpha_i)^{e_i} = \frac{\prod_{i \in I}(x - \alpha_i)^{e_i}}{\prod_{j \in J}(x - \alpha_j)^{-e_j}}
 \]
 \begin{lemma}
-Given $g,c$ where $deg(c) = d_0t$ we can recover $n, d \in \mathbb{F}[x]$ that $deg(n) \leq \floor{\frac{d_0t}{2}}$, $deg(d) \leq \floor{\frac{d_0t}{2}}$ and $\frac{n}{d} = g \pmod{c}$ in polynomial time.
+Given $g,c$ where $deg(c) = d \cdot k$ we can recover $f_{1}, f_{2} \in \mathbb{F}[x]$ that  $\forall i = 1;2$: $deg(f_{i}) \leq \floor{\frac{dk}{2}}$ and $\frac{f_{1}}{f_{2}} = g \pmod{c}$ in polynomial time.
 \end{lemma}
-So we can decode every message for which $\|e\|_1 = \sum_{i =1}^{n} |e_i| \leq \floor{\frac{d_0t}{2}}$
+So we can decode every message for which $\|e\|_1 = \sum_{i =1}^{n} |e_i| \leq \floor{\frac{dk}{2}}$
 
-\subsection{Continuous error and $l_2$ norm}
-Directly follows from \cite{[DP19]}. $r_2 = \frac{\floor{\frac{d_0t}{2}}}{\sqrt{n} det(\mathcal{L})^{1/n}}$ where $det(\mathcal{L}) = \Phi(c(x)) = (q^{d_0} - 1)^{t}$.
+\subsection{Normalized radius}
+Directly follows from \cite{[DP19]}. $\bar{r}_1 = \frac{dk}{det(\mathcal{L})^{1/n}}$ where $det(\mathcal{L}) = \Phi(c(x)) = (q^{d} - 1)^{k}$.
 \[
-r_2 = \frac{\floor{\frac{d_0t}{2}}}{\sqrt{n} (q^{d_0} - 1)^{t/n}}
+\bar{r}_1 = \frac{dk}{(q^{d} - 1)^{k/n}}
 \]
-\begin{question}
-What should be the values of $d_0$ and $t$? It must be $\sqrt{n} < d_0t < n^{1+\epsilon}$(otherwise the tends to 0). If $d_0t = n$ it is very close to Minkowski's bound. It looks too good to be true?
-\end{question}
-{\bf LEO: I am a bit lost: there are several constraints on the parameters, and you need to instantiate them all verifying all the constraints to conclude. At the moment you've chosen $d_0t$ but not $d_0$ and $t$ themselves so I am unsure you can conclude...}
+What should be the values of $d$ and $k$?
+
+We have the following constraints: $q^d = O(n)$, $dk < q^{d}$, $n \leq q$. \\ \\ \\
+So does this work: $k = \frac{n}{\log(n)}$, $d = \log(n)$, $q = const $ which gives a radius $\bar{r}_1 \sim \frac{n}{(q^{\log(n)}-1)^{\frac{n}{n \log(n)}}} \sim \frac{n}{q}$
+
+
 
 \bibliographystyle{ieeetr}
 \bibliography{main}
