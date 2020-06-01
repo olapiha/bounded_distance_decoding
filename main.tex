@@ -5,6 +5,7 @@
 \usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{xcolor}
+\usepackage{hyperref}
 
 \newcommand{\floor}[1]{\lfloor #1 \rfloor}
 \newcommand{\FF}{\mathbb{F}}
@@ -19,7 +20,7 @@
 
 
 
-\title{Thoughts about polynomial case}
+\title{Comparing Families of Lattices for efficient Bounded Distance Decoding near Minkowski’s Bound(Part 2)}
 \author{ Sasha }
 
 
@@ -73,7 +74,7 @@ There's only $n$ possible roots, one trial division takes $O(m)$ time and the nu
 
 
 \subsection{Rational function reconstruction}
-I found here: http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf and then here: http://www.cecm.sfu.ca/~mmonagan/papers/fastRFR.pdf
+I found \href{http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf}{here} and then \href{http://www.cecm.sfu.ca/~mmonagan/papers/fastRFR.pdf}{here}
 an algorithm which they call Wang's algorithm for rational function reconstruction.\\
 Goal: Given $g,f$ find $n, d \in \mathbb{F}[x]$ that $deg(n) \leq N$, $deg(d) \leq D$, $N + D < deg(f)$ and $\frac{n}{d} = g \pmod{f}$\\
 Algorithm:(function $lc()$ outputs the leading coefficient)
@@ -96,7 +97,7 @@ Suppose $r_i, s_i, t_i$ for $0 \leq i \leq l + 1$ be the elements of the ith ite
 Then there exists a nonzero element $\alpha \in \mathbb{F}[x]$ such that $r = \alpha r_j$, $s = \alpha s_j$, $t = \alpha t_j$, where $deg(r_j) \leq deg(r) < deg(r_{j-1})$
 \end{lemma}
 \begin{proof}
-http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf \\(Lemma 3.2 page 35)
+\href{http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf}{(Lemma 3.2 page 35)}
 \end{proof}
 
 So if the solution exists it must be one of the pairs $(r_i, t_i)$ of the EEA.
@@ -146,10 +147,12 @@ Directly follows from \cite{[DP19]}. $\bar{r}_1 = \frac{dk}{det(\mathcal{L})^{1/
 \]
 What should be the values of $d$ and $k$?
 
-We have the following constraints: $q^d = O(n)$, $dk < q^{d}$, $n \leq q$. \\ \\ \\
+We have the following constraints: $q^d = n^{O(1)}$, $dk < q^{d}$, $n \leq q$. \\ \\ \\
 So does this work: $k = \frac{n}{\log(n)}$, $d = \log(n)$, $q = const $ which gives a radius $\bar{r}_1 \sim \frac{n}{(q^{\log(n)}-1)^{\frac{n}{n \log(n)}}} \sim \frac{n}{q}$
 
+NOPE IT DOES NOT :( (q = const and n < q)
 
+Another thing: d must be constant.
 
 \bibliographystyle{ieeetr}
 \bibliography{main}
