@@ -95,9 +95,8 @@ def lattice_construction(modulus_factors, primes):
     #time
     dual_gens = dual_generating_set(modulus_factors, primes)
     #time
-    #dual_basis = hermite_form(dual_gens, len(primes))
-    dual_basis = lll_wrap(dual_gens, len(primes))
-    print dual_basis
+    dual_basis = hermite_form(dual_gens, len(primes))
+    #dual_basis = lll_wrap(dual_gens, len(primes))
     # matrix dimention is (n+t) * n
     #time
     primal_basis = primal_basis_from_dual(dual_basis)
@@ -113,4 +112,4 @@ def lattice_construction(modulus_factors, primes):
     return primal_basis.T
 
 
-#print test_lattice_construction(18, 4)
+#print test_lattice_construction(10, 4)

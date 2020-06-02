@@ -61,7 +61,7 @@ We want an algorithm where the decoding radius is close to $\frac{\lambda_{1}(\L
         \lambda_{1}(\LL) \leq \sqrt{n} \det(\LL)^{1/n}
     \]
 \end{theorem}
-\textbf{Some name of the subsection.} 
+\textbf{Some name of the subsection.}
 
 
 
@@ -233,31 +233,13 @@ The algorithm takes parity check representations of every lattice $\LL_{j}$ scal
 
 \subsubsection{Eliminating linear dependencies using elementary martix transformations (\ref{step3})}
 
-Now we have obtained a generating set of the dual lattice but we would like to have its basis. We need to remove linear dependencies such that resulting set is still generating the lattice. \toimprove{Lattice bases can only differ by a unimodular matrix. We can use an algorithm for reducing the matrix to its Hermite normal form. It is an equivalent of row echelon form for matrices over $\ZZ$ where we are only allowed transformations by unimodular matrices}. The input matrix can have rational coefficients so we first transform them into integers multiplying by least common multiple of all denominators.
+Now we have obtained a generating set of the dual lattice but we would like to have its basis. The idea is to transform the matrix to its row echelon form so the resulting set has some zero vectors which we will discard and the basis of the lattice.
 
-Unfortunately, this approach soon becomes inefficient. As lattice dimention grows entries of the intermediate integer matrix
+Out of all elementary matrix transformations we are only allowed adding to a row an integer mulpitle of another row, interchanging two rows, multiplying a row by -1. These three possibilities are called unimodular transformations. As you may have noticed the only restriction is that we can't mutiply a row by an integer different from $\pm 1$. This would result in a sublattice of $\LL$ with a higher determinant.
 
-\begin{question}
-    Is it actualy true: don't fit into long integer type of SageMath
-\end{question}
+We use an algorithm for reducing the matrix to its Hermite normal form. It is an equivalent of row echelon form for matrices over $\ZZ$ with a restriction to unimodular transformations. Our input matrix can have rational coefficients so we first transform them into integers multiplying by the least common multiple of all denominators. We divide by it when matrix is in the Hermite form.
 
-To control the size of the basis we can use LLL algorithm instead.
-
-
-\textcolor{red}{ToDo}: Add a bit more details but not too much.
-
-
-
-%The LLL algorithm was originally designed for lattice reduction. It takes as input lattice basis and outputs a relatively short one. It operates as follows:
-
-%\textcolor{red}{ToDo}: Make a Figure with LLL
-
-%In the size reduction step we approximate the last vector $b_{n}$ by an integer linear combination of $(b_{1}, \dots, b_{n-1})$ and then substitute $b_{n}$ with the error of the approximation. $b_{n}$ is assumed be outside of $\Span(b_{1}, \dots, b_{n-1})$ so the procedure minimises its projection on it. This way the basis becomes "almost" orthogonal. What happens if $b_{n} \in \Span(b_{1}, \dots, b_{n-1})$? The projection of the error on the span is proved to lie in the fundumental domain
-
-%$P_{sym} = \{ \sum_{i = 1}^{n-1}\alpha_{i}\tilde{b}_{i}| \forall i: \alpha_{i} \in [-\frac{1}{2}, \frac{1}{2})\}$, where $\tilde{b}_{i}$ stands for Gram-Shmidt orthogonalized basis. Since $b_{n}$ belongs to the lattice $\LL = \LL(b_{1}, \dots, b_{n-1})$
-%this error is equal to zero. So if the dimention of the lattice is $m \leq n$ the output will contain $n-m$ zero vectors in the end.
-
-%{\bf  The main issue with this section is that: you do not give context ! What is the problem we are trying to solve here ? Well: computing the the basis of a sum of lattices, given bases of each of those lattices. I certainly know that myself, but other people can't read your mind\dots}
+Resulting vectors are going to be quite long. If we want to control the size of the basis we can use LLL algorithm instead. This change will for example make our encoded messages shorter and easier to decode.
 
 \subsubsection{Primal basis from dual basis (\ref{step4})}
 

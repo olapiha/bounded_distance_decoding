@@ -34,7 +34,7 @@ def discrete_error(primes, modulus, point_t):
         n = len(primes)
         Zm = Zmod(modulus)
         for i in range(n):
-            prod_modulo = Zm(prod_modulo * Zm(primes[i]**point_t[i]))
+            prod_modulo = Zm(prod_modulo * Zm(primes[i])**point_t[i])
         (numerator, denominator) = rational_number_reconstruction(prod_modulo, modulus)
         #print numerator.factor()
         #print denominator.factor()
@@ -88,6 +88,6 @@ def test_decoding(n, t, B):
 
 
 
-result = test_decoding(5, 3, 2)
+result = test_decoding(12, 3, 2)
 print result[0]
 print result[1]
