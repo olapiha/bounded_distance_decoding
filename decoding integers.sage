@@ -16,7 +16,7 @@ def positive_discrete_error(primes, modulus, point_t):
     n = len(primes)
     Zm = Zmod(modulus)
     for i in range(n):
-        prod_modulo = Zm(prod_modulo * Zm(primes[i]**point_t[i]))
+        prod_modulo = Zm(prod_modulo * Zm(primes[i])**point_t[i])
     error = []
     for p in primes:
         e = 0
@@ -46,7 +46,7 @@ def discrete_error(primes, modulus, point_t):
                 numerator = numerator // p
                 e += 1
             numerator_error.append(e)
-        numeator_error = vector(numerator_error)
+        numerator_error = vector(numerator_error)
         denominator_error = []
         for p in primes:
             e = 0
@@ -56,7 +56,7 @@ def discrete_error(primes, modulus, point_t):
                 e += 1
             denominator_error.append(e)
         denominator_error = vector(denominator_error)
-        overall_error = numeator_error - denominator_error
+        overall_error = numerator_error - denominator_error
         return overall_error
 
 
@@ -78,16 +78,16 @@ def test_decoding(n, t, B):
     coordinates = vector(np.random.randint(0, 10, n))
     lattice_point = basis * coordinates
 
-    # generate integer noise of l_2 norm <= B
+    # generate integer noise of l_1 norm <= B
     while True:
         noise = vector(np.random.randint(-B, B+1, n))
-        if (noise.norm() <= B): break
+        if (noise.norm(1) <= B): break
     print "norm of the noise: ", noise.norm()
     point_t = lattice_point + noise
     return (discrete_error(primes, modulus, point_t), noise)
 
 
 
-result = test_decoding(12, 3, 2)
+result = test_decoding(5, 3, 2)
 print result[0]
 print result[1]

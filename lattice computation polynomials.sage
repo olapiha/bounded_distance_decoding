@@ -128,7 +128,7 @@ def test_lattice_construction(q, d, n, k):
         alphas = alphas + Set([F.random_element()])
         if alphas.cardinality() == n:
             break
-    return lattice_construction(field_order, list(modulai), list(alphas), Fx)
+    return (alphas, modulai, Fx, lattice_construction(field_order, list(modulai), list(alphas), Fx))
 
 
 def lattice_construction(field_order, modulai, alphas, Fx):
@@ -146,4 +146,4 @@ def lattice_construction(field_order, modulai, alphas, Fx):
     return primal_basis.T
 
 
-print test_lattice_construction(3 ^ 10, 2, 50, 6)
+#print test_lattice_construction(3 ^ 10, 2, 50, 6)
