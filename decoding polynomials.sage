@@ -1,6 +1,5 @@
 #!/usr/bin/env sage
 import numpy as np
-from sage.modules.free_module_integer import IntegerLattice
 
 # As input we are given a lattice basis,
 # prime numbers and modulus m used to construct it
@@ -11,31 +10,21 @@ from sage.modules.free_module_integer import IntegerLattice
 # To achieve it we use algebraic sturucture of the lattice
 
 
-#ToDo NEED TO FIND A WAY TO WORK WITH POLYNOMIALS MODULO C 
-
 def positive_discrete_error(alphas, modulus, Fx, point_t):
-    print "in POSITIVE_DISCRETE_ERROR"
     n = len(alphas)
-    #Fxmod = Fx.quotient(modulus)
-    prod_modulo = Fx(1)
-    #gen = Fxmod(x)
-    gen = Fx(x)
-    print "making primes"
+    Fxmod = Fx.quotient(modulus)
+    prod_modulo = Fxmod(1)
+    gen = Fxmod(x)
     primes = [gen - alpha for alpha in alphas]
     for i in range(n):
-        print "in first for loop"
-        prime_power = Fx(1)
-        for j in range(point_t[i]):
-            print prime_power * modulus.quo_rem(primes[i])[1]
-            print modulus.quo_rem(prime_power * modulus.quo_rem(primes[i])[1])
-            prime_power = modulus.quo_rem(prime_power * modulus.quo_rem(primes[i])[1])[1]
-        prod_modulo = modulus.quo_rem(prod_modulo * prime_power)[1]
-    print "starting factorization"
+        prod_modulo = Fxmod(prod_modulo * Fxmod(primes[i])**point_t[i])
     error = []
-    for p in primes:
+    prod_modulo = lift(prod_modulo)
+    print prod_modulo.roots()
+    for alpha in alphas:
         e = 0
-        while prod_modulo.quo_rem(p)[1] == 0:
-            prod_modulo = prod_modulo.quo_rem(p)[0]
+        while prod_modulo(alpha) == 0:
+            prod_modulo = prod_modulo.quo_rem(lift(gen-alpha))[0]
             e += 1
         error.append(e)
     error = vector(error)
@@ -50,22 +39,21 @@ def discrete_error(alphas, modulus, Fx, point_t):
     primes = [gen - alpha for alpha in alphas]
     for i in range(n):
         prod_modulo = Fxmod(prod_modulo * Fxmod(primes[i])**point_t[i])
+    prod_modulo = lift(prod_modulo)
     (numerator, denominator) = rational_function_reconstruction(prod_modulo, modulus, Fx)
-    #print numerator.factor()
-    #print denominator.factor()
     num_error = []
-    for p in primes:
+    for alpha in alphas:
         e = 0
-        while prod_modulo.quo_rem(p)[1] == 0:
-            prod_modulo = prod_modulo.quo_rem(p)[0]
+        while prod_modulo(alpha) == 0:
+            prod_modulo = prod_modulo.quo_rem(gen-alpha)[0]
             e += 1
         num_error.append(e)
     num_error = vector(num_error)
     den_error = []
-    for p in primes:
+    for alpha in alphas:
         e = 0
-        while prod_modulo.quo_rem(p)[1] == 0:
-            prod_modulo = prod_modulo.quo_rem(p)[0]
+        while prod_modulo(alpha) == 0:
+            prod_modulo = prod_modulo.quo_rem(gen-alpha)[0]
             e += 1
         den_error.append(e)
     den_error = vector(den_error)
@@ -90,23 +78,6 @@ def rational_function_reconstruction(g, f, Fx):
     return (r0, t0)
 
 
-def find_generator(ring):
-    #print "in FIND_GENERATOR"
-    while True:
-        candidate = ring.random_element()
-        desired_order = ring.order()-1
-        factors = list(factor(desired_order))
-        check = True
-        for (fac, foo) in factors:
-            possible_order = desired_order // fac
-            if candidate**possible_order == 1:
-                check = False
-                break
-        if check:
-            break
-    return candidate
-
-
 # B must be an integer
 def test_decoding(q, d, n, k, B):
     load("lattice computation polynomials.sage")
@@ -129,6 +100,6 @@ def test_decoding(q, d, n, k, B):
 
 
 
-result = test_decoding(3 ^ 5, 2, 10, 6, 2)
+result = test_decoding(3 ^ 7, 2, 7, 6, 1)
 print result[0]
 print result[1]
