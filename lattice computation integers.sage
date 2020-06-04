@@ -69,7 +69,8 @@ def lll_wrap(B, indep_length):
     # Let  n= number of primes, t= number of factors
     # number of generators is n+t but the dimention of the lattice is n
     # hermite_form outputs zero rows first and we know there will be exactly t of them so:
-    basis = basis.matrix_from_rows(range(rows_number - indep_length, rows_number))
+    basis = basis.matrix_from_rows(
+        range(rows_number - indep_length, rows_number))
     return basis
 
 

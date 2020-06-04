@@ -17,14 +17,18 @@
 # 3.output the list of log_{\beta_j}(x - \alpha_i) j = 1, ..., n
 
 
-def parity_check_representation(field_order, modulus, alphas, Fx):
+def parity_check_representation(field_order, modulus, alphas):
     #print "in PARITY CHECK"
+    #print generator
+    F.<y> = GF(field_order)
+    Fx.<x> = PolynomialRing(F)
     I = modulus * Fx
     Fx_quotient = Fx.quotient(I)
+    xbar = Fx_quotient(x)
     generator = find_generator(Fx_quotient)
     logs = []
     for alpha in alphas:
-        element = generator - alpha
+        element = xbar - alpha
         log = discrete_log(element,  generator, Fx_quotient.order()-1)
         logs.append(log)
     return vector(logs)
@@ -34,13 +38,10 @@ def find_order(element):
     piv = element ^ 2
     order = 2
     while True:
-        if piv == element:
-            print("ORDER", order)
-            break
+        if piv == element: break
         piv = piv * element
         order += 1
-    return order
-
+    return order-1
 
 def find_generator(ring):
     #print "in FIND_GENERATOR"
@@ -59,18 +60,16 @@ def find_generator(ring):
     return candidate
 
 
-def dual_generating_set(field_order, modulai, alphas, Fx):
+def dual_generating_set(field_order, modulai, alphas):
     #print "in DUAL GEN SET"
     d = modulai[0].degree()
     dual_gens = identity_matrix(QQ, len(alphas))
     for modulus in modulai:
         dual_gens = dual_gens.stack(parity_check_representation(
-            field_order, modulus, alphas, Fx) / (field_order ^ d-1))
+            field_order, modulus, alphas) / (field_order^d - 1))
     return dual_gens
 
 
-# input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
-# input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
 def hermite_form(B, indep_length):
     #print "in HERMITE FORM"
     den = B.denominator()
@@ -112,12 +111,17 @@ def primal_basis_from_dual(B):
 # d degree of polynomials
 # n dimention of the lattice
 # k number of irreducible c_j(x)
+def check_parameters(q, d, n, k):
+    assert len(q.factor()) == 1
+    assert n < q
+    assert k < q^d /d
 
 
 def test_lattice_construction(q, d, n, k):
+    check_parameters(q, d, n, k)
     field_order = q
-    F = GF(field_order, 'y')
-    Fx = PolynomialRing(F, 'x')
+    F.<y> = GF(field_order)
+    Fx.<x> = PolynomialRing(F)
     modulai = Set([])
     while True:
         modulai += Set([Fx.irreducible_element(d, algorithm="random")])
@@ -128,11 +132,15 @@ def test_lattice_construction(q, d, n, k):
         alphas = alphas + Set([F.random_element()])
         if alphas.cardinality() == n:
             break
-    return (alphas, modulai, Fx, lattice_construction(field_order, list(modulai), list(alphas), Fx))
+    alphas_not_working = set([y^3 + y + 2, y^3 + 2*y, 2*y^4 + 2*y^3 + y^2 + 2*y + 2, 2*y^4 + y^2 + 1, y^2 + y + 2, 2*y^4 + y^3 + 2*y^2, 2*y^4 + 2*y^3 + 2*y^2 + 2*y, 2*y^4 + y^3 + 2*y^2 + y + 1, 2*y^2 + 2*y + 1, y^3 + 2*y^2 + 2])
+    modulai_not_working = set([x^2 + (y^2 + 1)*x + 2*y^3 + y^2 + y, x^2 + (y^3 + 2*y^2 + 2*y + 2)*x + 2*y^3 + 1, x^2 + (2*y^4 + 2*y^3 + 1)*x + y^4 + y^3 + 2*y^2 + 2*y + 2, x^2 + (2*y^4 + y^2 + 2)*x + 2*y^3 + y^2 + y + 1, x^2 + (2*y^3 + y^2 + 2*y + 1)*x + 2*y^4 + y^3 + 2*y, x^2 + (y^4 + 2*y^3 + 2*y^2 + 2*y)*x + 2*y^2 + y + 1])
+    alphnw = set([2*y^3 + y^2 + 2, 2*y^4, 1, y^3 + y^2 + 2*y + 2, 2*y^4 + 2*y^3 + 2*y^2, 2*y^4 + y^2 + 1, 2*y^4 + 2*y^3 + 2*y^2 + 2, 2*y^3 + 1, y^4 + 2*y^3 + y, y^4 + y^2 + y + 2])
+    modnw = set([x^2 + (2*y^4 + y^3)*x + 2*y^3 + 2*y^2 + 1, x^2 + (2*y^3 + 2*y^2 + 2*y)*x + y^4 + 2*y^3 + 2*y^2 + y + 1, x^2 + (y^3 + 2*y^2 + 2*y + 2)*x + y^3 + y^2 + 1, x^2 + (y^4 + 2*y^3 + y^2 + 2*y + 2)*x + 2*y^4 + 2*y^3 + y^2 + 2*y, x^2 + (2*y^3 + y)*x + 2*y^3 + y^2 + 2*y + 2, x^2 + (y^4 + y + 2)*x + 2*y^3 + 2*y^2 + 2*y + 2])
+    return  (alphas, modulai, lattice_construction(field_order, list(modnw), list(alphnw)))
 
 
-def lattice_construction(field_order, modulai, alphas, Fx):
-    dual_gens = dual_generating_set(field_order, modulai, alphas, Fx)
+def lattice_construction(field_order, modulai, alphas):
+    dual_gens = dual_generating_set(field_order, modulai, alphas)
     #dual_basis = hermite_form(dual_gens, len(alphas))
     dual_basis = lll_wrap(dual_gens, len(alphas))
     # matrix dimention is (n+t) * n
@@ -141,9 +149,10 @@ def lattice_construction(field_order, modulai, alphas, Fx):
     supposed_determinant = (field_order ^ (
         modulai[0].degree()) - 1) ^ len(modulai)
     print "determinant check:"
-    print abs(det(primal_basis)) == supposed_determinant
+    print abs(det(primal_basis))
+    print supposed_determinant
     # rows are basis vectors here!! That's why .T
     return primal_basis.T
 
 
-#print test_lattice_construction(3 ^ 10, 2, 50, 6)
+print test_lattice_construction(3 ^ 5, 2, 10, 6)
