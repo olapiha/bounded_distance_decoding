@@ -20,7 +20,6 @@ def positive_discrete_error(alphas, modulus, Fx, point_t):
         prod_modulo = Fxmod(prod_modulo * Fxmod(primes[i])**point_t[i])
     error = []
     prod_modulo = lift(prod_modulo)
-    print prod_modulo.roots()
     for alpha in alphas:
         e = 0
         while prod_modulo(alpha) == 0:
@@ -81,7 +80,9 @@ def rational_function_reconstruction(g, f, Fx):
 # B must be an integer
 def test_decoding(q, d, n, k, B):
     load("lattice computation polynomials.sage")
-    (alphas, modulai, Fx, basis) = test_lattice_construction(q, d, n, k)
+    (alphas, modulai, basis) = test_lattice_construction(q, d, n, k)
+    F.<y> = GF(q)
+    Fx.<x> = PolynomialRing(F)
     modulus = Fx(1)
     for c in modulai:
         modulus *= c
@@ -99,7 +100,7 @@ def test_decoding(q, d, n, k, B):
     return (positive_discrete_error(alphas, modulus, Fx, point_t), noise)
 
 
-
-result = test_decoding(3 ^ 7, 2, 7, 6, 1)
-print result[0]
-print result[1]
+for i in range(100):
+    result = test_decoding(3 ^ 7, 2, 7, 6, 2)
+    print result[0] == result[1]
+    

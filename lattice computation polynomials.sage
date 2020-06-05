@@ -1,5 +1,5 @@
 #!/usr/bin/env sage
-
+import numpy as np
 
 # As input we are given
 
@@ -24,11 +24,10 @@ def parity_check_representation(field_order, modulus, alphas):
     Fx.<x> = PolynomialRing(F)
     I = modulus * Fx
     Fx_quotient = Fx.quotient(I)
-    xbar = Fx_quotient(x)
     generator = find_generator(Fx_quotient)
     logs = []
     for alpha in alphas:
-        element = xbar - alpha
+        element = x - alpha
         log = discrete_log(element,  generator, Fx_quotient.order()-1)
         logs.append(log)
     return vector(logs)
@@ -42,6 +41,7 @@ def find_order(element):
         piv = piv * element
         order += 1
     return order-1
+
 
 def find_generator(ring):
     #print "in FIND_GENERATOR"
@@ -104,6 +104,7 @@ def primal_basis_from_dual(B):
     except Exception as msg:
         print "exception: ", msg
 
+
 # Don't forget: q should be prime or prime power!
 # n < q
 # k < q^d / d
@@ -132,11 +133,12 @@ def test_lattice_construction(q, d, n, k):
         alphas = alphas + Set([F.random_element()])
         if alphas.cardinality() == n:
             break
-    alphas_not_working = set([y^3 + y + 2, y^3 + 2*y, 2*y^4 + 2*y^3 + y^2 + 2*y + 2, 2*y^4 + y^2 + 1, y^2 + y + 2, 2*y^4 + y^3 + 2*y^2, 2*y^4 + 2*y^3 + 2*y^2 + 2*y, 2*y^4 + y^3 + 2*y^2 + y + 1, 2*y^2 + 2*y + 1, y^3 + 2*y^2 + 2])
-    modulai_not_working = set([x^2 + (y^2 + 1)*x + 2*y^3 + y^2 + y, x^2 + (y^3 + 2*y^2 + 2*y + 2)*x + 2*y^3 + 1, x^2 + (2*y^4 + 2*y^3 + 1)*x + y^4 + y^3 + 2*y^2 + 2*y + 2, x^2 + (2*y^4 + y^2 + 2)*x + 2*y^3 + y^2 + y + 1, x^2 + (2*y^3 + y^2 + 2*y + 1)*x + 2*y^4 + y^3 + 2*y, x^2 + (y^4 + 2*y^3 + 2*y^2 + 2*y)*x + 2*y^2 + y + 1])
-    alphnw = set([2*y^3 + y^2 + 2, 2*y^4, 1, y^3 + y^2 + 2*y + 2, 2*y^4 + 2*y^3 + 2*y^2, 2*y^4 + y^2 + 1, 2*y^4 + 2*y^3 + 2*y^2 + 2, 2*y^3 + 1, y^4 + 2*y^3 + y, y^4 + y^2 + y + 2])
-    modnw = set([x^2 + (2*y^4 + y^3)*x + 2*y^3 + 2*y^2 + 1, x^2 + (2*y^3 + 2*y^2 + 2*y)*x + y^4 + 2*y^3 + 2*y^2 + y + 1, x^2 + (y^3 + 2*y^2 + 2*y + 2)*x + y^3 + y^2 + 1, x^2 + (y^4 + 2*y^3 + y^2 + 2*y + 2)*x + 2*y^4 + 2*y^3 + y^2 + 2*y, x^2 + (2*y^3 + y)*x + 2*y^3 + y^2 + 2*y + 2, x^2 + (y^4 + y + 2)*x + 2*y^3 + 2*y^2 + 2*y + 2])
-    return  (alphas, modulai, lattice_construction(field_order, list(modnw), list(alphnw)))
+    basis = lattice_construction(field_order, list(modulai), list(alphas))
+    for i in range(1):
+        if test_basis(basis, field_order, alphas, modulai):
+            pass
+        else: print "not in"
+    return (alphas, modulai, basis)
 
 
 def lattice_construction(field_order, modulai, alphas):
@@ -149,10 +151,55 @@ def lattice_construction(field_order, modulai, alphas):
     supposed_determinant = (field_order ^ (
         modulai[0].degree()) - 1) ^ len(modulai)
     print "determinant check:"
-    print abs(det(primal_basis))
-    print supposed_determinant
+    print abs(primal_basis.det()) <= supposed_determinant
     # rows are basis vectors here!! That's why .T
     return primal_basis.T
 
 
-print test_lattice_construction(3 ^ 5, 2, 10, 6)
+def is_in_the_lattice(point, field_order, primes, modulus):
+    dimention = len(primes)
+    prod = 1
+    F.<y> = GF(field_order)
+    Fx.<x> = PolynomialRing(F)
+    I = modulus * Fx
+    Fx_quotient = Fx.quotient(I)
+    for i in range(dimention):
+        prod = prod * (Fx_quotient(primes[i])**point[i])
+    return (prod == 1)
+
+
+def test_basis(basis, field_order, alphas, modulai):
+    dimention = len(alphas)
+    modulus = 1
+    for i in modulai:
+        modulus *= i
+    F.<y> = GF(field_order)
+    Fx.<x> = PolynomialRing(F)
+    I = modulus * Fx
+    Fx_quotient = Fx.quotient(I)
+    xbar = Fx_quotient(x)
+    primes = []
+    for i in alphas:
+        primes.append(xbar-i)
+    coordinates = vector(np.random.randint(-10000, 10000, dimention))
+    lattice_point = basis * coordinates
+    return is_in_the_lattice(lattice_point, field_order, primes, modulus)
+
+
+#print test_lattice_construction(7, 2, 3, 2)
+
+
+#test if image of the homomorphism is equal to the cardinality of (F_q[x] / c(x))*
+#    image = Set()
+#    supposed_determinant = (field_order ^ (
+#        modulai[0].degree()) - 1) ^ len(modulai)
+#    while True:
+#        preimage = vector(np.random.randint(-1000000000, 10000000000, dimention))
+#        prod = 1
+#        for i in range(dimention):
+#            prod = prod * (Fx_quotient(primes[i])**preimage[i])
+#            image = image + Set([prod])
+#            print image.cardinality()
+#            if image.cardinality() == supposed_determinant:
+#                print "homomorphism is surjective"
+#                break
