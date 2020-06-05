@@ -19,7 +19,6 @@ import numpy as np
 
 def parity_check_representation(field_order, modulus, alphas):
     #print "in PARITY CHECK"
-    #print generator
     F.<y> = GF(field_order)
     Fx.<x> = PolynomialRing(F)
     I = modulus * Fx
@@ -31,16 +30,6 @@ def parity_check_representation(field_order, modulus, alphas):
         log = discrete_log(element,  generator, Fx_quotient.order()-1)
         logs.append(log)
     return vector(logs)
-
-
-def find_order(element):
-    piv = element ^ 2
-    order = 2
-    while True:
-        if piv == element: break
-        piv = piv * element
-        order += 1
-    return order-1
 
 
 def find_generator(ring):
@@ -95,8 +84,6 @@ def lll_wrap(B, indep_length):
     return basis
 
 
-# input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
-# input type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'
 def primal_basis_from_dual(B):
     #print "in PRIMAL FROM DUAL"
     try:
@@ -134,10 +121,6 @@ def test_lattice_construction(q, d, n, k):
         if alphas.cardinality() == n:
             break
     basis = lattice_construction(field_order, list(modulai), list(alphas))
-    for i in range(1):
-        if test_basis(basis, field_order, alphas, modulai):
-            pass
-        else: print "not in"
     return (alphas, modulai, basis)
 
 
@@ -156,50 +139,4 @@ def lattice_construction(field_order, modulai, alphas):
     return primal_basis.T
 
 
-def is_in_the_lattice(point, field_order, primes, modulus):
-    dimention = len(primes)
-    prod = 1
-    F.<y> = GF(field_order)
-    Fx.<x> = PolynomialRing(F)
-    I = modulus * Fx
-    Fx_quotient = Fx.quotient(I)
-    for i in range(dimention):
-        prod = prod * (Fx_quotient(primes[i])**point[i])
-    return (prod == 1)
-
-
-def test_basis(basis, field_order, alphas, modulai):
-    dimention = len(alphas)
-    modulus = 1
-    for i in modulai:
-        modulus *= i
-    F.<y> = GF(field_order)
-    Fx.<x> = PolynomialRing(F)
-    I = modulus * Fx
-    Fx_quotient = Fx.quotient(I)
-    xbar = Fx_quotient(x)
-    primes = []
-    for i in alphas:
-        primes.append(xbar-i)
-    coordinates = vector(np.random.randint(-10000, 10000, dimention))
-    lattice_point = basis * coordinates
-    return is_in_the_lattice(lattice_point, field_order, primes, modulus)
-
-
 #print test_lattice_construction(7, 2, 3, 2)
-
-
-#test if image of the homomorphism is equal to the cardinality of (F_q[x] / c(x))*
-#    image = Set()
-#    supposed_determinant = (field_order ^ (
-#        modulai[0].degree()) - 1) ^ len(modulai)
-#    while True:
-#        preimage = vector(np.random.randint(-1000000000, 10000000000, dimention))
-#        prod = 1
-#        for i in range(dimention):
-#            prod = prod * (Fx_quotient(primes[i])**preimage[i])
-#            image = image + Set([prod])
-#            print image.cardinality()
-#            if image.cardinality() == supposed_determinant:
-#                print "homomorphism is surjective"
-#                break

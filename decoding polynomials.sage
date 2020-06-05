@@ -63,7 +63,7 @@ def discrete_error(alphas, modulus, Fx, point_t):
 def rational_function_reconstruction(g, f, Fx):
     assert f.degree() > g.degree()
     if g == 0:
-        assert f.degree() > 3 # do I actually need this? Maybe just for coherence
+        assert f.degree() > 3 # for coherence
         return (0,1)
     (r0, r1) = (f, g)
     (t0, t1) = (Fx(0), Fx(1))
@@ -86,11 +86,9 @@ def test_decoding(q, d, n, k, B):
     modulus = Fx(1)
     for c in modulai:
         modulus *= c
-
     # generate coordinates of a lattice point in the basis above
     coordinates = vector(np.random.randint(0, 10, n))
     lattice_point = basis * coordinates
-
     # generate integer noise of l_1 norm <= B
     while True:
         noise = vector(np.random.randint(-B, B+1, n))
@@ -100,7 +98,7 @@ def test_decoding(q, d, n, k, B):
     return (discrete_error(alphas, modulus, Fx, point_t), noise)
 
 
-for i in range(1):
+for i in range(100):
     result = test_decoding(3 ^ 7, 2, 7, 6, 2)
     print result[0]
     print result[1]
