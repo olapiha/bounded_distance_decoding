@@ -34,7 +34,7 @@ def discrete_error(alphas, modulus, Fx, point_t):
     n = len(alphas)
     Fxmod = Fx.quotient(modulus)
     prod_modulo = Fxmod(1)
-    gen = Fxmod(x)
+    gen = Fx(x)
     primes = [gen - alpha for alpha in alphas]
     for i in range(n):
         prod_modulo = Fxmod(prod_modulo * Fxmod(primes[i])**point_t[i])
@@ -43,16 +43,16 @@ def discrete_error(alphas, modulus, Fx, point_t):
     num_error = []
     for alpha in alphas:
         e = 0
-        while prod_modulo(alpha) == 0:
-            prod_modulo = prod_modulo.quo_rem(gen-alpha)[0]
+        while numerator(alpha) == 0:
+            numerator = numerator.quo_rem(gen-alpha)[0]
             e += 1
         num_error.append(e)
     num_error = vector(num_error)
     den_error = []
     for alpha in alphas:
         e = 0
-        while prod_modulo(alpha) == 0:
-            prod_modulo = prod_modulo.quo_rem(gen-alpha)[0]
+        while denominator(alpha) == 0:
+            denominator = denominator.quo_rem(gen-alpha)[0]
             e += 1
         den_error.append(e)
     den_error = vector(den_error)
@@ -66,7 +66,7 @@ def rational_function_reconstruction(g, f, Fx):
         assert f.degree() > 3 # do I actually need this? Maybe just for coherence
         return (0,1)
     (r0, r1) = (f, g)
-    (t0, t1) = (0, 1)
+    (t0, t1) = (Fx(0), Fx(1))
     q = Fx(1)
     while q.degree() <= f.degree()/2:
         (q, r) = r0.quo_rem(r1)
@@ -93,14 +93,14 @@ def test_decoding(q, d, n, k, B):
 
     # generate integer noise of l_1 norm <= B
     while True:
-        noise = vector(np.random.randint(0, B+1, n))
+        noise = vector(np.random.randint(-B, B+1, n))
         if (noise.norm(1) <= B): break
     print "norm of the noise: ", noise.norm()
     point_t = lattice_point + noise
-    return (positive_discrete_error(alphas, modulus, Fx, point_t), noise)
+    return (discrete_error(alphas, modulus, Fx, point_t), noise)
 
 
-for i in range(100):
+for i in range(1):
     result = test_decoding(3 ^ 7, 2, 7, 6, 2)
-    print result[0] == result[1]
-    
+    print result[0]
+    print result[1]
