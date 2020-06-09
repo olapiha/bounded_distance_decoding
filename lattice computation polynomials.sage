@@ -131,10 +131,11 @@ def lattice_construction(field_order, modulai, alphas):
     # matrix dimention is (n+t) * n
     primal_basis = primal_basis_from_dual(dual_basis)
     # determinant check
-    supposed_determinant = (field_order ^ (
+    det_upperbound = (field_order ^ (
         modulai[0].degree()) - 1) ^ len(modulai)
     print "determinant check:"
-    print abs(primal_basis.det()) <= supposed_determinant
+    print "abs value of det(basis): ", abs(primal_basis.det())
+    print "upperbound:              ", det_upperbound
     # rows are basis vectors here!! That's why .T
     return primal_basis.T
 

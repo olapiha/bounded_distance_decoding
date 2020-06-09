@@ -93,12 +93,12 @@ def test_decoding(q, d, n, k, B):
     while True:
         noise = vector(np.random.randint(-B, B+1, n))
         if (noise.norm(1) <= B): break
-    print "norm of the noise: ", noise.norm()
+    print "l1 norm of the noise: ", noise.norm(1)
     point_t = lattice_point + noise
     return (discrete_error(alphas, modulus, Fx, point_t), noise)
 
 
 for i in range(100):
     result = test_decoding(3 ^ 7, 2, 7, 6, 2)
-    print result[0]
-    print result[1]
+    print "calculated error: ", result[0]
+    print "real error:       ", result[1]
