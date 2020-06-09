@@ -76,20 +76,20 @@ There's only $n$ possible roots, one trial division takes $O(m)$ time and the nu
 \subsection{Rational function reconstruction}
 I found \href{http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf}{here} and then \href{http://www.cecm.sfu.ca/~mmonagan/papers/fastRFR.pdf}{here}
 an algorithm which they call Wang's algorithm for rational function reconstruction.\\
-Goal: Given $g,f$ find $n, d \in \mathbb{F}[x]$ that $deg(n) \leq N$, $deg(d) \leq D$, $N + D < deg(f)$ and $\frac{n}{d} = g \pmod{f}$\\
+Goal: Given $g,f$ find $n, d \in \mathbb{F}[x]$ that $deg(n) + deg(d) < \frac{deg(f)}{2}$ and $\frac{n}{d} = g \pmod{f}$\\
 Algorithm:(function $lc()$ outputs the leading coefficient)
 \begin{enumerate}
-	\item Set $N = \floor{\frac{deg(f)}{2}}$ $D = deg(f) - N - 1$\\
-			$r_0 = f$  $t_0 = 0$\\
-			$r_1 = g$  $t_1 = 1$\\
-	\item While $deg(r_1) > N$ do\\
+	\item   $r_0 = f$  $r_1 = g$\\
+			$t_0 = 0$  $t_1 = 1$\\
+            $q = 1$\\
+	\item While $deg(q) \leq \frac{deg(f)}{2}$ do\\
 			$q = r_0 // r_1$\\
 			$(r_0, r_1) = (r_1, r_0 - qr_1)$\\
 			$(t_0, t_1) = (t_1, t_0 - qt_1)$\\
-	\item if $GCD(r_1, t_1) \neq 1$:\\
+	\item if $GCD(r_0, t_0) \neq 1$ or $deg(r_0) + deg(t_0) \geq \frac{deg(f)}{2}$:\\
 			return FAIL\\
 		  else:\\
-			return $(\frac{r_1}{lc(t_1)}, \frac{t_1}{lc(t_1)})$
+			return $(\frac{r_0}{lc(t_0)}, \frac{t_0}{lc(t_0)})$
 \end{enumerate}
 \begin{lemma}
 Let $\mathbb{F}$ be a field, $f, g, r, s, t \in \mathbb{F}[x]$ with $r = sf + tg$, $t \neq 0$, $deg(f) > 0$, and $deg(r) + deg(t) <deg(f)$.
@@ -102,22 +102,11 @@ Then there exists a nonzero element $\alpha \in \mathbb{F}[x]$ such that $r = \a
 
 So if the solution exists it must be one of the pairs $(r_i, t_i)$ of the EEA.
 
-\begin{question}
-Why do we give up if the first gcd check fails instead of coming back to the while loop?
-\end{question}
-{\bf LEO: I do not know those algorithms, so I don't know... How about trying them on many random instance, and see if your variation also works ?}
-
-
-\textcolor{red}{ I suspect that this is not true: Note $n = deg(f)$.
-Complexityr of the algorithm is one of the Extended Euclidean Algorithm $O(n^2)$. Or we can maybe use Fast Extended Euclidean Algorithm whose complexity is $O(M(n)log(n))$ where $M(n)$ is the complexity of multiplication of polynomials, so $O(nlog^2(n))$}
-
+\textcolor{red}{ToDo:} Add a lemma to prove the following: If $deg(n) + deg(d) \leq \frac{deg(f)}{2}$ than the solution corresponds to the unique row of the EEA where $deg(q) > \frac{deg(f)}{2}$
 
 \begin{question}
-Check if we can actually use FEEA.
+Check if we can use FEEA.
 \end{question}
-\begin{remark}
-In the paper they also give an algorithm for the case where the bounds for degrees are not set in advance, but it works only with high probability(should I look into it in more detail?)
-\end{remark}
 \subsection{Computing logs}
 
 To construct the lattice we need to compute the following:
@@ -149,12 +138,9 @@ Directly follows from \cite{[DP19]}. $\bar{r}_1 = \frac{dk}{det(\mathcal{L})^{1/
 \]
 What should be the values of $d$ and $k$?
 
-We have the following constraints: $q^d = n^{O(1)}$, $dk < q^{d}$, $n \leq q$. \\ \\ \\
-So does this work: $k = \frac{n}{\log(n)}$, $d = \log(n)$, $q = const $ which gives a radius $\bar{r}_1 \sim \frac{n}{(q^{\log(n)}-1)^{\frac{n}{n \log(n)}}} \sim \frac{n}{q}$
+We have the following constraints: $q^d = n^{O(1)}$, $dk < q^{d}$, $n \leq q$ from here it follows that $d$ must be constant \\ \\ \\
 
-NOPE IT DOES NOT ($q = const$ and $n < q$)
-
-Another thing: d must be constant.
+A note for myself! In my code the determinant of the lattice is changing! It is upper-bounded by $(q^{d} - 1)^{k}$ but practice shows that it is often much smaller.
 
 \bibliographystyle{ieeetr}
 \bibliography{main}
