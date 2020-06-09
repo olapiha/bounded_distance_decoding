@@ -74,7 +74,7 @@ There's only $n$ possible roots, one trial division takes $O(m)$ time and the nu
 
 
 \subsection{Rational function reconstruction}
-I found \href{http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf}{here} and then \href{http://www.cecm.sfu.ca/~mmonagan/papers/fastRFR.pdf}{here}
+I found \href{http://www.cecm.sfu.ca/~mmonagan/papers/fastRFR.pdf}{here}
 an algorithm which they call Wang's algorithm for rational function reconstruction.\\
 Goal: Given $g,f$ find $n, d \in \mathbb{F}[x]$ that $deg(n) + deg(d) < \frac{deg(f)}{2}$ and $\frac{n}{d} = g \pmod{f}$\\
 Algorithm:(function $lc()$ outputs the leading coefficient)
