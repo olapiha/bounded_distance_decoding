@@ -19,7 +19,7 @@
 
 
 def parity_check_representation((q, e), primes):
-    #print "in PARITY CHECK"
+    #print("in PARITY CHECK")
     order = q**e - q**(e-1)
     q = q**e
     Zq = Zmod(q)
@@ -34,12 +34,12 @@ def parity_check_representation((q, e), primes):
 
 
 def compute_log(order, generator, element):
-    #print "in LOG"
+    #print("in LOG")
     return discrete_log(element, generator, order)
 
 
 def dual_generating_set(modulus_factors, primes):
-    #print "in DUAL GEN SET"
+    #print("in DUAL GEN SET")
     dual_gens = identity_matrix(QQ, len(primes))
     for q, e in modulus_factors:
         euler_phi = q**e - q**(e-1)
@@ -51,7 +51,7 @@ def dual_generating_set(modulus_factors, primes):
 # input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
 # input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
 def hermite_form(B, indep_length):
-    #print "in HERMITE FORM"
+    #print("in HERMITE FORM")
     den = B.denominator()
     int_B = (den*B).change_ring(ZZ)
     (H, U) = int_B.hermite_form(transformation = True)
@@ -77,11 +77,9 @@ def lll_wrap(B, indep_length):
 # input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
 # input type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'
 def primal_basis_from_dual(B):
-    #print "in PRIMAL FROM DUAL"
-    try:
-        return (B * ~(B.T * B)).change_ring(ZZ)
-    except Exception as msg:
-        print "exception: ", msg
+    #print("in PRIMAL FROM DUAL")
+    return (B * ~(B.T * B)).change_ring(ZZ)
+
 
 
 def test_lattice_construction(n, t):
@@ -105,7 +103,7 @@ def lattice_construction(modulus_factors, primes):
     phi_of_modulus = 1
     for (q, n) in modulus_factors:
         phi_of_modulus *= q**n - q**(n-1)
-    #print abs(det(primal_basis)) == phi_of_modulus
+    #print(abs(det(primal_basis)) == phi_of_modulus)
     # In all test runs the result was an integer matrix,
     # no function threw an exception
 
@@ -113,4 +111,4 @@ def lattice_construction(modulus_factors, primes):
     return primal_basis.T
 
 
-#print test_lattice_construction(10, 4)
+#print(test_lattice_construction(10, 4))

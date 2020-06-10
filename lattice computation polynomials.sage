@@ -18,7 +18,7 @@ import numpy as np
 
 
 def parity_check_representation(field_order, modulus, alphas):
-    #print "in PARITY CHECK"
+    print("in PARITY CHECK")
     F.<y> = GF(field_order)
     Fx.<x> = PolynomialRing(F)
     I = modulus * Fx
@@ -33,7 +33,7 @@ def parity_check_representation(field_order, modulus, alphas):
 
 
 def find_generator(ring):
-    #print "in FIND_GENERATOR"
+    print("in FIND_GENERATOR")
     while True:
         candidate = ring.random_element()
         desired_order = ring.order()-1
@@ -50,7 +50,7 @@ def find_generator(ring):
 
 
 def dual_generating_set(field_order, modulai, alphas):
-    #print "in DUAL GEN SET"
+    print("in DUAL GEN SET")
     d = modulai[0].degree()
     dual_gens = identity_matrix(QQ, len(alphas))
     for modulus in modulai:
@@ -60,7 +60,7 @@ def dual_generating_set(field_order, modulai, alphas):
 
 
 def hermite_form(B, indep_length):
-    #print "in HERMITE FORM"
+    print("in HERMITE FORM")
     den = B.denominator()
     int_B = (den*B).change_ring(ZZ)
     (H, U) = int_B.hermite_form(transformation=True)
@@ -73,7 +73,7 @@ def hermite_form(B, indep_length):
 
 
 def lll_wrap(B, indep_length):
-    #print "in LLL"
+    print("in LLL")
     basis = B.LLL()
     rows_number = len(B.rows())
     # Let  n= number of primes, t= number of factors
@@ -85,11 +85,8 @@ def lll_wrap(B, indep_length):
 
 
 def primal_basis_from_dual(B):
-    #print "in PRIMAL FROM DUAL"
-    try:
-        return (B * ~(B.T * B)).change_ring(ZZ)
-    except Exception as msg:
-        print "exception: ", msg
+    print("in PRIMAL FROM DUAL")
+    return (B * ~(B.T * B)).change_ring(ZZ)
 
 
 # Don't forget: q should be prime or prime power!
@@ -105,21 +102,16 @@ def check_parameters(q, d, n, k):
     assert k < q^d /d
 
 
-def test_lattice_construction(q, d, n, k):
-    check_parameters(q, d, n, k)
-    field_order = q
+def test_lattice_construction(field_order, d, n, k):
+    check_parameters(field_order, d, n, k)
     F.<y> = GF(field_order)
     Fx.<x> = PolynomialRing(F)
     modulai = Set([])
-    while True:
+    while modulai.cardinality() < k:
         modulai += Set([Fx.irreducible_element(d, algorithm="random")])
-        if modulai.cardinality() == k:
-            break
     alphas = Set([])
-    while True:
+    while alphas.cardinality() < n:
         alphas = alphas + Set([F.random_element()])
-        if alphas.cardinality() == n:
-            break
     basis = lattice_construction(field_order, list(modulai), list(alphas))
     return (alphas, modulai, basis)
 
@@ -131,13 +123,12 @@ def lattice_construction(field_order, modulai, alphas):
     # matrix dimention is (n+t) * n
     primal_basis = primal_basis_from_dual(dual_basis)
     # determinant check
-    det_upperbound = (field_order ^ (
-        modulai[0].degree()) - 1) ^ len(modulai)
-    print "determinant check:"
-    print "abs value of det(basis): ", abs(primal_basis.det())
-    print "upperbound:              ", det_upperbound
+    det_upperbound = (field_order ^ (modulai[0].degree()) - 1) ^ len(modulai)
+    print("determinant check:")
+    print("abs value of det(basis): ", abs(primal_basis.det()))
+    print("upperbound:              ", det_upperbound)
     # rows are basis vectors here!! That's why .T
     return primal_basis.T
 
 
-#print test_lattice_construction(7, 2, 3, 2)
+#print(test_lattice_construction(7, 2, 3, 2))

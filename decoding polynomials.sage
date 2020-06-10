@@ -90,15 +90,16 @@ def test_decoding(q, d, n, k, B):
     coordinates = vector(np.random.randint(0, 10, n))
     lattice_point = basis * coordinates
     # generate integer noise of l_1 norm <= B
-    while True:
-        noise = vector(np.random.randint(-B, B+1, n))
-        if (noise.norm(1) <= B): break
-    print "l1 norm of the noise: ", noise.norm(1)
+    noise = vector([1 for i in range(75)]+[-1 for i in range(50)]+[0 for i in range(n-45)])
+    #while True:
+    #    noise = vector(np.random.randint(-B, B+1, n))
+    #    if (noise.norm(1) <= B): break
+    print("l1 norm of the noise: ", noise.norm(1))
     point_t = lattice_point + noise
     return (discrete_error(alphas, modulus, Fx, point_t), noise)
 
 
-for i in range(100):
-    result = test_decoding(3 ^ 7, 2, 7, 6, 2)
-    print "calculated error: ", result[0]
-    print "real error:       ", result[1]
+for i in range(1):
+    result = test_decoding(773, 2, 300, 149, 3)
+    print("calculated error: ", result[0])
+    print("real error:       ", result[1])

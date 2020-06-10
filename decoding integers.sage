@@ -36,8 +36,8 @@ def discrete_error(primes, modulus, point_t):
         for i in range(n):
             prod_modulo = Zm(prod_modulo * Zm(primes[i])**point_t[i])
         (numerator, denominator) = rational_number_reconstruction(prod_modulo, modulus)
-        #print numerator.factor()
-        #print denominator.factor()
+        #print(numerator.factor())
+        #print(denominator.factor())
         numerator_error = []
         for p in primes:
             e = 0
@@ -82,12 +82,12 @@ def test_decoding(n, t, B):
     while True:
         noise = vector(np.random.randint(-B, B+1, n))
         if (noise.norm(1) <= B): break
-    print "norm of the noise: ", noise.norm()
+    print("norm of the noise: ", noise.norm())
     point_t = lattice_point + noise
     return (discrete_error(primes, modulus, point_t), noise)
 
 
 
 result = test_decoding(5, 3, 2)
-print result[0]
-print result[1]
+print(result[0])
+print(result[1])
