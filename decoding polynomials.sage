@@ -1,5 +1,6 @@
 #!/usr/bin/env sage
 import numpy as np
+import time
 
 # As input we are given a lattice basis,
 # prime numbers and modulus m used to construct it
@@ -31,6 +32,7 @@ def positive_discrete_error(alphas, modulus, Fx, point_t):
 
 
 def discrete_error(alphas, modulus, Fx, point_t):
+    print("in DISCRET_ERROR")
     n = len(alphas)
     Fxmod = Fx.quotient(modulus)
     prod_modulo = Fxmod(1)
@@ -61,6 +63,7 @@ def discrete_error(alphas, modulus, Fx, point_t):
 
 
 def rational_function_reconstruction(g, f, Fx):
+    print("in RFR")
     assert f.degree() > g.degree()
     if g == 0:
         assert f.degree() > 3 # for coherence
@@ -80,7 +83,10 @@ def rational_function_reconstruction(g, f, Fx):
 # B must be an integer
 def test_decoding(q, d, n, k, B):
     load("lattice computation polynomials.sage")
+    start = time.time()
     (alphas, modulai, basis) = test_lattice_construction(q, d, n, k)
+    end = time.time()
+    print("lattice construction time:", end-start)
     F.<y> = GF(q)
     Fx.<x> = PolynomialRing(F)
     modulus = Fx(1)
@@ -90,7 +96,7 @@ def test_decoding(q, d, n, k, B):
     coordinates = vector(np.random.randint(0, 10, n))
     lattice_point = basis * coordinates
     # generate integer noise of l_1 norm <= B
-    noise = vector([1 for i in range(75)]+[-1 for i in range(50)]+[0 for i in range(n-45)])
+    noise = vector([1 for i in range(24)] + [-1 for i in range(24)] + [0 for i in range(n-48)])
     #while True:
     #    noise = vector(np.random.randint(-B, B+1, n))
     #    if (noise.norm(1) <= B): break
@@ -100,6 +106,9 @@ def test_decoding(q, d, n, k, B):
 
 
 for i in range(1):
-    result = test_decoding(773, 2, 300, 149, 3)
+    start = time.time()
+    result = test_decoding(773, 2, 150, 99, 3)
+    end = time.time()
+    print("full execution time: ", end-start)
     print("calculated error: ", result[0])
     print("real error:       ", result[1])

@@ -18,12 +18,13 @@ import numpy as np
 
 
 def parity_check_representation(field_order, modulus, alphas):
-    print("in PARITY CHECK")
+    #print("in PARITY CHECK")
     F.<y> = GF(field_order)
     Fx.<x> = PolynomialRing(F)
     I = modulus * Fx
     Fx_quotient = Fx.quotient(I)
     generator = find_generator(Fx_quotient)
+    #print("out FIND_GENERATOR")
     logs = []
     for alpha in alphas:
         element = x - alpha
@@ -33,7 +34,7 @@ def parity_check_representation(field_order, modulus, alphas):
 
 
 def find_generator(ring):
-    print("in FIND_GENERATOR")
+    #print("in FIND_GENERATOR")
     while True:
         candidate = ring.random_element()
         desired_order = ring.order()-1
@@ -124,9 +125,9 @@ def lattice_construction(field_order, modulai, alphas):
     primal_basis = primal_basis_from_dual(dual_basis)
     # determinant check
     det_upperbound = (field_order ^ (modulai[0].degree()) - 1) ^ len(modulai)
-    print("determinant check:")
-    print("abs value of det(basis): ", abs(primal_basis.det()))
-    print("upperbound:              ", det_upperbound)
+    #print("determinant check:")
+    #print("abs value of det(basis): ", abs(primal_basis.det()))
+    #print("upperbound:              ", det_upperbound)
     # rows are basis vectors here!! That's why .T
     return primal_basis.T
 
