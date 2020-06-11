@@ -16,6 +16,7 @@ import numpy as np
 # 2.Compute logs of x - \alpha_i with respect to it using any algorithm
 # 3.output the list of log_{\beta_j}(x - \alpha_i) j = 1, ..., n
 
+#Note: Basis vectors are rows until the output in the very end.
 
 def parity_check_representation(field_order, modulus, alphas):
     #print("in PARITY CHECK")
@@ -49,7 +50,7 @@ def find_generator(ring):
             break
     return candidate
 
-
+# Here we produce a generating set of row vectors.
 def dual_generating_set(field_order, modulai, alphas):
     print("in DUAL GEN SET")
     d = modulai[0].degree()
@@ -72,7 +73,7 @@ def hermite_form(B, indep_length):
     basis = basis.matrix_from_rows(range(indep_length))
     return basis
 
-
+# LLL takes as input a set of row vectors
 def lll_wrap(B, indep_length):
     print("in LLL")
     basis = B.LLL()
@@ -99,7 +100,7 @@ def primal_basis_from_dual(B):
 # k number of irreducible c_j(x)
 def check_parameters(q, d, n, k):
     assert len(q.factor()) == 1
-    assert n < q
+    assert n <= q
     assert k < q^d /d
 
 
@@ -128,8 +129,8 @@ def lattice_construction(field_order, modulai, alphas):
     #print("determinant check:")
     #print("abs value of det(basis): ", abs(primal_basis.det()))
     #print("upperbound:              ", det_upperbound)
-    # rows are basis vectors here!! That's why .T
+    # rows are basis vectors here but want columns!! That's why .T
     return primal_basis.T
 
 
-#print(test_lattice_construction(7, 2, 3, 2))
+print(test_lattice_construction(7, 2, 3, 2))
