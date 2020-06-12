@@ -133,4 +133,4 @@ def lattice_construction(field_order, modulai, alphas):
     return primal_basis.T
 
 
-print(test_lattice_construction(7, 2, 3, 2))
+#print(test_lattice_construction(7, 2, 3, 2))

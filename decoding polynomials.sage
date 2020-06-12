@@ -1,7 +1,7 @@
 #!/usr/bin/env sage
 import numpy as np
 import time
-
+import random
 # As input we are given a lattice basis,
 # prime numbers and modulus m used to construct it
 # and a point point_t = (t_1, ..., t_n) in R^n such that point_t = x + e,
@@ -97,17 +97,32 @@ def test_decoding(q, d, n, k, B):
     lattice_point = basis * coordinates
     # generate integer noise of l_1 norm <= B
     #noise = vector([1 for i in range(24)] + [-1 for i in range(24)] + [0 for i in range(n-48)])
+    non_zero_indices = list(np.random.choice(range(n), B))
     while True:
-        noise = vector(np.random.randint(-B, B+1, n))
-        if (noise.norm(1) <= B): break
+        noise = []
+        for i in range(n):
+            if i in non_zero_indices:
+                noise.append(random.randint(-B, B+1))
+            else:
+                noise.append(0)
+        noise = vector(noise)
+        if (noise.norm(1) <= B) and (0 < noise.norm(1)): break
     print("l1 norm of the noise: ", noise.norm(1))
     point_t = lattice_point + noise
     return (discrete_error(alphas, modulus, Fx, point_t), noise)
 
 
+def test_decoding_with_optimal_parameters(n):
+    q = n.next_prime()
+    d = 2
+    k = (n/(2*ln(n))).round()
+    B = (d*k/(2*(q^d-1)^(k/n))).round()
+    print(q,d,k,B)
+    return test_decoding(q, d, n, k, B)
+
 for i in range(1):
     start = time.time()
-    result = test_decoding(11, 3, 11, 3, 2)
+    result = test_decoding_with_optimal_parameters(300)
     end = time.time()
     print("full execution time: ", end-start)
     print("calculated error: ", result[0])
