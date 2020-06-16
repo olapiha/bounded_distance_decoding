@@ -122,7 +122,7 @@ def test_decoding_with_optimal_parameters(n):
 
 for i in range(1):
     start = time.time()
-    result = test_decoding_with_optimal_parameters(300)
+    result = test_decoding_with_optimal_parameters(100)
     end = time.time()
     print("full execution time: ", end-start)
     print("calculated error: ", result[0])

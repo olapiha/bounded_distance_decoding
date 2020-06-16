@@ -122,9 +122,9 @@ def test_lattice_construction(field_order, d, n, k):
     alphas = Set([])
     while alphas.cardinality() < n:
         alphas = alphas + Set([F.random_element()])
-    basis = lattice_construction_v2(field_order, list(modulai), list(alphas))
-    basis1 = lattice_construction(field_order, list(modulai), list(alphas), None)
-    return (alphas, modulai, basis, basis1)
+    #basis = lattice_construction_v2(field_order, list(modulai), list(alphas))
+    basis = lattice_construction(field_order, list(modulai), list(alphas), None)
+    return (alphas, modulai, basis)
 
 
 def lattice_construction(field_order, modulai, alphas, parity_check):
@@ -153,19 +153,43 @@ def lattice_construction_v2(field_order, modulai, alphas):
         order = field_order^d -1
         systematic_form = matrix(Zmod(order), echelon_form_in_QQ)
         k = len(modulai)
-        new_columns = [(-i, -j) for (i, j) in systematic_form.columns()[k:]] + systematic_form.columns()[:k]
-        generator_mod_q = matrix(QQ, new_columns).T
-        generator = (identity_matrix(QQ, len(alphas))*order).stack(generator_mod_q)
-        return hermite_form(generator, len(alphas))
+        D = (-1)*matrix(ZZ, systematic_form.columns()[k:]).T
+        I = identity_matrix(ZZ, len(alphas)-len(modulai))
+        generator_mod_q = D.stack(I).T
+        generator = generator_mod_q.stack(identity_matrix(ZZ, len(alphas)) * order)
+        return hermite_form(generator, len(alphas)).change_ring(ZZ).T
     except Exception as e:
         print("Falied to reduce to systematic form")
         print("Running the slower algorithm")
         return lattice_construction(field_order, list(modulai), list(alphas), parity_check)
 
+def is_in_lattice(point, field_order, primes, modulus):
+    print(point)
+    dimention = len(primes)
+    product = 1
+    F.<y> = GF(field_order)
+    Fx.<x> = PolynomialRing(F)
+    I = modulus * Fx
+    Fx_quotient = Fx.quotient(Is)
+    for i in range(dimention):
+        product = product * (Fx_quotient(primes[i])^point[i])
+    return (product==1)
+
+def test(field_order, alphas, modulai, basis):
+    dimention = len(alphas)
+    F.<y> = GF(field_order)
+    Fx.<x> = PolynomialRing(F)
+    primes = [x - alpha for alpha in alphas]
+    modulus = 1
+    for i in modulai:
+        modulus *= i
+    for i in range(10):
+        coords = vector(np.random.randint(-100, 100, dimention))
+        point = basis * coords
+        print(is_in_lattice(point, field_order, primes, modulus))
 
 
-
-res = test_lattice_construction(7, 2, 3, 2)
-#print res[0]
-print res[2]
-print res[3]
+#res = test_lattice_construction(7, 2, 3, 2)
+#test(res[0], res[1], res[2], res[3])
+#print(res[3])
+#print(res[4])
