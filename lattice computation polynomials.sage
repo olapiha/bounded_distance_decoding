@@ -18,8 +18,8 @@ import numpy as np
 
 #Note: Basis vectors are rows until the output in the very end.
 
-def parity_check_representation(field_order, modulus, alphas):
-    #print("in PARITY CHECK")
+def discrete_logs_vector(field_order, modulus, alphas):
+    #print("in DISCRETE LOGS VECTOR")
     F.<y> = GF(field_order)
     Fx.<x> = PolynomialRing(F)
     I = modulus * Fx
@@ -52,17 +52,17 @@ def find_generator(ring):
 
 # Here we produce a generating set of row vectors.
 def dual_generating_set(field_order, modulai, alphas):
-    print("in DUAL GEN SET")
+    #print("in DUAL GEN SET")
     d = modulai[0].degree()
     dual_gens = identity_matrix(QQ, len(alphas))
     for modulus in modulai:
-        dual_gens = dual_gens.stack(parity_check_representation(
+        dual_gens = dual_gens.stack(discrete_logs_vector(
             field_order, modulus, alphas) / (field_order^d - 1))
     return dual_gens
 
 
 def hermite_form(B, indep_length):
-    print("in HERMITE FORM")
+    #print("in HERMITE FORM")
     den = B.denominator()
     int_B = (den*B).change_ring(ZZ)
     (H, U) = int_B.hermite_form(transformation=True)
@@ -75,7 +75,7 @@ def hermite_form(B, indep_length):
 
 # LLL takes as input a set of row vectors
 def lll_wrap(B, indep_length):
-    print("in LLL")
+    #print("in LLL")
     basis = B.LLL()
     rows_number = len(B.rows())
     # Let  n= number of primes, t= number of factors
@@ -87,8 +87,16 @@ def lll_wrap(B, indep_length):
 
 
 def primal_basis_from_dual(B):
-    print("in PRIMAL FROM DUAL")
+    #print("in PRIMAL FROM DUAL")
     return (B * ~(B.T * B)).change_ring(ZZ)
+
+
+def parity_check_representation(field_order, modulai, alphas):
+    #print("in PARITY CHECK")
+    parity_check = matrix(discrete_logs_vector(field_order, modulai[0], alphas))
+    for modulus in modulai[1:]:
+        parity_check = parity_check.stack(discrete_logs_vector(field_order, modulus, alphas))
+    return parity_check
 
 
 # Don't forget: q should be prime or prime power!
@@ -114,14 +122,19 @@ def test_lattice_construction(field_order, d, n, k):
     alphas = Set([])
     while alphas.cardinality() < n:
         alphas = alphas + Set([F.random_element()])
-    basis = lattice_construction(field_order, list(modulai), list(alphas))
-    return (alphas, modulai, basis)
+    basis = lattice_construction_v2(field_order, list(modulai), list(alphas))
+    basis1 = lattice_construction(field_order, list(modulai), list(alphas), None)
+    return (alphas, modulai, basis, basis1)
 
 
-def lattice_construction(field_order, modulai, alphas):
-    dual_gens = dual_generating_set(field_order, modulai, alphas)
-    #dual_basis = hermite_form(dual_gens, len(alphas))
-    dual_basis = lll_wrap(dual_gens, len(alphas))
+def lattice_construction(field_order, modulai, alphas, parity_check):
+    if parity_check is None:
+        dual_gens = dual_generating_set(field_order, modulai, alphas)
+    else:
+        d = modulai[0].degree()
+        dual_gens = identity_matrix(QQ, len(alphas)).stack(parity_check / (field_order^d - 1))
+    dual_basis = hermite_form(dual_gens, len(alphas))
+    #dual_basis = lll_wrap(dual_gens, len(alphas))
     # matrix dimention is (n+t) * n
     primal_basis = primal_basis_from_dual(dual_basis)
     # determinant check
@@ -132,5 +145,27 @@ def lattice_construction(field_order, modulai, alphas):
     # rows are basis vectors here but want columns!! That's why .T
     return primal_basis.T
 
+def lattice_construction_v2(field_order, modulai, alphas):
+    parity_check = matrix(QQ, parity_check_representation(field_order, modulai, alphas))
+    echelon_form_in_QQ =  parity_check.echelon_form()
+    d = modulai[0].degree()
+    try:
+        order = field_order^d -1
+        systematic_form = matrix(Zmod(order), echelon_form_in_QQ)
+        k = len(modulai)
+        new_columns = [(-i, -j) for (i, j) in systematic_form.columns()[k:]] + systematic_form.columns()[:k]
+        generator_mod_q = matrix(QQ, new_columns).T
+        generator = (identity_matrix(QQ, len(alphas))*order).stack(generator_mod_q)
+        return hermite_form(generator, len(alphas))
+    except Exception as e:
+        print("Falied to reduce to systematic form")
+        print("Running the slower algorithm")
+        return lattice_construction(field_order, list(modulai), list(alphas), parity_check)
 
-#print(test_lattice_construction(7, 2, 3, 2))
+
+
+
+res = test_lattice_construction(7, 2, 3, 2)
+#print res[0]
+print res[2]
+print res[3]
