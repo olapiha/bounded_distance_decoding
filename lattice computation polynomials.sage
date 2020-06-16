@@ -62,7 +62,8 @@ def dual_generating_set(field_order, modulai, alphas):
 
 
 def hermite_form(B, indep_length):
-    #print("in HERMITE FORM")
+    print("in HERMITE FORM")
+    print(B)
     den = B.denominator()
     int_B = (den*B).change_ring(ZZ)
     (H, U) = int_B.hermite_form(transformation=True)
@@ -75,7 +76,7 @@ def hermite_form(B, indep_length):
 
 # LLL takes as input a set of row vectors
 def lll_wrap(B, indep_length):
-    #print("in LLL")
+    print("in LLL")
     basis = B.LLL()
     rows_number = len(B.rows())
     # Let  n= number of primes, t= number of factors
@@ -122,8 +123,8 @@ def test_lattice_construction(field_order, d, n, k):
     alphas = Set([])
     while alphas.cardinality() < n:
         alphas = alphas + Set([F.random_element()])
-    #basis = lattice_construction_v2(field_order, list(modulai), list(alphas))
-    basis = lattice_construction(field_order, list(modulai), list(alphas), None)
+    basis = lattice_construction_v2(field_order, list(modulai), list(alphas))
+    #basis = lattice_construction(field_order, list(modulai), list(alphas), None)
     return (alphas, modulai, basis)
 
 
@@ -133,8 +134,10 @@ def lattice_construction(field_order, modulai, alphas, parity_check):
     else:
         d = modulai[0].degree()
         dual_gens = identity_matrix(QQ, len(alphas)).stack(parity_check / (field_order^d - 1))
-    dual_basis = hermite_form(dual_gens, len(alphas))
-    #dual_basis = lll_wrap(dual_gens, len(alphas))
+    print(time.time())
+    #dual_basis = hermite_form(dual_gens, len(alphas))
+    dual_basis = lll_wrap(dual_gens, len(alphas))
+    print(time.time())
     # matrix dimention is (n+t) * n
     primal_basis = primal_basis_from_dual(dual_basis)
     # determinant check
@@ -146,6 +149,7 @@ def lattice_construction(field_order, modulai, alphas, parity_check):
     return primal_basis.T
 
 def lattice_construction_v2(field_order, modulai, alphas):
+    print(time.time())
     parity_check = matrix(QQ, parity_check_representation(field_order, modulai, alphas))
     echelon_form_in_QQ =  parity_check.echelon_form()
     d = modulai[0].degree()
@@ -157,7 +161,10 @@ def lattice_construction_v2(field_order, modulai, alphas):
         I = identity_matrix(ZZ, len(alphas)-len(modulai))
         generator_mod_q = D.stack(I).T
         generator = generator_mod_q.stack(identity_matrix(ZZ, len(alphas)) * order)
-        return hermite_form(generator, len(alphas)).change_ring(ZZ).T
+        print(time.time())
+        res = lll_wrap(generator, len(alphas)).change_ring(ZZ).T
+        print(time.time())
+        return res
     except Exception as e:
         print("Falied to reduce to systematic form")
         print("Running the slower algorithm")
