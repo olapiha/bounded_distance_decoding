@@ -170,6 +170,7 @@ def lattice_construction_v2(field_order, modulai, alphas):
         print("Running the slower algorithm")
         return lattice_construction(field_order, list(modulai), list(alphas), parity_check)
 
+
 def is_in_lattice(point, field_order, primes, modulus):
     print(point)
     dimention = len(primes)
@@ -182,7 +183,7 @@ def is_in_lattice(point, field_order, primes, modulus):
         product = product * (Fx_quotient(primes[i])^point[i])
     return (product==1)
 
-def test(field_order, alphas, modulai, basis):
+def test_lattice_basis(field_order, alphas, modulai, basis):
     dimention = len(alphas)
     F.<y> = GF(field_order)
     Fx.<x> = PolynomialRing(F)
@@ -195,8 +196,24 @@ def test(field_order, alphas, modulai, basis):
         point = basis * coords
         print(is_in_lattice(point, field_order, primes, modulus))
 
+def gaussian_elimination_modulo(matrix, modulus):
+    r = len(matrix.rows())
+    c = len(matrix.columns())
+    mod = Zmod(modulus)
+    for i in range(r):
+        j = 0
+        if matrix[i] == zero_vector(c): raise Exception("Rows are not independent")
+        while j < c and gcd(matrix[i,j], modulus) != 1:
+            j+=1
+        if j == c: raise Exception("Systematic form doesn't exist")
+        else:
+            matrix[i] = [mod(el) for el in matrix[i] * inverse_mod(matrix[i,j], modulus)]
+            for k in range(r):
+                if k != i:
+                    matrix[k] = [mod(el) for el in matrix[k] - matrix[i]*matrix[k,j]]
+    return matrix
 
 #res = test_lattice_construction(7, 2, 3, 2)
-#test(res[0], res[1], res[2], res[3])
+#test_lattice_basis(res[0], res[1], res[2], res[3])
 #print(res[3])
 #print(res[4])
