@@ -1,5 +1,6 @@
 #!/usr/bin/env sage
 import numpy as np
+import time
 
 # As input we are given
 
@@ -93,10 +94,11 @@ def primal_basis_from_dual(B):
 
 
 def parity_check_representation(field_order, modulai, alphas):
-    #print("in PARITY CHECK")
+    print("in PARITY CHECK")
     parity_check = matrix(discrete_logs_vector(field_order, modulai[0], alphas))
     for modulus in modulai[1:]:
         parity_check = parity_check.stack(discrete_logs_vector(field_order, modulus, alphas))
+
     return parity_check
 
 
@@ -151,16 +153,19 @@ def lattice_construction(field_order, modulai, alphas, parity_check):
 def lattice_construction_v2(field_order, modulai, alphas):
     print(time.time())
     parity_check = matrix(QQ, parity_check_representation(field_order, modulai, alphas))
-    echelon_form_in_QQ =  parity_check.echelon_form()
     d = modulai[0].degree()
     try:
         order = field_order^d -1
-        systematic_form = matrix(Zmod(order), echelon_form_in_QQ)
+        (systematic_form, permutation) = gaussian_elimination_modulo(parity_check, order)
+        systematic_form_columns = permutation(systematic_form.columns())
+        systematic_form = matrix(systematic_form_columns).T
         k = len(modulai)
         D = (-1)*matrix(ZZ, systematic_form.columns()[k:]).T
         I = identity_matrix(ZZ, len(alphas)-len(modulai))
         generator_mod_q = D.stack(I).T
         generator = generator_mod_q.stack(identity_matrix(ZZ, len(alphas)) * order)
+        generator_columns = permutation(generator_columns)
+        generator = matrix(generator_columns).T
         print(time.time())
         res = lll_wrap(generator, len(alphas)).change_ring(ZZ).T
         print(time.time())
@@ -200,6 +205,8 @@ def gaussian_elimination_modulo(matrix, modulus):
     r = len(matrix.rows())
     c = len(matrix.columns())
     mod = Zmod(modulus)
+    perm_group = SymmetricGroup(c)
+    permutation = []
     for i in range(r):
         j = 0
         if matrix[i] == zero_vector(c): raise Exception("Rows are not independent")
@@ -207,13 +214,22 @@ def gaussian_elimination_modulo(matrix, modulus):
             j+=1
         if j == c: raise Exception("Systematic form doesn't exist")
         else:
+            permutation.append(j+1)
             matrix[i] = [mod(el) for el in matrix[i] * inverse_mod(matrix[i,j], modulus)]
             for k in range(r):
                 if k != i:
                     matrix[k] = [mod(el) for el in matrix[k] - matrix[i]*matrix[k,j]]
-    return matrix
+    for i in range(c):
+        if (i+1) not in permutation:
+            permutation.append(i+1)
+    permutation = perm_group(permutation)
+    return (matrix, permutation)
 
-#res = test_lattice_construction(7, 2, 3, 2)
+#m = random_matrix(ZZ,3,4)
+#modulus = 7
+#matrix, permutation = gaussian_elimination_modulo(m,modulus)
+#print(permutation(matrix.columns()))
+res = test_lattice_construction(7, 2, 3, 2)
 #test_lattice_basis(res[0], res[1], res[2], res[3])
 #print(res[3])
 #print(res[4])
