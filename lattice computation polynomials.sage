@@ -127,7 +127,7 @@ def test_lattice_construction(field_order, d, n, k):
         alphas = alphas + Set([F.random_element()])
     basis = lattice_construction_v2(field_order, list(modulai), list(alphas))
     #basis = lattice_construction(field_order, list(modulai), list(alphas), None)
-    return (field_order, alphas, modulai, basis)
+    return (alphas, modulai, basis)
 
 
 def lattice_construction(field_order, modulai, alphas, parity_check):
@@ -164,7 +164,8 @@ def lattice_construction_v2(field_order, modulai, alphas):
         I = identity_matrix(ZZ, len(alphas)-len(modulai))
         generator_mod_q = D.stack(I).T
         generator = generator_mod_q.stack(identity_matrix(ZZ, len(alphas)) * order)
-        generator_columns = permutation(generator.columns())
+        inv_permutation = permutation^(-1)
+        generator_columns = inv_permutation(generator.columns())
         generator = matrix(generator_columns).T
         print(time.time())
         res = lll_wrap(generator, len(alphas)).change_ring(ZZ).T
@@ -229,7 +230,7 @@ def gaussian_elimination_modulo(matrix, modulus):
 #modulus = 7
 #matrix, permutation = gaussian_elimination_modulo(m,modulus)
 #print(permutation(matrix.columns()))
-res = test_lattice_construction(7, 2, 3, 2)
-test_lattice_basis(res[0], res[1], res[2], res[3])
-print(res[3])
+#res = test_lattice_construction(7, 2, 4, 2)
+#test_lattice_basis(res[0], res[1], res[2], res[3])
+#print(res[3])
 #print(res[4])
