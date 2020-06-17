@@ -229,7 +229,7 @@ def gaussian_elimination_modulo(matrix, modulus):
 #modulus = 7
 #matrix, permutation = gaussian_elimination_modulo(m,modulus)
 #print(permutation(matrix.columns()))
-#res = test_lattice_construction(7, 2, 3, 2)
-#test_lattice_basis(res[0], res[1], res[2], res[3])
-#print(res[3])
+res = test_lattice_construction(7, 2, 3, 2)
+test_lattice_basis(res[0], res[1], res[2], res[3])
+print(res[3])
 #print(res[4])
