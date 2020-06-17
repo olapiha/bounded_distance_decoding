@@ -127,7 +127,7 @@ def test_lattice_construction(field_order, d, n, k):
         alphas = alphas + Set([F.random_element()])
     basis = lattice_construction_v2(field_order, list(modulai), list(alphas))
     #basis = lattice_construction(field_order, list(modulai), list(alphas), None)
-    return (alphas, modulai, basis)
+    return (field_order, alphas, modulai, basis)
 
 
 def lattice_construction(field_order, modulai, alphas, parity_check):
@@ -164,7 +164,7 @@ def lattice_construction_v2(field_order, modulai, alphas):
         I = identity_matrix(ZZ, len(alphas)-len(modulai))
         generator_mod_q = D.stack(I).T
         generator = generator_mod_q.stack(identity_matrix(ZZ, len(alphas)) * order)
-        generator_columns = permutation(generator_columns)
+        generator_columns = permutation(generator.columns())
         generator = matrix(generator_columns).T
         print(time.time())
         res = lll_wrap(generator, len(alphas)).change_ring(ZZ).T
@@ -183,7 +183,7 @@ def is_in_lattice(point, field_order, primes, modulus):
     F.<y> = GF(field_order)
     Fx.<x> = PolynomialRing(F)
     I = modulus * Fx
-    Fx_quotient = Fx.quotient(Is)
+    Fx_quotient = Fx.quotient(I)
     for i in range(dimention):
         product = product * (Fx_quotient(primes[i])^point[i])
     return (product==1)
@@ -215,7 +215,7 @@ def gaussian_elimination_modulo(matrix, modulus):
         if j == c: raise Exception("Systematic form doesn't exist")
         else:
             permutation.append(j+1)
-            matrix[i] = [mod(el) for el in matrix[i] * inverse_mod(matrix[i,j], modulus)]
+            matrix[i] = [mod(el) for el in matrix[i] * ZZ(mod(matrix[i,j])^(-1))]
             for k in range(r):
                 if k != i:
                     matrix[k] = [mod(el) for el in matrix[k] - matrix[i]*matrix[k,j]]
@@ -229,7 +229,7 @@ def gaussian_elimination_modulo(matrix, modulus):
 #modulus = 7
 #matrix, permutation = gaussian_elimination_modulo(m,modulus)
 #print(permutation(matrix.columns()))
-res = test_lattice_construction(7, 2, 3, 2)
+#res = test_lattice_construction(7, 2, 3, 2)
 #test_lattice_basis(res[0], res[1], res[2], res[3])
 #print(res[3])
 #print(res[4])
