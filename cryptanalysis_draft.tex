@@ -1,0 +1,97 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\FF}{\mathbb{F}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\LL}{\mathcal{L}}
+
+\newtheorem{question}{Question}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
+
+
+
+
+\title{Cryptanalysis}
+\author{ Sasha }
+
+
+
+\begin{document}
+
+\maketitle
+
+\section{Information Set Decoding}
+
+\cite{[DP19]}(just to not modify makefile added some references)
+
+Notation: we take a vector $t \in \ZZ^{k}$, a matrix $A \in \ZZ^{k \times n}$. It can be reduced to its(maybe permuted) systematic form $H  = U * A = [I_{k}|D]$.
+
+
+The goal is to find a vector $x \in \{0,1\}^{n}$ with small Hamming weight $h(x) = w$ that
+\[
+Ax = y
+\]
+
+Or equivalently $Hx = U*Ax = Uy =: t$, here we can use our knowledge about the shape of $H$.
+
+What we do in this attack is an improvement of a bruteforce attack. The partition $x$ on two vectors $x_1 \in \{0,1\}^{k}$ and  $x_2  \in \{0,1\}^{n-k}$ so we have
+\[
+t = x_1 + D \cdot x_2
+\]
+We make a bet of the weight partition between $h(x_1) = w_1$ and $h(x_2) = w_2$, where $w_1 + w_2 = w$. Now we enumerate only the possible values of $x_2$, compute $x_1 = t - D \cdot x_2$ and check if it satisfies $h(x_1) = w_1$. If we don't find a correct pair with this weight distribution, we rerandomise H and t and start over. The average cost of such algorithm can be calculated as
+\[
+T = \frac{x_2\text{ bruteforce cost}}{Pr(w_2\text{ is a correct bet on the weight of }x_2)}
+\]
+Let us compute the values above.
+The numerator:
+\[
+\#\{x_2 \in \{0,1\}^{n-k} | h(x_2) = w_2\} = \binom{n-k}{w_2}
+\]
+The denominator:
+\[
+\begin{split}
+    Pr(w_2\text{ is a correct bet on the weight of }x_2) & \\
+    & = Pr(h(x_2) = w_2|h(x) = w) \\
+    & = \frac{\binom{n-k}{w_2} \cdot \binom{k}{w_1}}{\binom{n}{w}}
+\end{split}
+\]
+Therefore
+\[
+T = \frac{\binom{n}{w}}{\binom{k}{w_1}}
+\]
+\begin{lemma}
+To minimize the average cost we take $w_1 = min(\frac{k}{2}, w)$
+\end{lemma}
+\begin{proof}
+
+\end{proof}
+
+\section{Meet in the Middle}
+In this attack we have the same goal but no information about the form of the matrix A.
+We partition $x$ and $A$ on two equal parts: $A = [A_1 | A_2]$, $x = x_1 | x_2$.
+Then $Ax = y$ is equivalent to
+\[
+    A_1x_1 + A_2x_2 = y
+\]
+If we can find vectors $x_1$ and $x_2$ for which values $A_1x_1$ and $y - A_2x_2$ coincide
+and sum of their weights is equal to $w$ they form a solution to our problem.
+
+
+\section{ISD + MiM}
+
+\section{Question 5 and 6}
+
+
+\bibliography{report}
+\bibliographystyle{ieeetr}
+
+\end{document}
