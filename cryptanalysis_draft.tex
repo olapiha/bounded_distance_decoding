@@ -89,8 +89,14 @@ The denominator:
 \]
 Therefore
 \[
-T = \frac{\binom{n}{w}}{\binom{k}{w_1}}
+T = \frac{\binom{n}{w} \cdot 2^{w - w_1}}{\binom{k}{w_1}}
 \]
+\begin{lemma}
+To minimize the average cost we take $w_1 = ???$
+\end{lemma}
+\begin{proof}
+
+\end{proof}
 \section{Meet in the Middle}
 In this attack we have the same goal but no information about the form of the matrix A.
 We partition $x$ and $A$ on two equal parts: $A = [A_1 | A_2]$, $x = x_1 | x_2$.
@@ -127,8 +133,22 @@ Total cost(only time):
 \end{question}
 
 \subsection{Ternary case}
+Numerator:
+We compute $A_1x_1$ for every $x_1$ and store it in the memory. So we perform $\binom{n/2}{w/2} \cdot 2^{w/2}$ operations the same amount of memory. In the worst case we also compute $y - A_2x_2$ for every $x_2$ without storing it - $\binom{n/2}{w/2} \cdot 2^{w/2}$ operations.
 
+In total:
 
+TIME = $2\binom{n/2}{w/2} \cdot 2^{w/2}$
+
+MEMORY = $\binom{n/2}{w/2} \cdot 2^{w/2}$
+
+Denominator:
+$Pr(h(x_1) = h(x_2) = w/2) = \frac{\binom{n/2}{w/2}^{2}}{\binom{n}{w}}$
+
+Total cost(only time):
+\[
+  T = \frac{2\binom{n}{w} \cdot 2^{w/2}}{\binom{n/2}{w/2}}
+\]
 \section{ISD + MiM}
 Let us return to the case when $A$ is reduced to the systematic form $H = U * A = [I_{k}| D_1 | D_2]$ we partition $x = (x_0 |x_1 |x_2)$ on three vectors $x_0 = \in \{0,1\}^{k}$, $x_1,x_2 \in \{0,1\}^{\frac{n-k}{2}}$. Then
 \[
@@ -156,10 +176,34 @@ Total cost:
   & \sim \frac{\binom{n}{w}}{\binom{(n-k)/2}{w_2/2}}
 \end{split}
 \]
+\subsection{Ternary case}
+Comutational cost:
+\[
+\Big(1+ \binom{k}{w_1} \cdot 2^{w_1}\Big)\binom{\frac{n-k}{2}}{\frac{w_2}{2}} \cdot 2^{\frac{w_2}{2}}
+\]
+Memory cost:
+\[
+\binom{\frac{n-k}{2}}{\frac{w_2}{2}} \cdot 2^{\frac{w_2}{2}}
+\]
+
+Total cost:
+\[
+\begin{split}
+  T & = \frac{\text{cost of collision search}}{Pr(h(x_0) = w_1, h(x_1) = h(x_2) = \frac{w_2}{2} | h(x) = w)} \\
+  & = \frac{(1+ \binom{k}{w_1}\cdot 2^{w_1})\binom{\frac{n-k}{2}}{\frac{w_2}{2}}\cdot 2^{\frac{w_2}{2}}\cdot \binom{n}{w}}{\binom{k}{w_1} \cdot \binom{(n-k)/2}{w_2/2}^{2}} \\
+  & \sim \frac{\binom{n}{w} \cdot 2^{w_1 + \frac{w_2}{2}}}{\binom{(n-k)/2}{w_2/2}}
+\end{split}
+\]
+\begin{lemma}
+To minimize the average cost we take $w_1 = ???$
+\end{lemma}
+\begin{proof}
+
+\end{proof}
 \section{Question 5 and 6}
 
 
-\bibliography{report}
+\bibliography{cryptanalysis_draft}
 \bibliographystyle{ieeetr}
 
 \end{document}
