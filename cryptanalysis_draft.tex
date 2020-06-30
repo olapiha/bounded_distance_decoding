@@ -188,7 +188,7 @@ Total cost:
 \begin{split}
   T & = \frac{\text{cost of collision search}}{Pr(h(x_0) = w_1, h(x_1) = h(x_2) = \frac{w_2}{2} | h(x) = w)} \\
   & = \frac{(1+ \binom{k}{w_1}\cdot 2^{w_1})\binom{\frac{n-k}{2}}{\frac{w_2}{2}}\cdot 2^{\frac{w_2}{2}}\cdot \binom{n}{w}}{\binom{k}{w_1} \cdot \binom{(n-k)/2}{w_2/2}^{2}} \\
-  & \sim \frac{\binom{n}{w} \cdot 2^{w_1 + \frac{w_2}{2}}}{\binom{(n-k)/2}{w_2/2}}
+  & \sim \frac{\binom{n}{w} \cdot 2^{w - \frac{w_2}{2}}}{\binom{(n-k)/2}{w_2/2}}
 \end{split}
 \]
 \begin{lemma}
