@@ -74,7 +74,23 @@ To minimize the average cost we take $w_1 = min(\frac{k}{2}, w)$
 \begin{proof}
 
 \end{proof}
-
+\subsection{Ternary case}
+The numerator:
+\[
+\#\{x_2 \in \{0,1,-1\}^{n-k} | h(x_2) = w_2\} = \binom{n-k}{w_2}\cdot 2^{w_2}
+\]
+The denominator:
+\[
+\begin{split}
+    Pr(w_2\text{ is a correct bet on the weight of }x_2) & \\
+    & = Pr(h(x_2) = w_2|h(x) = w) \\
+    & = \frac{\binom{n-k}{w_2} \cdot \binom{k}{w_1}}{\binom{n}{w}}
+\end{split}
+\]
+Therefore
+\[
+T = \frac{\binom{n}{w}}{\binom{k}{w_1}}
+\]
 \section{Meet in the Middle}
 In this attack we have the same goal but no information about the form of the matrix A.
 We partition $x$ and $A$ on two equal parts: $A = [A_1 | A_2]$, $x = x_1 | x_2$.
@@ -85,9 +101,61 @@ Then $Ax = y$ is equivalent to
 If we can find vectors $x_1$ and $x_2$ for which values $A_1x_1$ and $y - A_2x_2$ coincide
 and sum of their weights is equal to $w$ they form a solution to our problem.
 
+Here we bet the weight is distributed equaly on both sides. So the average cost can be calculated as follows:
+\[
+  T = \frac{\text{cost of finding a collision}}{Pr(h(x_1) = h(x_2) = w/2| h(x) =w)}
+\]
+Numerator:
+We compute $A_1x_1$ for every $x_1$ and store it in the memory. So we perform $\binom{n/2}{w/2}$ operations the same amount of memory. In the worst case we also compute $y - A_2x_2$ for every $x_2$ without storing it - $\binom{n/2}{w/2}$ operations.
+
+In total:
+
+TIME = $2\binom{n/2}{w/2}$
+
+MEMORY = $\binom{n/2}{w/2}$
+
+Denominator:
+$Pr(h(x_1) = h(x_2) = w/2) = \frac{\binom{n/2}{w/2}^{2}}{\binom{n}{w}}$
+
+Total cost(only time):
+\[
+  T = \frac{2\binom{n}{w}}{\binom{n/2}{w/2}}
+\]
+
+\begin{question}
+  how do we rerandomise in this case? $\rightarrow$ We can just multiply by any unimodular matrix!
+\end{question}
+
+\subsection{Ternary case}
+
 
 \section{ISD + MiM}
+Let us return to the case when $A$ is reduced to the systematic form $H = U * A = [I_{k}| D_1 | D_2]$ we partition $x = (x_0 |x_1 |x_2)$ on three vectors $x_0 = \in \{0,1\}^{k}$, $x_1,x_2 \in \{0,1\}^{\frac{n-k}{2}}$. Then
+\[
+  Ax = x_0 + D_1x_1 + D_2x_2
+\]
 
+We make bet that $h(x_0) = w_1$, $h(x_1) = h(x_2) = \frac{w_2}{2}$ and perform Meet-in-the-Middle attack trying to find a collision between $D_2x_2$ and all possible $D_1x_1 + x_0$
+
+For that store a table of $D_2x_2$ in memory and look-up there for $D_1x_1 + x_0$.
+
+Comutational cost:
+\[
+\Big(1+ \binom{k}{w_1}\Big)\binom{\frac{n-k}{2}}{\frac{w_2}{2}}
+\]
+Memory cost:
+\[
+\binom{\frac{n-k}{2}}{\frac{w_2}{2}}
+\]
+
+Total cost:
+\[
+\begin{split}
+  T & = \frac{\text{cost of collision search}}{Pr(h(x_0) = w_1, h(x_1) = h(x_2) = \frac{w_2}{2} | h(x) = w)} \\
+  & = \frac{(1+ \binom{k}{w_1})\binom{\frac{n-k}{2}}{\frac{w_2}{2}}\cdot \binom{n}{w}}{\binom{k}{w_1} \cdot \binom{(n-k)/2}{w_2/2}^{2}} \\
+  & \sim \frac{\binom{n}{w}}{\binom{(n-k)/2}{w_2/2}}
+\end{split}
+\]
 \section{Question 5 and 6}
 
 

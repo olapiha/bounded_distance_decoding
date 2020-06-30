@@ -1,0 +1,9 @@
+\BOOKMARK [1][-]{section.1}{Lattice computation for polynomials}{}% 1
+\BOOKMARK [1][-]{section.2}{Building blocks}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Factorization by trial division}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Rational function reconstruction}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Computing logs}{section.2}% 5
+\BOOKMARK [1][-]{section.3}{Decoding radius}{}% 6
+\BOOKMARK [2][-]{subsection.3.1}{Only positive discrete error}{section.3}% 7
+\BOOKMARK [2][-]{subsection.3.2}{Arbitrary discrete error}{section.3}% 8
+\BOOKMARK [2][-]{subsection.3.3}{Normalized radius}{section.3}% 9
