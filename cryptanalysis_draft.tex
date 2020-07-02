@@ -43,7 +43,7 @@ Ax = y
 
 Or equivalently $Hx = U*Ax = Uy =: t$, here we can use our knowledge about the shape of $H$.
 
-What we do in this attack is an improvement of a bruteforce attack. The partition $x$ on two vectors $x_1 \in \{0,1\}^{k}$ and  $x_2  \in \{0,1\}^{n-k}$ so we have
+What we do in this attack is an improvement of a bruteforce. The partition $x$ on two vectors $x_1 \in \{0,1\}^{k}$ and  $x_2  \in \{0,1\}^{n-k}$ so we have
 \[
 t = x_1 + D \cdot x_2
 \]
@@ -144,7 +144,7 @@ Total cost(only time):
 \[
   T = \frac{2\binom{n}{w} \cdot 2^{w/2}}{\binom{n/2}{w/2}}
 \]
-\section{ISD + MiM}
+\section{ISD + MitM}
 Let us return to the case when $A$ is reduced to the systematic form $H = U * A = [I_{k}| D_1 | D_2]$ we partition $x = (x_0 |x_1 |x_2)$ on three vectors $x_0 = \in \{0,1\}^{k}$, $x_1,x_2 \in \{0,1\}^{\frac{n-k}{2}}$. Then
 \[
   Ax = x_0 + D_1x_1 + D_2x_2
