@@ -6,6 +6,8 @@
 \usepackage{mathtools}
 \usepackage{xcolor}
 \usepackage{hyperref}
+\usepackage{algorithm}% http://ctan.org/pkg/algorithm
+\usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
 
 \newcommand{\floor}[1]{\lfloor #1 \rfloor}
 \newcommand{\FF}{\mathbb{F}}
@@ -150,27 +152,51 @@ Let us return to the case when $A$ is reduced to the systematic form $H = U * A 
   Ax = x_0 + D_1x_1 + D_2x_2
 \]
 
-We make bet that $h(x_0) = w_1$, $h(x_1) = h(x_2) = \frac{w_2}{2}$ and perform Meet-in-the-Middle attack trying to find a collision between $D_2x_2$ and all possible $D_1x_1 + x_0$
+We make bet that $h(x_0) = w_1$, $h(x_1) = h(x_2) = \frac{w_2}{2}$ and perform Meet-in-the-Middle attack trying to find approximate collisions between $D_1x_1$ and all possible $t - D_2x_2$
 
-For that store a table of $D_2x_2$ in memory and look-up there for $D_1x_1 + x_0$.
-
-Comutational cost:
+For that we desing a compression function $f$ that will often map close vectors to the same value. It operates as follows:
 \[
-\Big(1+ \binom{k}{w_1}\Big)\binom{\frac{n-k}{2}}{\frac{w_2}{2}}
+\forall v = (v_1, \dots , v_k)\in \ZZ_{q}^{k}: f_{p}(v) = (v_1 quo p, v_2 quo p, \dots, v_k quo p)
 \]
+Here by $quo$ we mean a quotient after euclidean division by $p$ and $p$ is a parameter of the function.
+
+We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We will need to deal with false positives and false negatives in this collision search. Too many false positives can increase the cost of the search for every randomization of the public key matrix and too many false negatives can increase the number of randomizations itself. Let us estimate the cost of running our attack.
+
+To ease the analysis we present pseudocode of the algorithm.
+\begin{algorithm}
+\caption{ISD+MitM attack}
+\begin{algorithmic}[1]
+\Procedure{Decoding}{$A,y$}
+    \State Generate random unimodular matrix $U$
+    \State $A \gets A * U$
+    \State $t = y * U$
+    \State Reduce A it's systematic form: $(I_k |D_1|D_2)$
+    \For{$x_1$ of weight $\frac{w_2}{2}$}
+    \State compute $f_{p}(D_1x_1)$
+    \State store in the hash table
+    \EndFor
+    \For{$x_2$ of weight $\frac{w_2}{2}$}
+    \State compute $f_{p}(t - D_2x_2)$
+    \State look up in the hash table for a collision
+    \If {collision found}
+        \State compute $x_0 = t - D_2x_2 - D_1x_1$
+        \If {$h(x_0) = w_1$ and contains only $0,1$}
+        \State \Return $x = (x_0, x_1, x_2)$
+        \EndIf
+    \EndIf
+    \EndFor
+\State \textbf{goto} \emph{line 2}.
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+Computational cost:
 Memory cost:
-\[
-\binom{\frac{n-k}{2}}{\frac{w_2}{2}}
-\]
 
 Total cost:
-\[
-\begin{split}
-  T & = \frac{\text{cost of collision search}}{Pr(h(x_0) = w_1, h(x_1) = h(x_2) = \frac{w_2}{2} | h(x) = w)} \\
-  & = \frac{(1+ \binom{k}{w_1})\binom{\frac{n-k}{2}}{\frac{w_2}{2}}\cdot \binom{n}{w}}{\binom{k}{w_1} \cdot \binom{(n-k)/2}{w_2/2}^{2}} \\
-  & \sim \frac{\binom{n}{w}}{\binom{(n-k)/2}{w_2/2}}
-\end{split}
-\]
+
+
 \subsection{Ternary case}
 Comutational cost:
 \[
