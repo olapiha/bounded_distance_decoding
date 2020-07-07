@@ -94,8 +94,9 @@ T = \frac{k*\binom{n}{w}*(n^2 + 2n - 1 + \log(q) + (n-1)(k-1) + w_2\binom{n}{w_2
 \]
 \subsection{Ternary case}
 The numerator:
+Only the number of choices for $x_2$ change
 \[
-TBA
+    k*(n^2 + 2n - 1 + \log(q) + (n-1)(k-1) + w_2\binom{n-k}{w_2}*2^{w_2} + \binom{n-k}{w_2}*2^{w_2})
 \]
 The denominator:
 \[
@@ -106,7 +107,7 @@ The denominator:
 \]
 Therefore
 \[
-T = TBA
+T = \frac{k*\binom{n}{w}*(n^2 + 2n - 1 + \log(q) + (n-1)(k-1) + w_2\binom{n}{w_2}*2^{w_2} + \binom{n}{w_2}*2^{w_2})}{\binom{k}{w_1}\binom{n-k}{w_2}}
 \]
 \begin{lemma}
 To minimize the average cost we take $w_1 = ???$ calculated with a script
@@ -163,7 +164,8 @@ In total:
 TIME COST = $k*(n^2 + n + (1 + w)\binom{n/2}{w/2})$
 
 We need to store $(A_1x_1, x_1)$ for every $x_1$
-MEMORY COST = $\binom{n/2}{w/2} * \text{how do we count the size of it}$
+
+MEMORY COST = $\binom{n/2}{w/2} * \text{(how do we count the size of it)}$
 
 Denominator:
 $Pr(h(x_1) = h(x_2) = w/2) = \frac{\binom{n/2}{w/2}^{2}}{\binom{n}{w}}$
@@ -179,20 +181,19 @@ Total cost(only time):
 
 \subsection{Ternary case}
 Numerator:
-We compute $A_1x_1$ for every $x_1$ and store it in the memory. So we perform $\binom{n/2}{w/2} \cdot 2^{w/2}$ operations the same amount of memory. In the worst case we also compute $y - A_2x_2$ for every $x_2$ without storing it - $\binom{n/2}{w/2} \cdot 2^{w/2}$ operations.
 
-In total:
+TIME COST = $k*(n^2 + n + (1 + w)\binom{n/2}{w/2}*2^{w/2})$
 
-TIME = $2\binom{n/2}{w/2} \cdot 2^{w/2}$
+We need to store $(A_1x_1, x_1)$ for every $x_1$
 
-MEMORY = $\binom{n/2}{w/2} \cdot 2^{w/2}$
+MEMORY COST = $\binom{n/2}{w/2} * 2^{w/2} * \text{(how do we count the size of it)}$
 
 Denominator:
 $Pr(h(x_1) = h(x_2) = w/2) = \frac{\binom{n/2}{w/2}^{2}}{\binom{n}{w}}$
 
 Total cost(only time):
 \[
-  T = \frac{2\binom{n}{w} \cdot 2^{w/2}}{\binom{n/2}{w/2}}
+  T = \frac{k*\binom{n}{w}*2^{w/2}*(n^2 + n + (1 + w)\binom{n/2}{w/2})}{\binom{n/2}{w/2}^2}
 \]
 \section{ISD + MitM}
 Let us return to the case when $A$ is reduced to the systematic form $H = U * A = [I_{k}| D_1 | D_2]$ we partition $x = (x_0 |x_1 |x_2)$ on three vectors $x_0 = \in \{0,1\}^{k}$, $x_1,x_2 \in \{0,1\}^{\frac{n-k}{2}}$. Then
@@ -204,9 +205,9 @@ We make bet that $h(x_0) = w_1$, $h(x_1) = h(x_2) = \frac{w_2}{2}$ and perform M
 
 For that we desing a compression function $f$ that will often map close vectors to the same value. It operates as follows:
 \[
-\forall v = (v_1, \dots , v_k)\in \ZZ_{q}^{k}: f_{p}(v) = (v_1 quo p, v_2 quo p, \dots, v_k quo p)
+\forall v = (v_1, \dots , v_k)\in \ZZ_{q}^{k}: f_{p}(v) = (v_1 // p, v_2 // p, \dots, v_k // p)
 \]
-Here by $quo$ we mean a quotient after euclidean division by $p$ and $p$ is a parameter of the function.
+Here by $//$ we mean a quotient after euclidean division by $p$, $p$ is a parameter of the function.
 
 We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We will need to deal with false positives and false negatives in this collision search. Too many false positives can increase the cost of the search for every randomization of the public key matrix and too many false negatives can increase the number of randomizations itself. Let us estimate the cost of running our attack.
 \begin{algorithm}
