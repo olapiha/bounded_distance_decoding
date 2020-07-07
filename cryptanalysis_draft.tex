@@ -161,10 +161,8 @@ For that we desing a compression function $f$ that will often map close vectors 
 Here by $quo$ we mean a quotient after euclidean division by $p$ and $p$ is a parameter of the function.
 
 We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We will need to deal with false positives and false negatives in this collision search. Too many false positives can increase the cost of the search for every randomization of the public key matrix and too many false negatives can increase the number of randomizations itself. Let us estimate the cost of running our attack.
-
-To ease the analysis we present pseudocode of the algorithm.
 \begin{algorithm}
-\caption{ISD+MitM attack}
+\caption{ISD+MitM attack}\label{algo}
 \begin{algorithmic}[1]
 \Procedure{Decoding}{$A,y$}
     \State Generate random unimodular matrix $U$
@@ -189,35 +187,57 @@ To ease the analysis we present pseudocode of the algorithm.
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
-
+To ease the analysis we present pseudocode of the algorithm. \ref{algo}
 
 Computational cost:
+Let us first compute the cost of running the algorithm when we were lucky to generate such matrix $U$ that we end up finding vector $x$ that satisfies all the coditions.
+\begin{itemize}
+    \item Step 2: What is the cost of generating a random unimodular matrix?
+    \item Step 3-4: $k*n^2 + k*n$
+    \item Step 5: $k*(\log(q) + n-1) + k*(n-1)*(k-1)$
+    \item Step 6-9: $(k*\frac{w_2}{2} + k)*\binom{n}{w_2/2}$
+    \item Step 10-19: $(k*\frac{w_2}{2} + k + k)*\binom{n}{w_2/2} + k*(\{\text{\# false positives}\} + 1)$
+\end{itemize}
+In total we have: $k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{n}{w_2/2} + 3\binom{n}{w_2/2} + E(\{\text{\# false positives}\}))$
+
 Memory cost:
+We only store in memory the hash table of $(D_1x_1, x_1)$ in a cell with index $f_{p}(D_1x_1)$ for every $x_1$.
+What is the size of every coordinate?
 
-Total cost:
-
-
-\subsection{Ternary case}
-Comutational cost:
+Total average cost:
 \[
-\Big(1+ \binom{k}{w_1} \cdot 2^{w_1}\Big)\binom{\frac{n-k}{2}}{\frac{w_2}{2}} \cdot 2^{\frac{w_2}{2}}
+    T = \frac{k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{n}{w_2/2} + 3\binom{n}{w_2/2} + E(\{\text{\# false positives}\}))}{Pr(\text{weight distribution bet was successful, there was no false negative in the collision search})}
 \]
-Memory cost:
-\[
-\binom{\frac{n-k}{2}}{\frac{w_2}{2}} \cdot 2^{\frac{w_2}{2}}
-\]
-
-Total cost:
+Let us calculate missing parts of the formula:
 \[
 \begin{split}
-  T & = \frac{\text{cost of collision search}}{Pr(h(x_0) = w_1, h(x_1) = h(x_2) = \frac{w_2}{2} | h(x) = w)} \\
-  & = \frac{(1+ \binom{k}{w_1}\cdot 2^{w_1})\binom{\frac{n-k}{2}}{\frac{w_2}{2}}\cdot 2^{\frac{w_2}{2}}\cdot \binom{n}{w}}{\binom{k}{w_1} \cdot \binom{(n-k)/2}{w_2/2}^{2}} \\
-  & \sim \frac{\binom{n}{w} \cdot 2^{w - \frac{w_2}{2}}}{\binom{(n-k)/2}{w_2/2}}
+    E(\{\text{\# false positives}\}) = \binom{n}{w_2}*Pr(\text{false positive})
 \end{split}
 \]
-\begin{lemma}
-To minimize the average cost we take $w_1 = ???$ calculated with a script
-\end{lemma}
+\[
+\begin{split}
+    Pr(\text{false positive}) & = (1 - Pr(\text{collision corresponds to a correct looking } x_0| \text{  collision happened})) \\
+    & * Pr(\text{collision happens}) \\
+    & = \Big(1 - \binom{n}{w_1}\frac{p-1}{p^2}^{w_1}\frac{1}{p}^{n-w_1}\Big)\frac{1}{q//p}^{2n}
+\end{split}
+\]
+\[
+\begin{split}
+    Pr(\text{false negative}) & = Pr(\text{for some coordinate the +1 difference is located on the edge of the box} \\
+    & \text{and for every other one it's still +1}) \\
+    & = \frac{1}{q}^{n} - \frac{q-b}{q^2}^{n}
+\end{split}
+\]
+\[
+\begin{split}
+    Pr(\text{weight distribution is correct}) & = Pr(h(x_0) = w_1, h(x_1) = h(x_2) = \frac{w_2}{2}) \\
+    & = \frac{\binom{n-k/2}{w_2/2}^{2}\binom{k}{w_1}}{\binom{n}{w}}
+\end{split}
+\]
+Putting everything together we obtain the total average cost.
+
+\subsection{Ternary case}
+
 \section{Question 5 and 6}
 
 
