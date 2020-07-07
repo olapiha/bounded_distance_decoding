@@ -49,15 +49,38 @@ What we do in this attack is an improvement of a bruteforce. The partition $x$ o
 \[
 t = x_1 + D \cdot x_2
 \]
-We make a bet of the weight partition between $h(x_1) = w_1$ and $h(x_2) = w_2$, where $w_1 + w_2 = w$. Now we enumerate only the possible values of $x_2$, compute $x_1 = t - D \cdot x_2$ and check if it satisfies $h(x_1) = w_1$. If we don't find a correct pair with this weight distribution, we rerandomise H and t and start over. The average cost of such algorithm can be calculated as
+We make a bet of the weight partition between $h(x_1) = w_1$ and $h(x_2) = w_2$, where $w_1 + w_2 = w$. Now we enumerate only the possible values of $x_2$, compute $x_1 = t - D \cdot x_2$ and check if it satisfies $h(x_1) = w_1$. If we don't find a correct pair with this weight distribution, we rerandomise H and t and start over.
+\begin{algorithm}
+\caption{ISD attack}\label{ISD}
+\begin{algorithmic}[1]
+\Procedure{Decoding}{$A,y$}
+    \State Generate random matrix $U$
+    \State $H \gets A * U$
+    \State $t = y * U$
+    \State Reduce A it's systematic form: $(I_k |D)$
+    \For{$x_2$ of weight $w_2$}
+        \State compute $x_1 = t - Dx_2$
+        \If {$h(x_1) = w_1$ and contains only $0,1$}
+        \State \Return $x = (x_1, x_2)$
+        \EndIf
+    \EndFor
+\State \textbf{goto} \emph{line 2}.
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+The average cost of such algorithm can be calculated as
 \[
 T = \frac{x_2\text{ bruteforce cost}}{Pr(w_2\text{ is a correct bet on the weight of }x_2)}
 \]
 Let us compute the values above.
 The numerator:
-\[
-\#\{x_2 \in \{0,1\}^{n-k} | h(x_2) = w_2\} = \binom{n-k}{w_2}
-\]
+\begin{itemize}
+    \item Step 2: What is the cost of generating a random matrix?
+    \item Step 3-4: $k*n^2 + k*n$
+    \item Step 5: $k*(\log(q) + n-1) + k*(n-1)*(k-1)$
+    \item Step 6-11: $(k*w_2 + k)*\binom{n-k}{w_2}$
+\end{itemize}
+In total we have: $k*(n^2 + 2n - 1 + \log(q) + (n-1)(k-1) + w_2\binom{n-k}{w_2} + \binom{n-k}{w_2})$
 The denominator:
 \[
 \begin{split}
@@ -67,18 +90,12 @@ The denominator:
 \]
 Therefore
 \[
-T = \frac{\binom{n}{w}}{\binom{k}{w_1}}
+T = \frac{k*\binom{n}{w}*(n^2 + 2n - 1 + \log(q) + (n-1)(k-1) + w_2\binom{n}{w_2} + \binom{n}{w_2})}{\binom{k}{w_1}\binom{n-k}{w_2}}
 \]
-\begin{lemma}
-To minimize the average cost we take $w_1 = min(\frac{k}{2}, w)$
-\end{lemma}
-\begin{proof}
-
-\end{proof}
 \subsection{Ternary case}
 The numerator:
 \[
-\#\{x_2 \in \{0,1,-1\}^{n-k} | h(x_2) = w_2\} = \binom{n-k}{w_2}\cdot 2^{w_2}
+TBA
 \]
 The denominator:
 \[
@@ -89,7 +106,7 @@ The denominator:
 \]
 Therefore
 \[
-T = \frac{\binom{n}{w} \cdot 2^{w - w_1}}{\binom{k}{w_1}}
+T = TBA
 \]
 \begin{lemma}
 To minimize the average cost we take $w_1 = ???$ calculated with a script
@@ -104,29 +121,60 @@ Then $Ax = y$ is equivalent to
 If we can find vectors $x_1$ and $x_2$ for which values $A_1x_1$ and $y - A_2x_2$ coincide
 and sum of their weights is equal to $w$ they form a solution to our problem.
 
+
+\begin{algorithm}
+\caption{MitM attack}\label{MitM}
+\begin{algorithmic}[1]
+\Procedure{Decoding}{$A,y$}
+    \State Generate random matrix $U$
+    \State $(A_1|A_2) \gets A * U$
+    \State $t = y * U$
+    \For{$x_1$ of weight $\frac{w}{2}$}
+    \State compute $A_1x_1$
+    \State store in the hash table
+    \EndFor
+    \For{$x_2$ of weight $\frac{w}{2}$}
+    \State compute $t - A_2x_2$
+    \State look up in the hash table for a collision
+    \If {collision found}
+        \State \Return $x = (x_1, x_2)$
+    \EndIf
+    \EndFor
+\State \textbf{goto} \emph{line 2}.
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
 Here we bet the weight is distributed equaly on both sides. So the average cost can be calculated as follows:
 \[
   T = \frac{\text{cost of finding a collision}}{Pr(h(x_1) = h(x_2) = w/2| h(x) =w)}
 \]
 Numerator:
-We compute $A_1x_1$ for every $x_1$ and store it in the memory. So we perform $\binom{n/2}{w/2}$ operations the same amount of memory. In the worst case we also compute $y - A_2x_2$ for every $x_2$ without storing it - $\binom{n/2}{w/2}$ operations.
+\begin{itemize}
+    \item Step 2: What is the cost of generating a random matrix?
+    \item Step 3-4: $k*n^2 + k*n$
+    \item Step 5-8: $(k*\frac{w}{2}*\binom{n/2}{w/2}$
+    \item Step 9-15: $(k*\frac{w}{2} + k)*\binom{n/2}{w/2}$
+\end{itemize}
 
 In total:
 
-TIME = $2\binom{n/2}{w/2}$
+TIME COST = $k*(n^2 + n + (1 + w)\binom{n/2}{w/2})$
 
-MEMORY = $\binom{n/2}{w/2}$
+We need to store $(A_1x_1, x_1)$ for every $x_1$
+MEMORY COST = $\binom{n/2}{w/2} * \text{how do we count the size of it}$
 
 Denominator:
 $Pr(h(x_1) = h(x_2) = w/2) = \frac{\binom{n/2}{w/2}^{2}}{\binom{n}{w}}$
 
 Total cost(only time):
 \[
-  T = \frac{2\binom{n}{w}}{\binom{n/2}{w/2}}
+  T = \frac{k*\binom{n}{w}*(n^2 + n + (1 + w)\binom{n/2}{w/2})}{\binom{n/2}{w/2}^2}
 \]
 
 \begin{question}
-  how do we rerandomise in this case? $\rightarrow$ We can just multiply by any unimodular matrix!
+  how do we rerandomise in this case? $\rightarrow$ We can just multiply by any matrix!
 \end{question}
 
 \subsection{Ternary case}
@@ -165,7 +213,7 @@ We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We
 \caption{ISD+MitM attack}\label{algo}
 \begin{algorithmic}[1]
 \Procedure{Decoding}{$A,y$}
-    \State Generate random unimodular matrix $U$
+    \State Generate random matrix $U$
     \State $A \gets A * U$
     \State $t = y * U$
     \State Reduce A it's systematic form: $(I_k |D_1|D_2)$
@@ -192,13 +240,13 @@ To ease the analysis we present pseudocode of the algorithm. \ref{algo}
 Computational cost:
 Let us first compute the cost of running the algorithm when we were lucky to generate such matrix $U$ that we end up finding vector $x$ that satisfies all the coditions.
 \begin{itemize}
-    \item Step 2: What is the cost of generating a random unimodular matrix?
+    \item Step 2: What is the cost of generating a random matrix?
     \item Step 3-4: $k*n^2 + k*n$
     \item Step 5: $k*(\log(q) + n-1) + k*(n-1)*(k-1)$
-    \item Step 6-9: $(k*\frac{w_2}{2} + k)*\binom{n}{w_2/2}$
-    \item Step 10-19: $(k*\frac{w_2}{2} + k + k)*\binom{n}{w_2/2} + k*(\{\text{\# false positives}\} + 1)$
+    \item Step 6-9: $(k*\frac{w_2}{2} + k)*\binom{(n-k)/2}{w_2/2}$
+    \item Step 10-19: $(k*\frac{w_2}{2} + k + k)*\binom{(n-k)/2}{w_2/2} + k*(\{\text{\# false positives}\} + 1)$
 \end{itemize}
-In total we have: $k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{n}{w_2/2} + 3\binom{n}{w_2/2} + E(\{\text{\# false positives}\}))$
+In total we have: $k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} + 3\binom{(n-k)/2}{w_2/2} + E(\{\text{\# false positives}\}))$
 
 Memory cost:
 We only store in memory the hash table of $(D_1x_1, x_1)$ in a cell with index $f_{p}(D_1x_1)$ for every $x_1$.
@@ -206,7 +254,7 @@ What is the size of every coordinate?
 
 Total average cost:
 \[
-    T = \frac{k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{n}{w_2/2} + 3\binom{n}{w_2/2} + E(\{\text{\# false positives}\}))}{Pr(\text{weight distribution bet was successful, there was no false negative in the collision search})}
+    T = \frac{k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} + 3\binom{(n-k)/2}{w_2/2} + E(\{\text{\# false positives}\}))}{Pr(\text{weight distribution bet was successful, there was no false negative in the collision search})}
 \]
 Let us calculate missing parts of the formula:
 \[
