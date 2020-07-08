@@ -251,7 +251,7 @@ In total we have: $k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2
 
 Memory cost:
 We only store in memory the hash table of $(D_1x_1, x_1)$ in a cell with index $f_{p}(D_1x_1)$ for every $x_1$.
-What is the size of every coordinate?
+What is the size of every coordinate?  Number of such $x_1$: $\binom{(n-k)/2}{w_2/2}$
 
 Total average cost:
 \[
@@ -267,14 +267,14 @@ Let us calculate missing parts of the formula:
 \begin{split}
     Pr(\text{false positive}) & = (1 - Pr(\text{collision corresponds to a correct looking } x_0| \text{  collision happened})) \\
     & * Pr(\text{collision happens}) \\
-    & = \Big(1 - \binom{n}{w_1}\frac{p-1}{p^2}^{w_1}\frac{1}{p}^{n-w_1}\Big)\frac{1}{q//p}^{2n}
+    & = \Big(1 - \binom{n}{w_1}\frac{(p-1)}{p^2}^{w_1}\frac{1}{p}^{n-w_1}\Big)\frac{1}{q//p}^{n}
 \end{split}
 \]
 \[
 \begin{split}
     Pr(\text{false negative}) & = Pr(\text{for some coordinate the +1 difference is located on the edge of the box} \\
     & \text{and for every other one it's still +1}) \\
-    & = \frac{1}{q}^{n} - \frac{q-b}{q^2}^{n}
+    & = \sum_{i = 1}^{w_1}\binom{n}{i}b^{i}\frac{1}{q^2}^{i}\frac{(q-b)}{q^2}^{n-i}
 \end{split}
 \]
 \[
@@ -286,6 +286,52 @@ Let us calculate missing parts of the formula:
 Putting everything together we obtain the total average cost.
 
 \subsection{Ternary case}
+
+Computational cost:
+\begin{itemize}
+    \item Step 2: What is the cost of generating a random matrix?
+    \item Step 3-4: $k*n^2 + k*n$
+    \item Step 5: $k*(\log(q) + n-1) + k*(n-1)*(k-1)$
+    \item Step 6-9: $(k*\frac{w_2}{2} + k)*\binom{(n-k)/2}{w_2/2}*2^{w_2/2}$
+    \item Step 10-19: $(k*\frac{w_2}{2} + k + k)*\binom{(n-k)/2}{w_2/2}*2^{w_2/2} + k*(\{\text{\# false positives}\} + 1)$
+\end{itemize}
+In total we have: $k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2}*2^{w_2/2} + 3\binom{(n-k)/2}{w_2/2}*2^{w_2/2} + E(\{\text{\# false positives}\}))$
+
+Memory cost:
+We only store in memory the hash table of $(D_1x_1, x_1)$ in a cell with index $f_{p}(D_1x_1)$ for every $x_1$.
+What is the size of every coordinate? Number of such $x_1$: $\binom{(n-k)/2}{w_2/2}*2^{w_2/2}$
+
+Total average cost:
+\[
+    T = \frac{k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2}*2^{w_2/2} + 3\binom{(n-k)/2}{w_2/2}*2^{w_2/2} + E(\{\text{\# false positives}\}))}{Pr(\text{weight distribution bet was successful, there was no false negative})}
+\]
+Let us calculate missing parts of the formula:
+\[
+\begin{split}
+    E(\{\text{\# false positives}\}) = \binom{n}{w_2}*2^{w_2/2}*Pr(\text{false positive})
+\end{split}
+\]
+\[
+\begin{split}
+    Pr(\text{false positive}) & = (1 - Pr(\text{collision corresponds to a correct looking } x_0| \text{  collision happened})) \\
+    & * Pr(\text{collision happens}) \\
+    & =\Big(1- \binom{n}{w_1}\frac{2(p-1)}{p^2}^{w_1}\frac{1}{p}^{n-w_1}\Big) *\frac{1}{q//p}^{n}
+\end{split}
+\]
+\[
+\begin{split}
+    Pr(\text{false negative}) & = Pr(\text{for some coordinate the +1/-1 difference is located on the} \\
+    & \text{ corresponding edge of the box and for every other one it's still +1/-1}) \\
+    & = \sum_{i = 1}^{w_1}\binom{n}{i}b^{i}\frac{2}{q^2}^{i}\frac{(q - 2b)}{q^2}^{n-i}
+\end{split}
+\]
+\[
+\begin{split}
+    Pr(\text{weight distribution is correct}) & = Pr(h(x_0) = w_1, h(x_1) = h(x_2) = \frac{w_2}{2}) \\
+    & = \frac{\binom{n-k/2}{w_2/2}^{2}\binom{k}{w_1}}{\binom{n}{w}}
+\end{split}
+\]
+Putting everything together we obtain the total average cost.
 
 \section{Question 5 and 6}
 
