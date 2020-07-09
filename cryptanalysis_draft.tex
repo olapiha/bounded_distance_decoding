@@ -267,14 +267,15 @@ Let us calculate missing parts of the formula:
 \begin{split}
     Pr(\text{false positive}) & = (1 - Pr(\text{collision corresponds to a correct looking } x_0| \text{  collision happened})) \\
     & * Pr(\text{collision happens}) \\
-    & = \Big(1 - \binom{n}{w_1}\frac{(p-1)}{p^2}^{w_1}\frac{1}{p}^{n-w_1}\Big)\frac{1}{q//p}^{n}
+    & = \Big(1 - \binom{n}{w_1}(\frac{(p-1)}{p^2})^{w_1}\frac{1}{p}^{n-w_1}\Big)\frac{1}{q//p}^{n}
 \end{split}
 \]
+In the following formula $b$ is the number of boxes($q//p$)
 \[
 \begin{split}
     Pr(\text{false negative}) & = Pr(\text{for some coordinate the +1 difference is located on the edge of the box} \\
     & \text{and for every other one it's still +1}) \\
-    & = \sum_{i = 1}^{w_1}\binom{n}{i}b^{i}\frac{1}{q^2}^{i}\frac{(q-b)}{q^2}^{n-i}
+    & = \sum_{i = 1}^{w_1}\binom{n}{i}b^{i}\frac{1}{q^2}^{i}(\frac{q-b}{q^2})^{n-i}
 \end{split}
 \]
 \[
@@ -315,14 +316,15 @@ Let us calculate missing parts of the formula:
 \begin{split}
     Pr(\text{false positive}) & = (1 - Pr(\text{collision corresponds to a correct looking } x_0| \text{  collision happened})) \\
     & * Pr(\text{collision happens}) \\
-    & =\Big(1- \binom{n}{w_1}\frac{2(p-1)}{p^2}^{w_1}\frac{1}{p}^{n-w_1}\Big) *\frac{1}{q//p}^{n}
+    & =\Big(1- \binom{n}{w_1}(\frac{2(p-1)}{p^2})^{w_1}\frac{1}{p}^{n-w_1}\Big) *\frac{1}{q//p}^{n}
 \end{split}
 \]
+In the following formula $b$ is the number of boxes($q//p$)
 \[
 \begin{split}
     Pr(\text{false negative}) & = Pr(\text{for some coordinate the +1/-1 difference is located on the} \\
     & \text{ corresponding edge of the box and for every other one it's still +1/-1}) \\
-    & = \sum_{i = 1}^{w_1}\binom{n}{i}b^{i}\frac{2}{q^2}^{i}\frac{(q - 2b)}{q^2}^{n-i}
+    & = \sum_{i = 1}^{w_1}\binom{n}{i}b^{i}\frac{2}{q^2}^{i}(\frac{(q - 2b)}{q^2})^{n-i}
 \end{split}
 \]
 \[
