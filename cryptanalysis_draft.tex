@@ -35,33 +35,30 @@
 
 \cite{[DP19]}(just to not modify makefile added some references)
 
-Notation: we take a vector $t \in \ZZ^{k}$, a matrix $A \in \ZZ^{k \times n}$. It can be reduced to its(maybe permuted) systematic form $H  = U * A = [I_{k}|D]$.
+Notation: we take a vector $t \in \ZZ_q^{k}$, a matrix $A \in \ZZ_q^{k \times n}$. It can be reduced to its(maybe permuted) systematic form $H  = U \cdot A = [I_{k}|D]$.
 
 
-The goal is to find a vector $x \in \{0,1\}^{n}$ with small Hamming weight $h(x) = w$ that
+The goal is to find a vector $x \in \{0,1\}^{n}$ with small Hamming weight $|x| = w$ that
 \[
 Ax = y
 \]
 
-Or equivalently $Hx = U*Ax = Uy =: t$, here we can use our knowledge about the shape of $H$.
+Or equivalently $Hx = U\cdot Ax = Uy =: t$, here we can use our knowledge about the shape of $H$.
 
 What we do in this attack is an improvement of a bruteforce. The partition $x$ on two vectors $x_1 \in \{0,1\}^{k}$ and  $x_2  \in \{0,1\}^{n-k}$ so we have
 \[
 t = x_1 + D \cdot x_2
 \]
-We make a bet of the weight partition between $h(x_1) = w_1$ and $h(x_2) = w_2$, where $w_1 + w_2 = w$. Now we enumerate only the possible values of $x_2$, compute $x_1 = t - D \cdot x_2$ and check if it satisfies $h(x_1) = w_1$. If we don't find a correct pair with this weight distribution, we rerandomise H and t and start over.
+We make a bet of the weight partition between $|x_1| = w_1$ and $|x_2| = w_2$, where $w_1 + w_2 = w$. Now we enumerate only the possible values of $x_2$, compute $x_1 = t - D \cdot x_2$ and check if it satisfies $|x_1| = w_1$. If we don't find a correct pair with this weight distribution, we rerandomise H and t and start over.
 \begin{algorithm}
 \caption{ISD attack}\label{ISD}
 \begin{algorithmic}[1]
 \Procedure{Decoding}{$A,y$}
-    \State Generate random matrix $U$
-    \State $H \gets A * U$
-    \State $t = y * U$
-    \State Reduce A it's systematic form: $(I_k |D)$
+    \State Reduce A it's randomized systematic form: $(I_k |D)$
     \For{$x_2$ of weight $w_2$}
         \State compute $x_1 = t - Dx_2$
-        \If {$h(x_1) = w_1$ and contains only $0,1$}
-        \State \Return $x = (x_1, x_2)$
+        \If {$|x_1| = w_1$ and contains only $0,1$}
+        \State \Return Derandomize $x = (x_1, x_2)$
         \EndIf
     \EndFor
 \State \textbf{goto} \emph{line 2}.
@@ -75,39 +72,38 @@ T = \frac{x_2\text{ bruteforce cost}}{Pr(w_2\text{ is a correct bet on the weigh
 Let us compute the values above.
 The numerator:
 \begin{itemize}
-    \item Step 2: What is the cost of generating a random matrix?
-    \item Step 3-4: $k*n^2 + k*n$
-    \item Step 5: $k*(\log(q) + n-1) + k*(n-1)*(k-1)$
-    \item Step 6-11: $(k*w_2 + k)*\binom{n-k}{w_2}$
+    \item Step 3-4: $O(k\cdot n^2)$
+    \item Step 5: $O(k \cdot (n-1) \cdot (k-1))$
+    \item Step 6-11: $O(k \cdot w_2 \cdot \binom{n-k}{w_2})$
 \end{itemize}
-In total we have: $k*(n^2 + 2n - 1 + \log(q) + (n-1)(k-1) + w_2\binom{n-k}{w_2} + \binom{n-k}{w_2})$
+In total we have: $k \cdot (n^2 + (n-1)(k-1) + w_2\binom{n-k}{w_2})$
 The denominator:
 \[
 \begin{split}
-    Pr(w_2\text{ is a correct bet on the weight of }x_2) & = Pr(h(x_2) = w_2|h(x) = w) \\
+    Pr(w_2\text{ is a correct bet on the weight of }x_2) & = Pr(|x_2| = w_2||x| = w) \\
     & = \frac{\binom{n-k}{w_2} \cdot \binom{k}{w_1}}{\binom{n}{w}}
 \end{split}
 \]
 Therefore
 \[
-T = \frac{k*\binom{n}{w}*(n^2 + 2n - 1 + \log(q) + (n-1)(k-1) + w_2\binom{n}{w_2} + \binom{n}{w_2})}{\binom{k}{w_1}\binom{n-k}{w_2}}
+T = \frac{k\cdot\binom{n}{w}\cdot(n^2 + (n-1)(k-1) + w_2\binom{n}{w_2})}{\binom{k}{w_1}\binom{n-k}{w_2}}
 \]
 \subsection{Ternary case}
 The numerator:
 Only the number of choices for $x_2$ change
 \[
-    k*(n^2 + 2n - 1 + \log(q) + (n-1)(k-1) + w_2\binom{n-k}{w_2}*2^{w_2} + \binom{n-k}{w_2}*2^{w_2})
+    k\cdot(n^2 + (n-1)(k-1) + w_2\binom{n-k}{w_2}\cdot2^{w_2})
 \]
 The denominator:
 \[
 \begin{split}
-    Pr(w_2\text{ is a correct bet on the weight of }x_2) & = Pr(h(x_2) = w_2|h(x) = w) \\
+    Pr(w_2\text{ is a correct bet on the weight of }x_2) & = Pr(|x_2| = w_2||x| = w) \\
     & = \frac{\binom{n-k}{w_2} \cdot \binom{k}{w_1}}{\binom{n}{w}}
 \end{split}
 \]
 Therefore
 \[
-T = \frac{k*\binom{n}{w}*(n^2 + 2n - 1 + \log(q) + (n-1)(k-1) + w_2\binom{n}{w_2}*2^{w_2} + \binom{n}{w_2}*2^{w_2})}{\binom{k}{w_1}\binom{n-k}{w_2}}
+T = \frac{k\cdot\binom{n}{w}\cdot(n^2 + (n-1)(k-1) + w_2\binom{n}{w_2}\cdot2^{w_2})}{\binom{k}{w_1}\binom{n-k}{w_2}}
 \]
 \begin{lemma}
 To minimize the average cost we take $w_1 = ???$ calculated with a script
@@ -128,8 +124,8 @@ and sum of their weights is equal to $w$ they form a solution to our problem.
 \begin{algorithmic}[1]
 \Procedure{Decoding}{$A,y$}
     \State Generate random matrix $U$
-    \State $(A_1|A_2) \gets A * U$
-    \State $t = y * U$
+    \State $(A_1|A_2) \gets A \cdot U$
+    \State $t = y \cdot U$
     \For{$x_1$ of weight $\frac{w}{2}$}
     \State compute $A_1x_1$
     \State store in the hash table
@@ -149,30 +145,31 @@ and sum of their weights is equal to $w$ they form a solution to our problem.
 
 Here we bet the weight is distributed equaly on both sides. So the average cost can be calculated as follows:
 \[
-  T = \frac{\text{cost of finding a collision}}{Pr(h(x_1) = h(x_2) = w/2| h(x) =w)}
+  T = \frac{\text{cost of finding a collision}}{Pr(|x_1| = |x_2| = w/2| |x| =w)}
 \]
 Numerator:
 \begin{itemize}
-    \item Step 2: What is the cost of generating a random matrix?
-    \item Step 3-4: $k*n^2 + k*n$
-    \item Step 5-8: $(k*\frac{w}{2}*\binom{n/2}{w/2}$
-    \item Step 9-15: $(k*\frac{w}{2} + k)*\binom{n/2}{w/2}$
+    \item Step 2: $n*k*log(q)$
+    \item Step 3-4: $O(k \cdot n^2)$
+    \item Step 5-8: $O(k \cdot \frac{w}{2} \cdot \binom{n/2}{w/2})$
+    \item Step 9-15: $O(k \cdot \frac{w}{2} \cdot \binom{n/2}{w/2})$
 \end{itemize}
 
 In total:
 
-TIME COST = $k*(n^2 + n + (1 + w)\binom{n/2}{w/2})$
+TIME COST = $O(k \cdot (n^2 + w\binom{n/2}{w/2}))$
 
-We need to store $(A_1x_1, x_1)$ for every $x_1$
+We need to store every $x_1$
 
-MEMORY COST = $\binom{n/2}{w/2} * \text{(how do we count the size of it)}$
+
+MEMORY COST = $\binom{n/2}{w/2} \cdot log(n) \cdot \frac{w}{2}$
 
 Denominator:
-$Pr(h(x_1) = h(x_2) = w/2) = \frac{\binom{n/2}{w/2}^{2}}{\binom{n}{w}}$
+$Pr(|x_1| = |x_2| = w/2) = \frac{\binom{n/2}{w/2}^{2}}{\binom{n}{w}}$
 
 Total cost(only time):
 \[
-  T = \frac{k*\binom{n}{w}*(n^2 + n + (1 + w)\binom{n/2}{w/2})}{\binom{n/2}{w/2}^2}
+  T = \frac{k \cdot \binom{n}{w} \cdot (n^2 + w\binom{n/2}{w/2})}{\binom{n/2}{w/2}^2}
 \]
 
 \begin{question}
@@ -182,42 +179,39 @@ Total cost(only time):
 \subsection{Ternary case}
 Numerator:
 
-TIME COST = $k*(n^2 + n + (1 + w)\binom{n/2}{w/2}*2^{w/2})$
+TIME COST = $k \cdot (n^2 + w \cdot \binom{n/2}{w/2} \cdot 2^{w/2})$
 
-We need to store $(A_1x_1, x_1)$ for every $x_1$
+We need to store every $x_1$
 
-MEMORY COST = $\binom{n/2}{w/2} * 2^{w/2} * \text{(how do we count the size of it)}$
+MEMORY COST = $\binom{n/2}{w/2} \cdot 2^{w/2} \cdot log(n) \cdot \frac{w}{2}$
 
 Denominator:
-$Pr(h(x_1) = h(x_2) = w/2) = \frac{\binom{n/2}{w/2}^{2}}{\binom{n}{w}}$
+$Pr(|x_1| = |x_2| = w/2) = \frac{\binom{n/2}{w/2}^{2}}{\binom{n}{w}}$
 
 Total cost(only time):
 \[
-  T = \frac{k*\binom{n}{w}*2^{w/2}*(n^2 + n + (1 + w)\binom{n/2}{w/2})}{\binom{n/2}{w/2}^2}
+  T = \frac{k \cdot \binom{n}{w} \cdot 2^{w/2} \cdot (n^2 + w\binom{n/2}{w/2})}{\binom{n/2}{w/2}^2}
 \]
 \section{ISD + MitM}
-Let us return to the case when $A$ is reduced to the systematic form $H = U * A = [I_{k}| D_1 | D_2]$ we partition $x = (x_0 |x_1 |x_2)$ on three vectors $x_0 = \in \{0,1\}^{k}$, $x_1,x_2 \in \{0,1\}^{\frac{n-k}{2}}$. Then
+Let us return to the case when $A$ is reduced to the systematic form $H = U \cdot A = [I_{k}| D_1 | D_2]$ we partition $x = (x_0 |x_1 |x_2)$ on three vectors $x_0 = \in \{0,1\}^{k}$, $x_1,x_2 \in \{0,1\}^{\frac{n-k}{2}}$. Then
 \[
   Ax = x_0 + D_1x_1 + D_2x_2
 \]
 
-We make bet that $h(x_0) = w_1$, $h(x_1) = h(x_2) = \frac{w_2}{2}$ and perform Meet-in-the-Middle attack trying to find approximate collisions between $D_1x_1$ and all possible $t - D_2x_2$
+We make bet that $|x_0| = w_1$, $|x_1| = |x_2| = \frac{w_2}{2}$ and perform Meet-in-the-Middle attack trying to find approximate collisions between $D_1x_1$ and all possible $t - D_2x_2$
 
 For that we desing a compression function $f$ that will often map close vectors to the same value. It operates as follows:
 \[
-\forall v = (v_1, \dots , v_k)\in \ZZ_{q}^{k}: f_{p}(v) = (v_1 // p, v_2 // p, \dots, v_k // p)
+\forall v = (v_1, \dots , v_k)\in \ZZ_{q}^{k}: f_{p}(v) = (\lfloor v1/p \rceil, \lfloor v2/p \rceil, \dots, \lfloor vk/p \rceil)
 \]
-Here by $//$ we mean a quotient after euclidean division by $p$, $p$ is a parameter of the function.
+Here $p$ is a parameter of the function.
 
 We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We will need to deal with false positives and false negatives in this collision search. Too many false positives can increase the cost of the search for every randomization of the public key matrix and too many false negatives can increase the number of randomizations itself. Let us estimate the cost of running our attack.
 \begin{algorithm}
 \caption{ISD+MitM attack}\label{algo}
 \begin{algorithmic}[1]
 \Procedure{Decoding}{$A,y$}
-    \State Generate random matrix $U$
-    \State $A \gets A * U$
-    \State $t = y * U$
-    \State Reduce A it's systematic form: $(I_k |D_1|D_2)$
+    \State Reduce A it's randomized systematic form: $(I_k |D_1|D_2)$
     \For{$x_1$ of weight $\frac{w_2}{2}$}
     \State compute $f_{p}(D_1x_1)$
     \State store in the hash table
@@ -226,9 +220,10 @@ We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We
     \State compute $f_{p}(t - D_2x_2)$
     \State look up in the hash table for a collision
     \If {collision found}
+        \State compute $D_1x_1$
         \State compute $x_0 = t - D_2x_2 - D_1x_1$
-        \If {$h(x_0) = w_1$ and contains only $0,1$}
-        \State \Return $x = (x_0, x_1, x_2)$
+        \If {$|x_0| = w_1$ and contains only $0,1$}
+        \State \Return Derandomize $x = (x_0, x_1, x_2)$
         \EndIf
     \EndIf
     \EndFor
@@ -241,36 +236,36 @@ To ease the analysis we present pseudocode of the algorithm. \ref{algo}
 Computational cost:
 Let us first compute the cost of running the algorithm when we were lucky to generate such matrix $U$ that we end up finding vector $x$ that satisfies all the coditions.
 \begin{itemize}
-    \item Step 2: What is the cost of generating a random matrix?
-    \item Step 3-4: $k*n^2 + k*n$
-    \item Step 5: $k*(\log(q) + n-1) + k*(n-1)*(k-1)$
-    \item Step 6-9: $(k*\frac{w_2}{2} + k)*\binom{(n-k)/2}{w_2/2}$
-    \item Step 10-19: $(k*\frac{w_2}{2} + k + k)*\binom{(n-k)/2}{w_2/2} + k*(\{\text{\# false positives}\} + 1)$
+    \item Step 3-4: $O(k \cdot n^2)$
+    \item Step 5: $O(k \cdot (n-1) \cdot (k-1))$
+    \item Step 6-9: $O(k \cdot \frac{w_2}{2} \cdot \binom{(n-k)/2}{w_2/2})$
+    \item Step 10-19: $O(k \cdot \frac{w_2}{2} \cdot \binom{(n-k)/2}{w_2/2} + k \cdot \{\text{\# positives}\})$
 \end{itemize}
-In total we have: $k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} + 3\binom{(n-k)/2}{w_2/2} + E(\{\text{\# false positives}\}))$
+In total we have: $k \cdot (n^2 + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} + + E(\{\text{\# positives}\}))$
 
 Memory cost:
-We only store in memory the hash table of $(D_1x_1, x_1)$ in a cell with index $f_{p}(D_1x_1)$ for every $x_1$.
-What is the size of every coordinate?  Number of such $x_1$: $\binom{(n-k)/2}{w_2/2}$
+We only store in memory the hash table of $x_1$ in a cell with index $f_{p}(D_1x_1)$ for every $x_1$.
+The weight of $x_1$ is small so we only remember the set of nonzero coordinates $log(n) \cdot \frac{w_2}{2}$ Number of such $x_1$: $\binom{(n-k)/2}{w_2/2}$
+
+So the overall complexity is  $\binom{(n-k)/2}{w_2/2} \cdot log(n) \cdot \frac{w_2}{2}$
 
 Total average cost:
 \[
-    T = \frac{k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} + 3\binom{(n-k)/2}{w_2/2} + E(\{\text{\# false positives}\}))}{Pr(\text{weight distribution bet was successful, there was no false negative in the collision search})}
+    T = \frac{k \cdot (n^2 + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} + E(\{\text{\# positives}\}))}{Pr(\text{weight distribution bet was successful, there was no false negative in the collision search})}
 \]
 Let us calculate missing parts of the formula:
 \[
 \begin{split}
-    E(\{\text{\# false positives}\}) = \binom{n}{w_2}*Pr(\text{false positive})
+    E(\{\text{\#positives}\}) = \binom{n}{w_2} \cdot Pr(\text{positive})
 \end{split}
 \]
 \[
 \begin{split}
-    Pr(\text{false positive}) & = (1 - Pr(\text{collision corresponds to a correct looking } x_0| \text{  collision happened})) \\
-    & * Pr(\text{collision happens}) \\
-    & = \Big(1 - \binom{n}{w_1}(\frac{(p-1)}{p^2})^{w_1}\frac{1}{p}^{n-w_1}\Big)\frac{1}{q//p}^{n}
+    Pr(\text{positive}) & = Pr(\text{collision happens}) \\
+    & = \frac{1}{\lfloor q/p \rceil}^{n}
 \end{split}
 \]
-In the following formula $b$ is the number of boxes($q//p$)
+In the following formula $b$ is the number of boxes($\lfloor q/p \rceil$)
 \[
 \begin{split}
     Pr(\text{false negative}) & = Pr(\text{for some coordinate the +1 difference is located on the edge of the box} \\
@@ -280,7 +275,15 @@ In the following formula $b$ is the number of boxes($q//p$)
 \]
 \[
 \begin{split}
-    Pr(\text{weight distribution is correct}) & = Pr(h(x_0) = w_1, h(x_1) = h(x_2) = \frac{w_2}{2}) \\
+    Pr(\text{false negative}) & = Pr(\text{for some coordinate the +1 difference is located on the edge of the box} \\
+    & \text{and for every other one it's still +1}) \\
+    & <
+\end{split}
+\]
+
+\[
+\begin{split}
+    Pr(\text{weight distribution is correct}) & = Pr(|x_0| = w_1, |x_1| = |x_2| = \frac{w_2}{2}) \\
     & = \frac{\binom{n-k/2}{w_2/2}^{2}\binom{k}{w_1}}{\binom{n}{w}}
 \end{split}
 \]
@@ -290,46 +293,46 @@ Putting everything together we obtain the total average cost.
 
 Computational cost:
 \begin{itemize}
-    \item Step 2: What is the cost of generating a random matrix?
-    \item Step 3-4: $k*n^2 + k*n$
-    \item Step 5: $k*(\log(q) + n-1) + k*(n-1)*(k-1)$
-    \item Step 6-9: $(k*\frac{w_2}{2} + k)*\binom{(n-k)/2}{w_2/2}*2^{w_2/2}$
-    \item Step 10-19: $(k*\frac{w_2}{2} + k + k)*\binom{(n-k)/2}{w_2/2}*2^{w_2/2} + k*(\{\text{\# false positives}\} + 1)$
+    \item Step 3-4: $O(k \cdot n^2)$
+    \item Step 5: $O(k \cdot (n-1) \cdot (k-1))$
+    \item Step 6-9: $O(k \cdot \frac{w_2}{2} \cdot \binom{(n-k)/2}{w_2/2} \cdot 2^{w_2/2})$
+    \item Step 10-19: $O(k \cdot \frac{w_2}{2} \cdot \binom{(n-k)/2}{w_2/2} \cdot 2^{w_2/2} + k \cdot \{\text{\# positives}\})$
 \end{itemize}
-In total we have: $k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2}*2^{w_2/2} + 3\binom{(n-k)/2}{w_2/2}*2^{w_2/2} + E(\{\text{\# false positives}\}))$
+In total we have: $k \cdot (n^2 + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} \cdot 2^{w_2/2} + E(\{\text{\# positives}\}))$
 
 Memory cost:
-We only store in memory the hash table of $(D_1x_1, x_1)$ in a cell with index $f_{p}(D_1x_1)$ for every $x_1$.
-What is the size of every coordinate? Number of such $x_1$: $\binom{(n-k)/2}{w_2/2}*2^{w_2/2}$
+We only store in memory the hash table of $x_1$ in a cell with index $f_{p}(D_1x_1)$ for every $x_1$.
+The weight of $x_1$ is small so we only remember the set of nonzero coordinates $log(n) \cdot \frac{w_2}{2}$ Number of such $x_1$: $\binom{(n-k)/2}{w_2/2} \cdot 2^{w_2/2}$
+
+So the overall complexity is  $\binom{(n-k)/2}{w_2/2} \cdot 2^{w_2/2} \cdot log(n) \cdot \frac{w_2}{2}$
 
 Total average cost:
 \[
-    T = \frac{k*(n^2 + 2n + \log(q) + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2}*2^{w_2/2} + 3\binom{(n-k)/2}{w_2/2}*2^{w_2/2} + E(\{\text{\# false positives}\}))}{Pr(\text{weight distribution bet was successful, there was no false negative})}
+    T = \frac{k \cdot (n^2 + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} \cdot 2^{w_2/2} + E(\{\text{\# positives}\}))}{Pr(\text{weight distribution bet was successful, there was no false negative})}
 \]
 Let us calculate missing parts of the formula:
 \[
 \begin{split}
-    E(\{\text{\# false positives}\}) = \binom{n}{w_2}*2^{w_2/2}*Pr(\text{false positive})
+    E(\{\text{\# positives}\}) = \binom{n}{w_2} \cdot 2^{w_2/2} \cdot Pr(\text{positive})
 \end{split}
 \]
 \[
 \begin{split}
-    Pr(\text{false positive}) & = (1 - Pr(\text{collision corresponds to a correct looking } x_0| \text{  collision happened})) \\
-    & * Pr(\text{collision happens}) \\
-    & =\Big(1- \binom{n}{w_1}(\frac{2(p-1)}{p^2})^{w_1}\frac{1}{p}^{n-w_1}\Big) *\frac{1}{q//p}^{n}
+    Pr(\text{positive}) & = Pr(\text{collision happens}) \\
+    & = \frac{1}{\lfloor q/p \rceil}^{n}
 \end{split}
 \]
-In the following formula $b$ is the number of boxes($q//p$)
+In the following formula $b$ is the number of boxes($\lfloor q/p \rceil$)
 \[
 \begin{split}
     Pr(\text{false negative}) & = Pr(\text{for some coordinate the +1/-1 difference is located on the} \\
     & \text{ corresponding edge of the box and for every other one it's still +1/-1}) \\
-    & = \sum_{i = 1}^{w_1}\binom{n}{i}b^{i}\frac{2}{q^2}^{i}(\frac{(q - 2b)}{q^2})^{n-i}
+    & =
 \end{split}
 \]
 \[
 \begin{split}
-    Pr(\text{weight distribution is correct}) & = Pr(h(x_0) = w_1, h(x_1) = h(x_2) = \frac{w_2}{2}) \\
+    Pr(\text{weight distribution is correct}) & = Pr(|x_0| = w_1, |x_1| = |x_2| = \frac{w_2}{2}) \\
     & = \frac{\binom{n-k/2}{w_2/2}^{2}\binom{k}{w_1}}{\binom{n}{w}}
 \end{split}
 \]
