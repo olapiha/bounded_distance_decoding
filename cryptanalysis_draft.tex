@@ -4,6 +4,7 @@
 \usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{mathtools}
+\usepackage{dsfont}
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{algorithm}% http://ctan.org/pkg/algorithm
@@ -265,22 +266,19 @@ Let us calculate missing parts of the formula:
     & = \frac{1}{\lfloor q/p \rceil}^{n}
 \end{split}
 \]
-In the following formula $b$ is the number of boxes($\lfloor q/p \rceil$)
-\[
-\begin{split}
-    Pr(\text{false negative}) & = Pr(\text{for some coordinate the +1 difference is located on the edge of the box} \\
-    & \text{and for every other one it's still +1}) \\
-    & = \sum_{i = 1}^{w_1}\binom{n}{i}b^{i}\frac{1}{q^2}^{i}(\frac{q-b}{q^2})^{n-i}
-\end{split}
-\]
-\[
-\begin{split}
-    Pr(\text{false negative}) & = Pr(\text{for some coordinate the +1 difference is located on the edge of the box} \\
-    & \text{and for every other one it's still +1}) \\
-    & <
-\end{split}
-\]
 
+To simplify the notations for the computation of false negatives $y_1 \coloneqq D_1x_1$, $y_2 \coloneqq t-D_2x_2$ let us call $T$ the hash table of $y_1$s. The number of boxes($\lfloor q/p \rceil$) we denote with $b$. We assume that $y_1, y_2$ are distributed uniformly over $\ZZ_q^{k}$ because otherwise we would be able to obtain some information on $x_1$ and $x_2$ and speed up the bruteforce which would break our security assumption(THINK AGAIN ABOUT THIS). $t_i$ signify non-zero coordinates of$x_0$
+\[
+\begin{split}
+    Pr_{y_2}(\text{false negative}) & = Pr_{y_2}(\exists y_1 \in t: f_p(y_1) \neq f_p(y_2), |x_0| \coloneqq |y_2 - y_1| = w_1, x_0 \in \{0,1\}^{k}) \\
+    & = Pr_{y_2}(\exists x_0 s.t. |x_0| = w_1, x_0 \in\{0,1\}^{k}: f_p(y_2 - x_0) \neq f_p(y_2), y_2 - x_0 \in T) \\
+    & \leq (\text{union bound}) \leq \sum_{x_0} Pr_{y_2}(f_p(y_2 - x_0) \neq f_p(y_2), y_2 - x_0 \in T) \\
+    & \leq (\text{union bound}) \leq \sum_{x_0} \sum_{i = 1}^{w_1} Pr_{y_2}((y_2)_{t_i} \in \{kp+1 p=0, \dots b\}, y_2 - x_0 \in T) \\
+    & = \sum_{x_0} \sum_{i = 1}^{w_1} \frac{\binom{n-k/2}{w_2/2} \cdot \frac{b}{q}}{q^k} \\
+    & = \sum_{x_0} w_1 \cdot \frac{\binom{n-k/2}{w_2/2} \cdot \frac{b}{q}}{q^k} \\
+    & = \binom{k}{w_1} \cdot w_1 \cdot \frac{\binom{n-k/2}{w_2/2} \cdot \frac{b}{q}}{q^k}
+\end{split}
+\]
 \[
 \begin{split}
     Pr(\text{weight distribution is correct}) & = Pr(|x_0| = w_1, |x_1| = |x_2| = \frac{w_2}{2}) \\
@@ -322,12 +320,16 @@ Let us calculate missing parts of the formula:
     & = \frac{1}{\lfloor q/p \rceil}^{n}
 \end{split}
 \]
-In the following formula $b$ is the number of boxes($\lfloor q/p \rceil$)
 \[
 \begin{split}
-    Pr(\text{false negative}) & = Pr(\text{for some coordinate the +1/-1 difference is located on the} \\
-    & \text{ corresponding edge of the box and for every other one it's still +1/-1}) \\
-    & =
+    Pr_{y_2}(\text{false negative}) & = Pr_{y_2}(\exists y_1 \in t: f_p(y_1) \neq f_p(y_2), |x_0| \coloneqq |y_2 - y_1| = w_1, x_0 \in \{0,1\}^{k}) \\
+    & = Pr_{y_2}(\exists x_0 s.t. |x_0| = w_1, x_0 \in\{0,1\}^{k}: f_p(y_2 - x_0) \neq f_p(y_2), y_2 - x_0 \in T) \\
+    & \leq (\text{union bound}) \leq \sum_{x_0} Pr_{y_2}(f_p(y_2 - x_0) \neq f_p(y_2), y_2 - x_0 \in T) \\
+    & \leq (\text{union bound}) \leq \sum_{x_0} \sum_{i = 1}^{w_1} \mathds{1}_{(x_0 = 1)}Pr_{y_2}((y_2)_{t_i} \in \{kp+1 p=0, \dots b\}, y_2 - x_0 \in T) \\
+    & + \mathds{1}_{(x_0 = -1)}Pr_{y_2}((y_2)_{t_i} \in \{kp-1 p=0, \dots b\}, y_2 - x_0 \in T) \\
+    & = \sum_{x_0} \sum_{i = 1}^{w_1} \frac{\binom{n-k/2}{w_2/2} \cdot \frac{b}{q}}{q^k} \\
+    & = \sum_{x_0} w_1 \cdot \frac{\binom{n-k/2}{w_2/2} \cdot \frac{b}{q}}{q^k} \\
+    & = \binom{k}{w_1} \cdot 2^{w_1} \cdot w_1 \cdot \frac{\binom{n-k/2}{w_2/2} \cdot \frac{b}{q}}{q^k}
 \end{split}
 \]
 \[
