@@ -138,7 +138,17 @@ Directly follows from \cite{[DP19]}. $\bar{r}_1 = \frac{dk}{det(\mathcal{L})^{1/
 \]
 What should be the values of $d$ and $k$?
 
-We have the following constraints: $q^d = n^{O(1)}$, $dk < q^{d}$, $n \leq q$ from here it follows that $d$ must be constant \\ \\ \\
+We have the following constraints: $q^d = n^{O(1)}$, $dk < q^{d}$, $n \leq q$ from here it follows that $d$ must be constant \\
+
+Consider the following asymptotics: $q = a \cdot n$, $d = b$, $k =  c \cdot \frac{n}{\log(n)}$ Then
+\[
+\bar{r}_1 \sim \frac{bc \cdot n}{\log(n)((an)^{b} - 1)^{c/\log(n)}}  \sim \frac{bc \cdot n}{e^{bc}\log(n)}
+\]
+
+
+
+
+
 
 A note for myself! In my code the determinant of the lattice is changing! It is upper-bounded by $(q^{d} - 1)^{k}$ but practice shows that it is often much smaller.
 
