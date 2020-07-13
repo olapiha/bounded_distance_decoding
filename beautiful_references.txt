@@ -8,5 +8,5 @@ https://www.itsoc.org/australian-school-2014/pictures/Frank.pdf - Systematic for
 To read if free time:
 https://www.iacr.org/archive/crypto2009/56770568/56770568.pdf - Lattice problems complexity
 https://math.ucalgary.ca/ecc/files/ecc/u5/Micciancio_ECC2009.pdf - Lattice problems complexity(slides)
-
+https://eprint.iacr.org/2015/138.pdf - good explanation of RLWE
 

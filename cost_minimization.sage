@@ -1,11 +1,20 @@
 #!/usr/bin/env sage
 import numpy
 
-n = 1000
-k = floor(n/(2*log(n)))
+n = 230
+# first dimention of the public key matrix: n-t in their notation
+d = 29
+k = n - d
+# weight of the error(?): d-1 in their notation
+w = d-1
+q = 263
+
+print(len(bin(binomial(n-d, ((n-d)*(d-1)/n).round()))))
+
+print("n =", float(n))
 print("k =", float(k))
-w = 50
-q = 50
+print("w =", float(w))
+print("q =", float(q))
 
 def cost_minimization(cost_function):
     min_cost = cost_function(0)
@@ -28,30 +37,41 @@ def cost_minimization2(cost_function):
             if cost < min_cost:
                 argmin = (i,j)
                 min_cost = cost
-    return (argmin, float(min_cost))
+    return (argmin[0], argmin[1], float(min_cost))
 
+print("Binary Bruteforce")
+
+cost = binomial(n,w)*(w+1)*k
+print("cost = {:e}".format(float(cost)))
+
+print("Ternary Bruteforce")
+
+cost = binomial(n,w)*(w+1)*k*2^w
+print("cost = {:e}".format(float(cost)))
 
 print("Binary case of ISD")
 
 isd_cost_bin = lambda w2: (k*binomial(n, w))*(n^2 +(n-1)*(k-1)
                         + w2*binomial((n-k),w2))/(binomial(k, w-w2)*binomial((n-k), w2))
 
-print ("w_2, cost = ", cost_minimization(isd_cost_bin))
+res = cost_minimization(isd_cost_bin)
+print ("w_2, cost = {}, {:e}".format(res[0], res[1]))
 
 print("Ternary case of ISD")
 
 isd_cost_ter = lambda w2: (k*binomial(n, w))*(n^2 +(n-1)*(k-1)
                         + w2*binomial((n-k),w2)*2^w2)/(binomial(k, w-w2)*binomial((n-k), w2))
 
-print ("w_2, cost = ", cost_minimization(isd_cost_ter))
+res = cost_minimization(isd_cost_ter)
+print ("w_2, cost = {}, {:e}".format(res[0], res[1]))
 
 print("Binary case of MitM")
 
-print("cost =", float((k*binomial(n,w)*(n^2+w*binomial(n/2,w/2)))/(binomial(n/2,w/2)^2)))
+print("cost = {:e}".format(float((k*binomial(n,w)*(n^2+w*binomial((n/2).round(),(w/2).round())))/(binomial((n/2).round(),(w/2).round())^2))))
 
 print("Ternary case of MitM")
 
-print("cost =", float((k*binomial(n,w)*2^(w/2)*(n^2+w*binomial(n/2,w/2)))/(binomial(n/2,w/2)^2)))
+print("cost = {:e}".format(float((k*binomial(n,w)*2^(w/2)*(n^2+w*binomial((n/2).round(),(w/2).round())))/(binomial((n/2).round(),(w/2).round())^2))))
 
 print("Binary case of ISD+MitM")
 
@@ -59,7 +79,8 @@ cost_bin = lambda w2, p: (k*binomial(n,w)*(n^2 + (n-1)*(k-1) + w2*binomial(((n-k
                             + ((binomial(n,w2)*p^n)/(q^n))))/(binomial(((n-k)/2).round(),(w2/2).round())^2
                             *binomial(k,w-w2)*( 1 - (binomial(k,w-w2) * (w-w2) * binomial(((n-k)/2).round(),(w2/2).round()))/(q^(k)*p)))
 
-print ("w_2, p, cost = ", cost_minimization2(cost_bin))
+res = cost_minimization2(cost_bin)
+print ("w_2, p, cost = {}, {}, {:e}".format(res[0], res[1], res[2]))
 
 print("Ternary case of ISD+MitM")
 
@@ -67,4 +88,5 @@ cost_ter = lambda w2, p: (k*binomial(n,w)*(n^2 + (n-1)*(k-1) + w2*2^(w2/2)*binom
                             + ((binomial(n,w2)*2^(w2/2)*p^n)/(q^n))))/(binomial(((n-k)/2).round(),(w2/2).round())^2
                             *binomial(k,w-w2)*( 1 - (binomial(k,w-w2) * (w-w2) * 2^(w-w2) * binomial(((n-k)/2).round(),(w2/2).round()))/(q^(k)*p)))
 
-print ("w_2, p, cost = ", cost_minimization2(cost_ter))
+res = cost_minimization2(cost_ter)
+print ("w_2, p, cost = {}, {}, {:e}".format(res[0], res[1], res[2]))
