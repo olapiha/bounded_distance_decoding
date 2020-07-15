@@ -112,6 +112,10 @@ Check if we can use FEEA.
 To construct the lattice we need to compute the following:
 $\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$. The order of multiplicative group is $q^{d} - 1$ which might not be a smooth integer so we cannot use Pohlig-Hellman+Pollard pho. We can choose $q^{d} = n^{O(1)}$ ($poly(n)$) so group order is overall small(e.g. $d = constant$ and $q=n^{O(1)}$ does work, so does $q=constant$ and $d = O(\log n)$).
 
+\subsection{Recovering Primal basis from Dual}
+
+
+
 \section{Decoding radius}
 
 \subsection{Only positive discrete error}
@@ -138,19 +142,46 @@ Directly follows from \cite{[DP19]}. $\bar{r}_1 = \frac{dk}{det(\mathcal{L})^{1/
 \]
 What should be the values of $d$ and $k$?
 
-We have the following constraints: $q^d = n^{O(1)}$, $dk < q^{d}$, $n \leq q$ from here it follows that $d$ must be constant \\
+We have the following constraints:
+\begin{enumerate}\label{constraints}
+    \item $q^d = n^{O(1)}$
+    \item $dk < q^{d}$
+    \item $n \leq q$
+\end{enumerate}
+From these we can immediately conclude that $d$ must be constant \\
 
-Consider the following asymptotics: $q = a \cdot n$, $d = b$, $k =  c \cdot \frac{n}{\log(n)}$ Then
+We aim to be at most a logarithmic factor away from Minkowski bound, for that this asymptotics suffice: $q = a \cdot n$, $d = b$, $k =  c \cdot \frac{n}{\log(n)}$. What we are going to do next is finding optimal values for parameters $a, b$ and $c$. We want to maximize the following function:
 \[
-\bar{r}_1 \sim \frac{bc \cdot n}{\log(n)((an)^{b} - 1)^{c/\log(n)}}  \sim \frac{bc \cdot n}{e^{bc}\log(n)}
+\bar{r}_1 = \frac{bc \cdot n}{\log(n)((an)^{b} - 1)^{c/\log(n)}}  \sim \frac{bc \cdot n}{e^{bc}\log(n)}
+\]
+ Parameter $a$ by constraint 3 in \ref{constraints} should be greater or equal to 1.
+ \[
+    \frac{bc \cdot n}{\log(n)((an)^{b} - 1)^{c/\log(n)}} \leq \frac{bc \cdot n}{\log(n)(n^{b} - 1)^{c/\log(n)}}
+ \]
+
+The choice of $a$ does not affect choices of $b$ and $c$ so we can configure it to 1.
+
+The fuction we are considering with fixed parameters $c, b$ tend to the same value as $\frac{bc \cdot n}{\log(n)n^{cb/\log(n)}}$. To simplify the analysis we will find the best parameters for the latter.
+
+Note $d \coloneqq bc$, $f_n(d) = \frac{d \cdot n^{1 - \frac{d}
+{\log(n)} }}{\log(n)}$.
+We would like to prove that for any value of $n$, $argmax(f_n(d)) = 1$
+\[
+\begin{split}
+    f_n'(d) & = \frac{n^{1 - \frac{d}
+    {\log(n)}}}{\log(n)} + \frac{d \cdot n^{1 - \frac{d}
+    {\log(n)}} \cdot \log(n) \big(-\frac{1}{\log(n)}\big)}{\log(n)} \\
+    & = \frac{n^{1 - \frac{d}{\log(n)}}}{\log(n)}(1-d)
+\end{split}
+\]
+$d = 1$ is the only solution to the equation $f_n'(d) = 0$. It is easy to verify that it corresponds to the maximum of $f_n(d)$ and it doesn't depend on the value of $n$.
+
+Therefore, $b \cdot c = 1$. In practice we fix $b = 2, c = \frac{1}{2}$. In the end, the decoding radius our algorithm achieves is
+\[
+    \bar{r}_1 = \frac{n}{\log(n)(n^{2} - 1)^{1/2\log(n)}}
 \]
 
-
-
-
-
-
-A note for myself! In my code the determinant of the lattice is changing! It is upper-bounded by $(q^{d} - 1)^{k}$ but practice shows that it is often much smaller.
+A note for myself! In my code the determinant of the lattice is changing! It is upper-bounded by $(q^{d} - 1)^{k}$ but practice shows that it is sometimes much smaller, it means that sometimes our algorithm decodes even larger error. But also with a new version it fails whenever it cannot reduce the matrix to systematic form so if these cases coincide we don't really care.
 
 \bibliographystyle{ieeetr}
 \bibliography{main}

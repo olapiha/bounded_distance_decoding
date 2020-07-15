@@ -15,6 +15,7 @@
 
 
 \newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\FF}{\mathbb{F}}
 \newcommand{\ZZ}{\mathbb{Z}}
 \newcommand{\LL}{\mathcal{L}}
 \DeclareMathOperator{\Span}{Span}
@@ -22,10 +23,10 @@
 
 \newtheorem{question}{Question}
 \newtheorem{lemma}{Lemma}
-
 \newtheorem{theorem}{Theorem}
 \newtheorem{remark}{Remark}
 \newtheorem{definition}{Definition}
+
 
 
 \title{Comparing Families of Lattices for efficient Bounded Distance Decoding near Minkowski’s Bound}
@@ -51,27 +52,54 @@ Plan:
 \end{enumerate}
 Explain somewhere why $l_1$ metric is natural way of thinking about the problem.
 
-\textbf{Decoding problem.} Message decoding is a problem that arises when two parties need to communicate over a noisy channel. Here we are in the setting where we only care about integrity of our data and we assume there's no adversary listening and modifying messages in the network. We are fighting information loss that occurs due to our infrastructure being slightly disturbed by forces of nature.
+\textbf{Bounded Distance Decoding problem.} Message decoding is a problem that arises when two parties need to communicate over a noisy channel. Here we are in the setting where we only care about integrity of transmitted data and we assume there's no adversary listening and modifying messages in the network. We are fighting information loss that occurs due to our infrastructure being \textit{slightly disturbed} by forces of nature.
 
-To achieve that we encode messages as points in Euclidean space. Now we can model "disruption" as distance between input and output point. It is "slight" if can be bounded. A natural way to arrange all messages is a lattice(all integer linear combinations of a linearly independent set of vectors). The decoding procedure aims to identify the point of the lattice closest to the output point. We assume that closest lattice point is indeed the input message. Minimal distance between points is bounded by the length of the shortest vector $\lambda_{1}(\LL)$ of the lattice. If the error exceeds its half closest point is not the input message anymore so decoding becomes impossible.
+To achieve that we encode messages as points in Euclidean space. Now we can model the rate of "disturbance" as distance between the input and output points. And call "slight" if can be bounded by a constant. A natural way to arrange the space of messages is a Euclidean lattice(all integer linear combinations of a linearly independent set of vectors in $\mathbb{R}^{n}$).
 
-We want an algorithm where the decoding radius is close to $\frac{\lambda_{1}(\LL)}{2}$. Unfortunately, Lattice Shortest Vector Problem(SVP) is believed to be hard in general case, so we cannot evaluate exactly how good our decoding radius is. Nevertheless, we have a bound on the shortest vector itself. So we aim to get a decoding radius close to it instead.
+The decoding procedure aims to identify the point of the lattice closest to the output point. If the disturbance in the network is small enough the closest lattice point will indeed be the input message. This will help us identify the upperbound on how much error a perfect decoding algorithm can handle. We know that the distance between lattice points is bounded from below by the length of the shortest vector $\lambda_{1}(\LL)$ of the lattice. If the error exceeds $\frac{\lambda_{1}(\LL)}{2}$, closest point might not be the input message anymore so decoding becomes impossible.
+
+We would like to have an algorithm where the decoding radius is close to $\frac{\lambda_{1}(\LL)}{2}$. Unfortunately, Lattice Shortest Vector Problem(SVP) is believed to be hard in general case, so we cannot evaluate exactly how good our decoding radius is. Nevertheless, we have an upper-bound on the length of the shortest vector. So we aim to get a decoding radius close to it instead.
 \begin{theorem}[Minkowski's First Theorem]
     For any full-rank lattice $\LL$ of rank $n$,
     \[
         \lambda_{1}(\LL) \leq \sqrt{n} \det(\LL)^{1/n}
     \]
 \end{theorem}
-\textbf{Some name of the subsection.}
+
+An instance of such problem is called a Bounded Distance Decoding problem and it is considered a hard problem for a random lattice and decoding radius of $\frac{\lambda_{1}(\LL)}{2}$ in the norm $l_{\infty}$ \cite{[LM09]}.
 
 
+Our work focuses on two families of latices for which BDD problem has an efficient solution and error is close to the Minkowski bound. The first one is a generalization of a lattice discussed in \cite{[DP19]} and used in Chor-Rivest cryptosystem \cite{[CR88]}. The second one was used in \cite{[LLXY17]} for construction of a trapdoor function and has a similar decoding algorithm.
 
+In this work we generalize the lattice family from \cite{[DP19]} suggest an efficient way to construct it. The decoding algorithm of the same article extends to our case directly. The second lattice family was discussed in \cite{[LLXY17]} we extend decoding algorithm devised for them to handle more types of error. We also suggest security improvements for the encryption scheme from \cite{[LLXY17]} using our decoding algorithm and perform cryptanalysis of the mentioned to improve their parameter selection.
 
+\textbf{Discrete logarithm lattices.}
+We will discuss many lattice of similar flavour. They are defined as a kernel of a morfism from $\ZZ^{n}$ to another group. Let us give you a short definition of the lattice given in \cite{[DP19]} which is a basis for our first generalization.
 
+Let us consider numbers $m$ which is a prime power, $n$ and $B$ such that we can find $n$ primes $p_{1}, \dots , p_{n}$ which do not divide $m$ and are bounded by $B$. We consider a group morphism:
+\[
+    \psi : \ZZ^{n} \rightarrow (\ZZ/m\ZZ)^*
+\]
+\[
+    (x_{1}, \dots, x_{n}) \mapsto \prod_{i=1}^{n}p_{i}^{x_{i}} \pmod{m}
+\]
+
+The kernel of $\psi$ is a subgroup of $\ZZ^{n}$ so it is a lattice. It is easy to see that the image will indeed be an element of $(\ZZ/m\ZZ)^*$ due to our parameter selection.
+
+The basis of this lattice is simple to compute it only requires computation of n discrete logarithms with respect to a smooth modulus \cite{[DP19]}. The generalization we give will require more work in this regard.
+
+\textbf{Efficient decoding algorithm.}
 In this work by efficient algorithm we mean an algorithm that runs in polynomial time.
 
 
+\textbf{Organisation of the document.}
+In the section
+
+\textbf{Implemetntation.}
+Sagemath implementation of every algorithm for basis computation and message decoding discussed in the document is avaliable on github via link: TBA.
+
 \section{Generalization of the construction for integers}
+\label{sec:gen_integers}
 In this section we present first generalization of the decoding algorithm introduced in \cite{[DP19]}. In their paper Léo Ducas and Cécile Pierrot use properties of the group $(\ZZ/m\ZZ)^*$ for modulus $m$ which is a prime power. The decoding radius achievable in polynomial-time depends on the ratio
 \[
 \frac{m}{\varphi(m)}
@@ -84,7 +112,7 @@ Our result is a deterministic efficient algorithm for computation of the basis f
 
 
 \subsection{Definition of discrete logarithm lattice }
-\label{definition section}
+\label{subsec:def_integers}
 In this chapter we take $m = \prod_{i=1}^{k} q_{j}^{e_{j}}$ where $\{q_{j}\}$ are odd prime numbers and $\{e_{j}\}$ are positive integers. We work with a group $(\ZZ/m\ZZ)^*$ which is not cyclic anymore so we cannot exploit properties of discrete logarithm right away. Nevertheless, the Chinese Remainder Theorem (CRT) gives us the structure of the group:
 \[
     (\ZZ/m\ZZ)^* \sim \prod_{j=1}^{k}(\ZZ/q_{j}^{e_{j}}\ZZ)^*
@@ -123,6 +151,7 @@ This is almost a parity check representation of $\LL$ except we have many parity
 \]
 
 \subsection{Computing lattice basis}
+\label{subsec:compute_basis_integers}
 Our goal is to compute a basis of discrete log lattice to be able to encode messages as its points afterwards. The idea of our algorithm is to compute a basis of the dual lattice first. And then obtain primal one from the dual.
 Let us remind a definiton of a dual lattice and a dual basis.
 \begin{definition}
@@ -153,13 +182,15 @@ If B is an invertible square matrix $(B^{T})^{-1}$ satisfies the definition. In 
 We will describe each of them in more details
 
 \subsubsection{Parity check representations (\ref{step1})}
-In the section \ref{definition section} we were able to represent $\LL$ as an intesection of $\LL_{1}, \dots, \LL_{k}$ for which we have parity check representations:
+\label{subsubsec:parity_check_repr}
+In the section \ref{subsec:def_integers} we were able to represent $\LL$ as an intesection of $\LL_{1}, \dots, \LL_{k}$ for which we have parity check representations:
 \[
     \LL_{j} \coloneqq \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\varphi(q_{j}^{e_{j}})}\}
 \]
-To compute them we calculate many discrete logarithms in finite groups. As you probably know it is a hard problem for a general case of which no polynomial algorithm is known. We need to choose parameters such that we can compute them efficiently. We discuss it in the section (\ref{complexity section}) of this document.
+To compute them we calculate many discrete logarithms in finite groups. As you probably know it is a hard problem for a general case of which no polynomial algorithm is known. We need to choose parameters such that we can compute them efficiently. We discuss it in the section (\ref{subsec:complexity_integers}) of this document.
 
 \subsubsection{Dual generating set (\ref{step2})}
+\label{subsubsec:dual_gen_set}
 To justify this step we need two lemmas
 \begin{definition}
     For two lattices $\LL_1$, $\LL_2$ we define their sum
@@ -171,7 +202,7 @@ This space $\LL_{1} + \LL_{2}$ can be generated by concatenation of bases of $\L
 
 \begin{lemma}
     \footnote{Check it again with fresh head}
-    \label{intersection lemma}
+    \label{lemma_intersection}
     Supose $\LL = \bigcap_{j=1}^{k} \LL_{j} \neq \{0\}$ and $\LL^{*}$, $\LL_{j}^{*}$ are duals of the respective lattices. Then $\LL^{*} = \sum_{j=1}^{k} \LL_{j}^{*}$
 \end{lemma}
 \begin{proof}
@@ -215,7 +246,7 @@ Therefore, can represent $\LL$ as an intersection of the following lattices:
 \[
     \LL_{2}  = \{x \in \mathbb{R}^{n} | \frac{1}{p}Bx \in \ZZ^{n} \}
 \]
-Then from lemma \ref{intersection lemma}
+Then from lemma \ref{lemma_intersection}
 \[
     \LL^{*}  = (\LL_{1} \cap \LL_{2})^{*} = \LL_{1}^{*} + \LL_{2}^{*}
 \]
@@ -233,7 +264,7 @@ A generating set of the sum of lattices can be obtained by concatenation of thei
 The algorithm takes parity check representations of every lattice $\LL_{j}$ scales them and adds an identity matrix. Output is the concatenation of calculated generating sets.
 
 \subsubsection{Eliminating linear dependencies using elementary martix transformations (\ref{step3})}
-
+\label{subsubsec:hermite_form}
 Now we have obtained a generating set of the dual lattice but we would like to have its basis. The idea is to transform the matrix to its row echelon form so the resulting set has some zero vectors which we will discard and the basis of the lattice.
 
 Out of all elementary matrix transformations we are only allowed adding to a row an integer mulpitle of another row, interchanging two rows, multiplying a row by -1. These three possibilities are called unimodular transformations. As you may have noticed the only restriction is that we can't mutiply a row by an integer different from $\pm 1$. This would result in a sublattice of $\LL$ with a higher determinant.
@@ -243,12 +274,12 @@ We use an algorithm for reducing the matrix to its Hermite normal form. It is an
 Resulting vectors are going to be quite long. If we want to control the size of the basis we can use LLL algorithm instead. This change will for example make our encoded messages shorter and easier to decode.
 
 \subsubsection{Primal basis from dual basis (\ref{step4})}
-
+\label{subsubsec:primal_from_dual}
 A way to calculate a basis of primal lattice having the basis of the dual is straight forward having its definition.
 
 
 \subsection{Complexity analysis}
-\label{complexity section}
+\label{subsec:complexity_integers}
 The first step (\ref{step1}) of basis computation algorithm (\ref{algorithm}) boils down to many computations of discrete logarithm in a finite group. For every distinct prime factor $q_{j}^{e_{j}}$ of the modulus we compute $n$ discrete logarithms(one for every prime $p_{i}$). It is $n \cdot k$ operations in total. Let us refer to $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ as group $G$. Group order is equal to $|G| = \varphi(q_{j}^{e_{j}}) =  q_{j}^{e_{j}-1}(q_{j}-1) = \prod_{i=1}^{k} t_{i}^{a_{i}}$.
 It is a $q$-smooth integer, so to efficiently calculate discrete logarithms in this group we can use a combinaion of of Pohlig-Hellman \cite{[PH78]} and Pollard-$\rho$ \cite{[Pol78]} algorithms. Overall complexity in group operations is
 \[
@@ -266,7 +297,14 @@ It is easy to see that step two (\ref{step2}) takes linear time in $n + k$. Step
 Finally, step four (\ref{step4}) includes matrix multiplication and inversion for matrices which dimention is bounded by $n + k$. They obviously take polynomial time.
 
 We still haven't configured parameters $k, q_{j}, p_{i}$. $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $q_{j}$ to be equal to first $k$ odd prime numbers and $p_{i}$ equal to $2$ and next $n-1$ smallest primes.
+
+\subsection{Decoding radius}
+\label{subsec:radius_integers}
+
+Here I'd like to say that we can decode all the same error but it's still a tiny bit better and give a graph with upper bound lower bound old(basis) algorithm and new(generalized) algorithm.
+
 \subsection{Was it all worth it?}
+\label{subsec:improvement_integers}
 Decoding algorithm extends naturally to the generalized setting. Let us remind that nomalized decoding $l_{1}$-radius was equal to
 \[
     \bar r^{(1)} = \frac{\ln(m/2)}{4 \varphi(m)^{1/n} \cdot \ln(B)}
@@ -308,6 +346,201 @@ where $\gamma$ is the Euler constant, $e^{-\gamma} = 0.56145948\dots$
 \]
 \end{proof}
 
+\section{New Construction for Polynomial Lattices}
+\label{sec:polynomials}
+\subsection{Definition of Polynomial Lattices}
+\label{subsec:def_polynomials}
+Let us set parameters a prime power $q$ and integers $k$, $d$ and $n$. Let $\FF_{q}[x]$ be polynomial ring over a field  $\FF_{q}$. We take a set of $k$ irreducible polynomials $c_{j}(x) \in \FF_{q}[x]$, $j =1, ...,k$ of degree $d$. According to the analogue of the prime number theorem for polynomials $k$ must not be greater than $\frac{q^d}{d}$.
+
+Define $c(x) \coloneqq \prod_{j = 1}^{k} c_{j}(x)$. We are going to work in the multiplicative group of the quotient ring of  $\FF_{q}[x]$ with respect to $c(x)$.
+Chinese Remainder Theorem helps to determine the structure of $\big(\FF_{q}[x]/c(x)\big)^{*}$:
+\[
+    \big(\FF_{q}[x]/c(x)\big)^{*} \sim \prod_{i=1}^{k}\big(\FF_{q}[x]/c_{i}(x)\big)^{*} \sim \prod_{i=1}^{k}\FF_{q^{d}}^*
+\]
+Multiplicative group of a field is cyclic, therefore, we can consider discrete logarithms in every component of the product to find a lattice basis.
+
+Consider a vector $a = (\alpha_{1}, ... , \alpha_{n}) \in \FF_{q}^{n}$ where $\alpha_{i}$s are pairwise different. Since polynomials $c_{j}(\cdot)$ are irreducible over $\FF_{q}$ neither of $\alpha_{i}$ can be their root. So for all $\alpha_{i}$ we also have: $c(\alpha_{i}) \neq 0$.
+
+Now consider a group morphism:
+\[
+    \psi : \ZZ^{n} \rightarrow \big(\FF_{q}[x]/c(x)\big)^{*}
+\]
+\[
+    (u_{1}, ..., u_{n}) \mapsto \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \pmod{c(x)}
+\]
+
+Lattice is defined as the kernel of the morphism:
+\[
+    \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c(x)}\}
+\]
+Appying CRT gives us the following equivalence
+\[
+    \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c_{j}(x)}\}
+\]
+Supposing we know $\beta_{j}$ a generator of $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ for every $j$ we get another representation:
+\[
+    \LL = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} | \forall 1 \leq j \leq k: \sum_{i=1}^{n}u_{i}log_{\beta_{j}}(x - \alpha_{i}) \equiv 0 \pmod{q^{d} -1}\}
+\]
+What might be confusing is that each $\log_{\beta_{j}}$ has a different input domain. For every $j$:  $\log_{\beta_{j}}$ acts from $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ into $(\ZZ/(q^{d} - 1)\ZZ)$.
+
+We obtained a parity check representation of $\LL$.
+To calculate a basis of $\LL$ we can follow simplified version of the algorithm for integers. We obtain dual basis by scaling parity check matrix and concatenating it with $I_{n}$. Then we remove linear dependencies and finally obtain primal basis from the dual.
+
+\subsection{Lattice computation for polynomials}
+\label{subsec:compute_basis_polynomials}
+
+\subsubsection{Factorization by trial division}
+\label{subsubsec:factoring_polynomials}
+Input: A polynomial $g$ such that $deg(g) \leq m$ whose roots are among $\alpha_1, \dots , \alpha_n \in \mathbb{F}_q$\\
+Output: $e_1, \dots , e_n$ s.t. $g = \prod_{i = 1}^{n}(x - \alpha_i)^{e_i}$\\
+There's only $n$ possible roots, one trial division takes $O(m)$ time and the number of factors is bounded by $m$. So overall complexity is $O(m^2n)$.
+
+
+\subsubsection{Rational function reconstruction}
+\label{subsubsec:rfr}
+I found \href{http://www.cecm.sfu.ca/~mmonagan/papers/fastRFR.pdf}{here}
+an algorithm which they call Wang's algorithm for rational function reconstruction.\\
+Goal: Given $g,f$ find $n, d \in \mathbb{F}[x]$ that $deg(n) + deg(d) < \frac{deg(f)}{2}$ and $\frac{n}{d} = g \pmod{f}$\\
+Algorithm:(function $lc()$ outputs the leading coefficient)
+\begin{enumerate}
+	\item   $r_0 = f$  $r_1 = g$\\
+			$t_0 = 0$  $t_1 = 1$\\
+            $q = 1$\\
+	\item While $deg(q) \leq \frac{deg(f)}{2}$ do\\
+			$q = r_0 // r_1$\\
+			$(r_0, r_1) = (r_1, r_0 - qr_1)$\\
+			$(t_0, t_1) = (t_1, t_0 - qt_1)$\\
+	\item if $GCD(r_0, t_0) \neq 1$ or $deg(r_0) + deg(t_0) \geq \frac{deg(f)}{2}$:\\
+			return FAIL\\
+		  else:\\
+			return $(\frac{r_0}{lc(t_0)}, \frac{t_0}{lc(t_0)})$
+\end{enumerate}
+\begin{lemma}
+Let $\mathbb{F}$ be a field, $f, g, r, s, t \in \mathbb{F}[x]$ with $r = sf + tg$, $t \neq 0$, $deg(f) > 0$, and $deg(r) + deg(t) <deg(f)$.
+Suppose $r_i, s_i, t_i$ for $0 \leq i \leq l + 1$ be the elements of the ith iteration in the Extended Euclidean Algorithm for $f$ and $g$ (e.i. $r_i = s_if + t_ig$). \\
+Then there exists a nonzero element $\alpha \in \mathbb{F}[x]$ such that $r = \alpha r_j$, $s = \alpha s_j$, $t = \alpha t_j$, where $deg(r_j) \leq deg(r) < deg(r_{j-1})$
+\end{lemma}
+\begin{proof}
+\href{http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf}{(Lemma 3.2 page 35)}
+\end{proof}
+
+So if the solution exists it must be one of the pairs $(r_i, t_i)$ of the EEA.
+
+\textcolor{red}{ToDo:} Add a lemma to prove the following: If $deg(n) + deg(d) \leq \frac{deg(f)}{2}$ than the solution corresponds to the unique row of the EEA where $deg(q) > \frac{deg(f)}{2}$
+
+\begin{question}
+Check if we can use FEEA.
+\end{question}
+\subsubsection{Computing logs}
+\label{subsubsec:logs_polynomials}
+To construct the lattice we need to compute the following:
+$\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$. The order of multiplicative group is $q^{d} - 1$ which might not be a smooth integer so we cannot use Pohlig-Hellman+Pollard pho. We can choose $q^{d} = n^{O(1)}$ ($poly(n)$) so group order is overall small(e.g. $d = constant$ and $q=n^{O(1)}$ does work, so does $q=constant$ and $d = O(\log n)$).
+
+\subsubsection{Recovering Primal basis from Dual}
+\label{subsubsec:primal_from_dual_polynomials}
+
+
+\subsection{Decoding radius}
+\label{subsec:radius_polynomials}
+
+\subsubsection{Only positive discrete error}
+\label{subsubsec:positive_error}
+Suppose we receive $t = u + e$ where $u \in \mathcal{L}$, $\|e\|_1 \leq r_1$ and $\forall i: e_i \in \mathbb{N}$. Then we can compute
+\[
+\prod_{i = 1}^{n}(x - \alpha_i)^{t_i} = \prod_{i = 1}^{n}(x - \alpha_i)^{u_i}\prod_{i = 1}^{n}(x - \alpha_i)^{e_i} \pmod{c(x)}
+\]
+If $\|e\|_1 = \sum_{i =1}^{n} e_i \leq deg(c) = d \cdot k$ the operation above will give us exactly the polynomial $\prod_{i = 1}^{n}(x - \alpha_i)^{e_i}$. Then we can recover $e_i$, $1 \leq i \leq n$ from the factorization.\\
+So $r_1 = d \cdot k$.
+\subsubsection{Arbitrary discrete error}
+\label{subsubsec:discrete_error}
+Now we have $\forall i: e_i \in \mathbb{Z}$. Then
+\[
+\prod_{i = 1}^{n}(x - \alpha_i)^{t_i} \pmod{c(x)} = \prod_{i = 1}^{n}(x - \alpha_i)^{e_i} = \frac{\prod_{i \in I}(x - \alpha_i)^{e_i}}{\prod_{j \in J}(x - \alpha_j)^{-e_j}}
+\]
+\begin{lemma}
+Given $g,c$ where $deg(c) = d \cdot k$ we can recover $f_{1}, f_{2} \in \mathbb{F}[x]$ that  $\forall i = 1;2$: $deg(f_{i}) \leq \floor{\frac{dk}{2}}$ and $\frac{f_{1}}{f_{2}} = g \pmod{c}$ in polynomial time.
+\end{lemma}
+So we can decode every message for which $\|e\|_1 = \sum_{i =1}^{n} |e_i| \leq \floor{\frac{dk}{2}}$
+\subsubsection{Normalized radius}
+\label{subsubsec:normalized_discrete_error}
+Directly follows from \cite{[DP19]}. $\bar{r}_1 = \frac{dk}{det(\mathcal{L})^{1/n}}$ where $det(\mathcal{L}) = \Phi(c(x)) = (q^{d} - 1)^{k}$.
+\[
+\bar{r}_1 = \frac{dk}{(q^{d} - 1)^{k/n}}
+\]
+What should be the values of $d$ and $k$?
+
+We have the following constraints:
+\begin{enumerate}\label{constraints}
+    \item $q^d = n^{O(1)}$
+    \item $dk < q^{d}$
+    \item $n \leq q$
+\end{enumerate}
+From these we can immediately conclude that $d$ must be constant \\
+
+We aim to be at most a logarithmic factor away from Minkowski bound, for that this asymptotics suffice: $q = a \cdot n$, $d = b$, $k =  c \cdot \frac{n}{\log(n)}$. What we are going to do next is finding optimal values for parameters $a, b$ and $c$. We want to maximize the following function:
+\[
+\bar{r}_1 = \frac{bc \cdot n}{\log(n)((an)^{b} - 1)^{c/\log(n)}}  \sim \frac{bc \cdot n}{e^{bc}\log(n)}
+\]
+ Parameter $a$ by constraint 3 in \ref{constraints} should be greater or equal to 1.
+ \[
+    \frac{bc \cdot n}{\log(n)((an)^{b} - 1)^{c/\log(n)}} \leq \frac{bc \cdot n}{\log(n)(n^{b} - 1)^{c/\log(n)}}
+ \]
+
+The choice of $a$ does not affect choices of $b$ and $c$ so we can configure it to 1.
+
+The fuction we are considering with fixed parameters $c, b$ tend to the same value as $\frac{bc \cdot n}{\log(n)n^{cb/\log(n)}}$. To simplify the analysis we will find the best parameters for the latter.
+
+Note $d \coloneqq bc$, $f_n(d) = \frac{d \cdot n^{1 - \frac{d}
+{\log(n)} }}{\log(n)}$.
+We would like to prove that for any value of $n$, $argmax(f_n(d)) = 1$
+\[
+\begin{split}
+    f_n'(d) & = \frac{n^{1 - \frac{d}
+    {\log(n)}}}{\log(n)} + \frac{d \cdot n^{1 - \frac{d}
+    {\log(n)}} \cdot \log(n) \big(-\frac{1}{\log(n)}\big)}{\log(n)} \\
+    & = \frac{n^{1 - \frac{d}{\log(n)}}}{\log(n)}(1-d)
+\end{split}
+\]
+$d = 1$ is the only solution to the equation $f_n'(d) = 0$. It is easy to verify that it corresponds to the maximum of $f_n(d)$ and it doesn't depend on the value of $n$.
+
+Therefore, $b \cdot c = 1$. In practice we fix $b = 2, c = \frac{1}{2}$. In the end, the decoding radius our algorithm achieves is
+\[
+    \bar{r}_1 = \frac{n}{\log(n)(n^{2} - 1)^{1/2\log(n)}}
+\]
+
+A note for myself! In my code the determinant of the lattice is changing! It is upper-bounded by $(q^{d} - 1)^{k}$ but practice shows that it is sometimes much smaller, it means that sometimes our algorithm decodes even larger error. But also with a new version it fails whenever it cannot reduce the matrix to systematic form so if these cases coincide we don't really care.
+
+
+\section{Comparing All Constructions}
+\label{sec:comparison}
+
+\subsection{Complexity of the algorithms}
+\label{subsec:complexity_comparison}
+
+\subsection{Decoding radius of the algorithms}
+\label{subsec:radius_comparison}
+
+\section{LLXY17 Cryptanalysis?}
+\label{sec:cryptanalysis}
+
+\subsection{Classic attacks on lattices}
+\label{subsec:attacks}
+
+\subsubsection{ISD Attack}
+\label{subsec:isd_attack}
+
+\subsubsection{MitM Attack}
+\label{subsec:mitm_attack}
+
+\subsubsection{ISD+MitM Combination}
+\label{subsec:combination_attack}
+
+\subsection{Improving LLXY17 parameter selection}
+\label{subsec:param_improvement}
+
+\subsection{Adding negative errors}
+\label{subsec:negative_error_improvement}
+Our algorithm allows to decode negative errors efficiently, so adding it will improve security. By how much?
 
 \bibliography{report}
 \bibliographystyle{ieeetr}
