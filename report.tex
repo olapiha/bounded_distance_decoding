@@ -296,7 +296,7 @@ A way to calculate a basis of primal lattice having the basis of the dual is str
 
 \subsection{Complexity analysis}
 \label{subsec:complexity_integers}
-The first step (\ref{step1}) of basis computation algorithm (\ref{algorithm}) boils down to many computations of discrete logarithm in a finite group. For every distinct prime factor $q_{j}^{e_{j}}$ of the modulus we compute $n$ discrete logarithms(one for every prime $p_{i}$). It is $n \cdot k$ operations in total. Let us refer to $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ as group $G$. Group order is equal to $|G| = \varphi(q_{j}^{e_{j}}) =  q_{j}^{e_{j}-1}(q_{j}-1) = \prod_{i=1}^{k} t_{i}^{a_{i}}$.
+The first step (\ref{step1}) of basis computation algorithm (\ref{algorithm}) boils down to many computations of discrete logarithm in a finite group. For every distinct prime factor $q_{j}^{e_{j}}$ of the modulus we compute $n$ discrete logarithms(one for every prime $p_{i}$). It is $n \cdot k$ iterations in total. Let's refer to $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ as group $G$. Group order is equal to $|G| = \varphi(q_{j}^{e_{j}}) =  q_{j}^{e_{j}-1}(q_{j}-1) = \prod_{i=1}^{k} t_{i}^{a_{i}}$.
 It is a $q$-smooth integer, so to efficiently calculate discrete logarithms in this group we can use a combination of of Pohlig-Hellman \cite{[PH78]} and Pollard-$\rho$ \cite{[Pol78]} algorithms. Overall complexity in group operations is
 \[
     O(\sum_{i=1}^{k} a_{i}(\ln(|G|) + \sqrt{t_{i}}))
@@ -475,6 +475,11 @@ $\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$. The
 
 \subsection{Complexity of the basis computation.}
 \label{subsec:complexity_polynomials}
+Let us analyse every step of the basis computation algorithm to check if it is efficient:
+\begin{itemize}
+    \item 
+    \item
+\end{itemize}
 
 
 \subsection{Decoding radius}
@@ -547,14 +552,9 @@ Therefore, $b \cdot c = 1$. In practice we fix $b = 2, c = \frac{1}{2}$. In the 
     \bar{r}_1 = \frac{n}{\log(n)(n^{2} - 1)^{1/2\log(n)}}
 \]
 
-\section{Comparing All Constructions}
+\subsection{Comparing the decoding radius of the algorithms}
 \label{sec:comparison}
 
-\subsection{Complexity of the algorithms}
-\label{subsec:complexity_comparison}
-
-\subsection{Decoding radius of the algorithms}
-\label{subsec:radius_comparison}
 For the first family final normalized error radius that the algorithm can handle is:
 \[
     \bar{r}_1 = \frac{\ln(m/2)}{4 \cdot \varphi(m)^{1/n} \cdot \ln((n+1)\ln(n+1))}
