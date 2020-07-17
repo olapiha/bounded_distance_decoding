@@ -340,7 +340,120 @@ Let us calculate missing parts of the formula:
 \]
 Putting everything together we obtain the total average cost.
 
-\section{Question 5 and 6}
+\section{Question 5}
+
+n = 100.0 \\
+k = 10.0 \\
+w = 5.0 \\
+q = 100.0 \\
+Binary Bruteforce \\
+cost = 4.517251e+09 \\
+Ternary Bruteforce \\
+cost = 1.445520e+11 \\
+Binary case of ISD \\
+$w_2$, cost = 2, 2.960902e+07 \\
+Ternary case of ISD \\
+$w_2$, cost = 2, 6.725278e+07 \\
+Binary case of MitM \\
+cost = 2.116580e+05 \\
+Ternary case of MitM \\
+cost = 1.197318e+06 \\
+Binary case of ISD+MitM \\
+$w_2$, p, cost = 3, 63, 2.366108e+05 \\
+Ternary case of ISD+MitM \\
+$w_2$, p, cost = 3, 64, 3.293097e+05 \\
+
+
+
+n = 100.0 \\
+k = 10.0 \\
+w = 9.0 \\
+q = 100.0 \\
+Binary Bruteforce \\
+cost = 1.902232e+14 \\
+Ternary Bruteforce \\
+cost = 9.739427e+16 \\
+Binary case of ISD \\
+$w_2$, cost = 3, 2.801449e+11 \\
+Ternary case of ISD \\
+$w_2$, cost = 2, 1.699224e+12 \\
+Binary case of MitM \\
+cost = 8.084476e+07 \\
+Ternary case of MitM \\
+cost = 1.829308e+09 \\
+Binary case of ISD+MitM \\
+$w_2$, p, cost = 7, 62, 2.006729e+07 \\
+Ternary case of ISD+MitM \\
+$w_2$, p, cost = 5, 65, 1.854533e+08 \\
+
+
+
+n = 500.0 \\
+k = 40.0 \\
+w = 30.0 \\
+q = 500.0 \\
+Binary Bruteforce \\
+cost = 1.792122e+51 \\
+Ternary Bruteforce \\
+cost = 1.924276e+60 \\
+Binary case of ISD \\
+$w_2$, cost = 9, 3.963162e+39 \\
+Ternary case of ISD \\
+$w_2$, cost = 2, 1.091922e+41 \\
+Binary case of MitM \\
+cost = 3.737340e+27 \\
+Ternary case of MitM \\
+cost = 1.224651e+32 \\
+Binary case of ISD+MitM \\
+$w_2$, p, cost = 23, 310, 2.087190e+24 \\
+Ternary case of ISD+MitM \\
+$w_2$, p, cost = 21, 315, 3.433996e+27 \\
+
+
+
+n = 1000.0 \\
+k = 72.0 \\
+w = 50.0 \\
+q = 1000.0 \\
+Binary Bruteforce \\
+cost = 3.473881e+88 \\
+Ternary Bruteforce \\
+cost = 3.911243e+103 \\
+Binary case of ISD \\
+$w_2$, cost = 13, 2.056657e+67 \\
+Ternary case of ISD \\
+$w_2$, cost = 2, 8.987320e+68 \\
+Binary case of MitM \\
+cost = 3.262500e+46 \\
+Ternary case of MitM \\
+cost = 1.094713e+54 \\
+Binary case of ISD+MitM \\
+$w_2$, p, cost = 37, 622, 1.362168e+41 \\
+Ternary case of ISD+MitM \\
+$w_2$, p, cost = 33, 633, 3.432411e+46 \\
+
+
+The optimal parameters for binary and ternary case seem to be close let us assume they are the same and compute cost difference depending on n,k
+
+
+$T_1 = \frac{ k \cdot  \binom{n}{w} \cdot  (n^2 + (n-1)\cdot (k-1) + w2\cdot \binom{(n-k)/2}{w2/2} + \frac{\binom{n}{w2}\cdot p^n}{q^n})}{\binom{(n-k)/2}{w2/2}^2 \cdot  \binom{k}{w-w2} \cdot  \big( 1 - \frac{\binom{k}{w-w2} \cdot  (w-w2) \cdot  \binom{(n-k)/2}{w2/2} }{ q^{k}\cdot p } \big)}$
+
+
+$T_2 = \frac{ k \cdot  \binom{n}{w} \cdot  (n^2 + (n-1)\cdot (k-1) + w2\cdot 2^{w2/2}\cdot \binom{(n-k)/2}{w2/2} + \frac{\binom{n}{w2}\cdot 2^{w2/2}\cdot p^n}{q^n})}{\binom{(n-k)/2}{w2/2}^2 \cdot  \binom{k}{w-w2} \cdot  \big( 1 - \frac{\binom{k}{w-w2} \cdot  (w-w2) \cdot  2^{w-w2} \cdot  \binom{(n-k)/2}{w2/2} }{ q^{k}\cdot p } \big)}$
+
+Let us simplify these terms using the fact that $w2\cdot \binom{(n-k)/2}{w2/2} = \Omega(n^2 + (n-1)\cdot (k-1))$ when $n,k$ tend to infinity.
+
+$T_1 \sim \frac{ k \cdot  \binom{n}{w} \cdot  (w2\cdot \binom{(n-k)/2}{w2/2} + \frac{\binom{n}{w2}\cdot p^n}{q^n})}{\binom{(n-k)/2}{w2/2}^2 \cdot  \binom{k}{w-w2} \cdot  \big( 1 - \frac{\binom{k}{w-w2} \cdot  (w-w2) \cdot  \binom{(n-k)/2}{w2/2} }{ q^{k}\cdot p } \big)}$
+
+
+$T_2 \sim \frac{ k \cdot  \binom{n}{w} \cdot  2^{w2/2} \cdot  (w2\cdot \binom{(n-k)/2}{w2/2} + \frac{\binom{n}{w2}\cdot p^n}{q^n})}{\binom{(n-k)/2}{w2/2}^2 \cdot  \binom{k}{w-w2} \cdot  \big( 1 - \frac{\binom{k}{w-w2} \cdot  (w-w2) \cdot  2^{w-w2} \cdot  \binom{(n-k)/2}{w2/2} }{ q^{k}\cdot p } \big)}$
+\[
+    \frac{T_2}{T_1} > \frac{\frac{ k \cdot  \binom{n}{w} \cdot  2^{w2/2} \cdot  (w2\cdot \binom{(n-k)/2}{w2/2} + \frac{\binom{n}{w2}\cdot p^n}{q^n})}{\binom{(n-k)/2}{w2/2}^2 \cdot  \binom{k}{w-w2} \cdot  \big( 1 - \frac{\binom{k}{w-w2} \cdot  (w-w2) \cdot  \binom{(n-k)/2}{w2/2} }{ q^{k}\cdot p } \big)}}{T_1} = 2^{w_2/2}
+\]
+
+Therefore using ternary error increases the cost the attack against the scheme by at least $2^{w_2/2}$. Which for paramaters n = 1000, k = 72, w = 50.0, q = 1000.0 means $2^{16,5}$ times!
+
+\section{Question 6}
 
 
 \bibliography{cryptanalysis_draft}

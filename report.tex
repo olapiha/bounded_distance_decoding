@@ -43,6 +43,7 @@
 \maketitle
 
 \section{Introduction}
+\label{sec:intro}
 \textbf{Bounded Distance Decoding problem.} Message decoding is a problem that arises when two parties need to communicate over a noisy channel. Here we are in the setting where we only care about integrity of transmitted data and we assume there's no adversary listening and modifying messages in the network. We are fighting information loss that occurs due to our infrastructure being \textit{slightly disturbed} by forces of nature.
 
 To achieve that we encode messages as points in Euclidean space. Now we can model the rate of "disturbance" as distance between the input and output points. And call "slight" if can be bounded by a constant. A natural way to arrange the space of messages is a Euclidean lattice(all integer linear combinations of a linearly independent set of vectors in $\mathbb{R}^{n}$).
@@ -79,7 +80,7 @@ It is easy to see that the image will indeed be an element of $(\ZZ/m\ZZ)^*$ due
     \LL \coloneqq \ker \psi = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
 \]
 
-The basis of this lattice is simple to compute it only requires computation of $n$ discrete logarithms with respect to a smooth modulus. More on that you can find in \cite{[DP19]}. The generalization we give will require more work in this regard.
+The basis of this lattice is simple to compute it only requires computation of $n$ discrete logarithms in $(\ZZ/m\ZZ)^*$ it can be done because multiplicative group of a field is cylic. Discrete logarithms can calculated in polynomial time as $m$ is a smooth number. More on that you can find in \cite{[DP19]}. The generalization we give will require more work in this regard.
 
 \textbf{Efficient decoding algorithm.}
 
@@ -102,7 +103,7 @@ In the section \ref{sec:gen_integers} we discuss the first lattice family. We de
     \item what it the complexity of this algorithm \ref{subsec:complexity_integers}
     \item and how much of the error we can decode \ref{subsec:radius_integers}
 \end{itemize}
-The second part of the work \ref{sec:polynomials} is dedicated to the family of polynomial lattices.
+The next part of our work \ref{sec:polynomials} is dedicated to the family of polynomial lattices.
 \begin{itemize}
     \item it's basis computation is discussed in the section \label{subsec:compute_basis_polynomials}
     \item the decoding radius for this case is discussed in \label{subsec:radius_polynomials}
@@ -311,10 +312,25 @@ It is easy to see that step two (\ref{step2}) takes linear time in $n + k$. Step
 
 Finally, step four (\ref{step4}) includes matrix multiplication and inversion for matrices which dimension is bounded by $n + k$. They obviously take polynomial time.
 
-We still haven't configured parameters $k, q_{j}, p_{i}$. $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $q_{j}$ to be equal to first $k$ odd prime numbers and $p_{i}$ equal to $2$ and next $n-1$ smallest primes.
+We still haven't configured parameters $k, q_{j}, p_{i}$. $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $q_{j}$ to be equal to first $k$ odd prime numbers and $p_{i}$ equal to $2$ and next $n-1$ smallest primes the we haven't used yet.
+
+ToDo: Add that for every $e_i$ we choose $n$.
+
+Question: What is the best k?
 
 \subsection{Decoding radius}
 \label{subsec:radius_integers}
+
+The decoding algorithm that we discussed in the introduction \ref{sec:intro} works.
+
+The decoding radius for the general continous error:
+\[
+    r_{\mathbb{Z}} = \frac{\ln(m/2)}{4 \cdot (q^{n-1}(q-1))^{1/n} \cdot \ln(B)}
+\]
+Let us compare initial construction, its generalization and theoretical upperbound with respect to the decoding radius.
+
+
+
 
 Here I'd like to say that we can decode all the same error but it's still a tiny bit better and give a graph with upper bound lower bound old(basis) algorithm and new(generalized) algorithm.
 

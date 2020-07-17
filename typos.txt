@@ -1,4 +1,0 @@
-Page 4: Confusing notation(n) in Proposition 1, Remark 1
-Page 8: in proposition 3 "where c is a constant given by Equation(3)" is not needed
-Page 8:(end of the page) Vol(L) \geq \phi(m) -> Vol(L) \leq \phi(m)
-Page 10:(section 4.2 line 7) cicumvented -> circumvented
