@@ -29,7 +29,7 @@
 
 
 
-\title{Comparing Families of Lattices for efficient Bounded Distance Decoding near Minkowski’s Bound}
+\title{Comparing Lattice Families for efficient Bounded Distance Decoding near Minkowski’s Bound}
 
 \author{ Oleksandra Lapiha }
 \usepackage{xcolor}
@@ -301,22 +301,13 @@ It is a $q$-smooth integer, so to efficiently calculate discrete logarithms in t
 \[
     O(\sum_{i=1}^{k} a_{i}(\ln(|G|) + \sqrt{t_{i}}))
 \]
-To be polynomial in lattice dimension $a_{i} \leq e_{j}-1$ and $t_{i} \leq q_{j}$ need to be polynomial in $n$. For this reason we configure $e_{j} = n$ for every $j$. As we have $n \cdot k$ such operations, $k$ should be polynomial in $n$.
-
-%\begin{question}
-%    Should I talk about how we find generators?(I don't really know how the default function in sagemath does it and what is the complexity, but I could discuss how it happens in theory)
-%\end{question}
-%{\bf Why not. }
+To be polynomial in lattice dimension $a_{i} \leq e_{j}-1$ and $t_{i} \leq q_{j}$ need to be polynomial in $n$. As we have $n \cdot k$ such operations, $k$ should be polynomial in $n$.
 
 It is easy to see that step two (\ref{step2}) takes linear time in $n + k$. Step three (\ref{step3}) is LLL algorithm, which is proven to run in polynomial time in $n + k$.
 
 Finally, step four (\ref{step4}) includes matrix multiplication and inversion for matrices which dimension is bounded by $n + k$. They obviously take polynomial time.
 
-We still haven't configured parameters $k, q_{j}, p_{i}$. $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $q_{j}$ to be equal to first $k$ odd prime numbers and $p_{i}$ equal to $2$ and next $n-1$ smallest primes the we haven't used yet.
 
-ToDo: Add that for every $e_i$ we choose $n$.
-
-Question: What is the best k?
 
 \subsection{Decoding radius}
 \label{subsec:radius_integers}
@@ -325,14 +316,25 @@ The decoding algorithm that we discussed in the introduction \ref{sec:intro} wor
 
 The decoding radius for the general continous error:
 \[
-    r_{\mathbb{Z}} = \frac{\ln(m/2)}{4 \cdot (q^{n-1}(q-1))^{1/n} \cdot \ln(B)}
+    r_{\mathbb{Z}} = \frac{\ln(m/2)}{4 \cdot (\varphi(m))^{1/n} \cdot \ln(B)}
 \]
+
+We still haven't configured parameters $k, q_{j}, p_{i}$. $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $p_{i}$ to be equal to first $n$ prime numbers and $q_{j}$ equal to the next $k$ smallest primes the we haven't used yet.
+
+The ratio $\frac{ln(m/2)}{\varphi(m)}$ decreases as $m$ tends to infinity, so to make use of the difference in the ratio in the generalizartion, we would like $m$ to have the same size as in the original construction. We would like to have $e_i \sim \frac{\ln(3) \cdot n}{\ln(q) \cdot k}$, but it has to be an integer, so we round this value. Then we have:
+\[
+    m = \prod_{i = 1}^{k} q_i^{round(\frac{\ln(3) \cdot n}{\ln(q) \cdot k})} \sim 3^n
+\]
+
+The only parameter left to configure is $k$. The way we set up $e_i$s number of factors will only increase the ratio $\frac{ln(m/2)}{\varphi(m)}$. So the more factors we have the better.
+
 Let us compare initial construction, its generalization and theoretical upperbound with respect to the decoding radius.
 
-
-
-
-Here I'd like to say that we can decode all the same error but it's still a tiny bit better and give a graph with upper bound lower bound old(basis) algorithm and new(generalized) algorithm.
+\begin{figure}
+  \includegraphics[width=\linewidth]{generalization_integers.png}
+  \caption{Comparison of the nomalised decoding radius for initial construction(in green) and the generalization(in yellow). Here we took k = 20. }
+  \label{fig:gen_int}
+\end{figure}
 
 \subsection{Was it all worth it?}
 \label{subsec:improvement_integers}
@@ -471,6 +473,10 @@ $\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$. The
 \label{subsubsec:primal_from_dual_polynomials}
 
 
+\subsection{Complexity of the basis computation.}
+\label{subsec:complexity_polynomials}
+
+
 \subsection{Decoding radius}
 \label{subsec:radius_polynomials}
 
@@ -541,9 +547,6 @@ Therefore, $b \cdot c = 1$. In practice we fix $b = 2, c = \frac{1}{2}$. In the 
     \bar{r}_1 = \frac{n}{\log(n)(n^{2} - 1)^{1/2\log(n)}}
 \]
 
-A note for myself! In my code the determinant of the lattice is changing! It is upper-bounded by $(q^{d} - 1)^{k}$ but practice shows that it is sometimes much smaller, it means that sometimes our algorithm decodes even larger error. But also with a new version it fails whenever it cannot reduce the matrix to systematic form so if these cases coincide we don't really care.
-
-
 \section{Comparing All Constructions}
 \label{sec:comparison}
 
@@ -552,6 +555,21 @@ A note for myself! In my code the determinant of the lattice is changing! It is 
 
 \subsection{Decoding radius of the algorithms}
 \label{subsec:radius_comparison}
+For the first family final normalized error radius that the algorithm can handle is:
+\[
+    \bar{r}_1 = \frac{\ln(m/2)}{4 \cdot \varphi(m)^{1/n} \cdot \ln((n+1)\ln(n+1))}
+\]
+And for the second construction it is much better:
+\[
+    \bar{r}_1 = \frac{n}{\log(n)(n^{2} - 1)^{1/2\log(n)}}
+\]
+But both of them are still logatihmically far from Minkowski's bound. The figure \ref{fig:everything} will help you to see the difference in practice.
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{everything.png}
+  \caption{Comparison of all algorithms and theoretical upperbound(in red): basic algorithm for integer lattice(in green), generalized algorithm for integer lattice(in yellow), algorithm for polynomial lattices(in blue)}
+  \label{fig:everything}
+\end{figure}
 
 \section{LLXY17 Cryptanalysis?}
 \label{sec:cryptanalysis}
