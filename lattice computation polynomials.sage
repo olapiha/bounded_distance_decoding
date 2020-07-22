@@ -63,8 +63,8 @@ def dual_generating_set(field_order, modulai, alphas):
 
 
 def hermite_form(B, indep_length):
-    print("in HERMITE FORM")
-    print(B)
+    #print("in HERMITE FORM")
+    #print(B)
     den = B.denominator()
     int_B = (den*B).change_ring(ZZ)
     (H, U) = int_B.hermite_form(transformation=True)
@@ -77,7 +77,7 @@ def hermite_form(B, indep_length):
 
 # LLL takes as input a set of row vectors
 def lll_wrap(B, indep_length):
-    print("in LLL")
+    #print("in LLL")
     basis = B.LLL()
     rows_number = len(B.rows())
     # Let  n= number of primes, t= number of factors
@@ -94,7 +94,7 @@ def primal_basis_from_dual(B):
 
 
 def parity_check_representation(field_order, modulai, alphas):
-    print("in PARITY CHECK")
+    #print("in PARITY CHECK")
     parity_check = matrix(discrete_logs_vector(field_order, modulai[0], alphas))
     for modulus in modulai[1:]:
         parity_check = parity_check.stack(discrete_logs_vector(field_order, modulus, alphas))
@@ -113,6 +113,12 @@ def check_parameters(q, d, n, k):
     assert len(q.factor()) == 1
     assert n <= q
     assert k < q^d /d
+
+def test_lattice_construction_optimal(n):
+    q = n.next_prime()
+    d = 2
+    k = (n/(2*ln(n))).round()
+    return test_lattice_construction(q, d, n, k)
 
 
 def test_lattice_construction(field_order, d, n, k):
@@ -136,10 +142,10 @@ def lattice_construction(field_order, modulai, alphas, parity_check):
     else:
         d = modulai[0].degree()
         dual_gens = identity_matrix(QQ, len(alphas)).stack(parity_check / (field_order^d - 1))
-    print(time.time())
+    #print(time.time())
     #dual_basis = hermite_form(dual_gens, len(alphas))
     dual_basis = lll_wrap(dual_gens, len(alphas))
-    print(time.time())
+    #print(time.time())
     # matrix dimention is (n+t) * n
     primal_basis = primal_basis_from_dual(dual_basis)
     # determinant check
@@ -151,7 +157,7 @@ def lattice_construction(field_order, modulai, alphas, parity_check):
     return primal_basis.T
 
 def lattice_construction_v2(field_order, modulai, alphas):
-    print(time.time())
+    #print(time.time())
     parity_check = matrix(QQ, parity_check_representation(field_order, modulai, alphas))
     d = modulai[0].degree()
     try:
@@ -167,9 +173,9 @@ def lattice_construction_v2(field_order, modulai, alphas):
         inv_permutation = permutation^(-1)
         generator_columns = inv_permutation(generator.columns())
         generator = matrix(generator_columns).T
-        print(time.time())
+        #print(time.time())
         res = lll_wrap(generator, len(alphas)).change_ring(ZZ).T
-        print(time.time())
+        #print(time.time())
         return res
     except Exception as e:
         print("Falied to reduce to systematic form")
@@ -234,3 +240,21 @@ def gaussian_elimination_modulo(matrix, modulus):
 #test_lattice_basis(res[0], res[1], res[2], res[3])
 #print(res[3])
 #print(res[4])
+
+'''
+begin = time.time()
+print(test_lattice_construction_optimal(100))
+print(time.time() - begin)
+
+begin = time.time()
+print(test_lattice_construction_optimal(200))
+print(time.time() - begin)
+
+begin = time.time()
+print(test_lattice_construction_optimal(300))
+print(time.time() - begin)
+
+begin = time.time()
+print(test_lattice_construction_optimal(400))
+print(time.time() - begin)
+'''

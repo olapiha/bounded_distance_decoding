@@ -1,4 +1,5 @@
 #!/usr/bin/env sage
+import time
 
 
 # As input we are given an interger m and its factorization
@@ -18,7 +19,7 @@
 # 3.output the list of log_{\beta_i}(p_j) j = 1, ..., n
 
 
-def parity_check_representation((q, e), primes):
+def parity_check_representation(q, e, primes):
     #print("in PARITY CHECK")
     order = q**e - q**(e-1)
     q = q**e
@@ -43,7 +44,7 @@ def dual_generating_set(modulus_factors, primes):
     dual_gens = identity_matrix(QQ, len(primes))
     for q, e in modulus_factors:
         euler_phi = q**e - q**(e-1)
-        dual_gens = dual_gens.stack(parity_check_representation((q, e), primes)
+        dual_gens = dual_gens.stack(parity_check_representation(q, e, primes)
                                     / euler_phi)
     return dual_gens
 
@@ -86,19 +87,22 @@ def test_lattice_construction(n, t):
     primes = primes_first_n(n+t)
     modulus_factors = primes[1:t+1]
     primes = [2] + primes[t+1:]
-    modulus_factors = [(q, n) for q in modulus_factors]
+    modulus_factors = [(q, round((ln(3)* n)/(ln(q) * t))) for q in modulus_factors]
     return (modulus_factors, primes, lattice_construction(modulus_factors, primes))
 
 
 def lattice_construction(modulus_factors, primes):
-    #time
+    begin = time.time()
     dual_gens = dual_generating_set(modulus_factors, primes)
-    #time
+    print(time.time() - begin)
     #dual_basis = hermite_form(dual_gens, len(primes))
+    begin = time.time()
     dual_basis = lll_wrap(dual_gens, len(primes))
+    print(time.time() - begin)
     # matrix dimention is (n+t) * n
-    #time
+    begin = time.time()
     primal_basis = primal_basis_from_dual(dual_basis)
+    print(time.time() - begin)
     #determinant check
     phi_of_modulus = 1
     for (q, n) in modulus_factors:
@@ -111,4 +115,21 @@ def lattice_construction(modulus_factors, primes):
     return primal_basis.T
 
 
-#print(test_lattice_construction(10, 4))
+begin = time.time()
+print(test_lattice_construction(200, 20))
+print(time.time() - begin)
+begin = time.time()
+print(test_lattice_construction(250, 20))
+print(time.time() - begin)
+begin = time.time()
+print(test_lattice_construction(300, 20))
+print(time.time() - begin)
+begin = time.time()
+print(test_lattice_construction(200, 5))
+print(time.time() - begin)
+begin = time.time()
+print(test_lattice_construction(250, 5))
+print(time.time() - begin)
+begin = time.time()
+print(test_lattice_construction(300, 5))
+print(time.time() - begin)

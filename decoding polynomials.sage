@@ -96,20 +96,26 @@ def test_decoding(q, d, n, k, B):
     coordinates = vector(np.random.randint(0, 10, n))
     lattice_point = basis * coordinates
     # generate integer noise of l_1 norm <= B
-    #noise = vector([1 for i in range(24)] + [-1 for i in range(24)] + [0 for i in range(n-48)])
     non_zero_indices = list(np.random.choice(range(n), B))
     while True:
         noise = []
         for i in range(n):
             if i in non_zero_indices:
-                noise.append(random.randint(-B, B+1))
+                noise.append(random.randint(-1, 2))
             else:
                 noise.append(0)
         noise = vector(noise)
         if (noise.norm(1) <= B) and (0 < noise.norm(1)): break
+    '''
+    noise = vector([1 for i in range(B//2)] + [-1 for i in range(B//2)] + [0 for i in range(n-48)])
+    '''
     print("l1 norm of the noise: ", noise.norm(1))
     point_t = lattice_point + noise
-    return (discrete_error(alphas, modulus, Fx, point_t), noise)
+    start = time.time()
+    e = discrete_error(alphas, modulus, Fx, point_t)
+    end = time.time()
+    print("decoding time:", end-start)
+    return (e, noise)
 
 
 def test_decoding_with_optimal_parameters(n):
@@ -121,8 +127,27 @@ def test_decoding_with_optimal_parameters(n):
     return test_decoding(q, d, n, k, B)
 
 for i in range(1):
+    '''
+    start = time.time()
+    result = test_decoding_with_optimal_parameters(100)
+    end = time.time()
+    print("full execution time: ", end-start)
+    print("calculated error: ", result[0])
     start = time.time()
     result = test_decoding_with_optimal_parameters(200)
+    end = time.time()
+    print("full execution time: ", end-start)
+    print("calculated error: ", result[0])
+    print("real error:       ", result[1])
+    '''
+    start = time.time()
+    result = test_decoding_with_optimal_parameters(350)
+    end = time.time()
+    print("full execution time: ", end-start)
+    print("calculated error: ", result[0])
+    print("real error:       ", result[1])
+    start = time.time()
+    result = test_decoding_with_optimal_parameters(400)
     end = time.time()
     print("full execution time: ", end-start)
     print("calculated error: ", result[0])
