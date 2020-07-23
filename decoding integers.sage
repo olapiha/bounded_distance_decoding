@@ -1,6 +1,7 @@
 #!/usr/bin/env sage
 import numpy as np
 from sage.modules.free_module_integer import IntegerLattice
+import random
 
 # As input we are given a lattice basis,
 # prime numbers and modulus m used to construct it
@@ -67,27 +68,67 @@ def rational_number_reconstruction(f, modulus):
 
 
 # B must be an integer
-def test_decoding(n, t, B):
+def test_decoding(n, t):
     load("lattice computation integers.sage")
+    start = time.time()
     (modulus_factors, primes, basis) = test_lattice_construction(n, t)
+    print("lattice consturction time: ",time.time() - start)
     modulus = 1
     for (q, e) in modulus_factors:
         modulus *= q**e
-
+    B = floor((ln(modulus/2))/(euler_phi(modulus)^(1/n)*ln(n*ln(n))))
+    print("B = ",B)
     # generate coordinates of a lattice point in the basis above
     coordinates = vector(np.random.randint(0, 10, n))
     lattice_point = basis * coordinates
 
     # generate integer noise of l_1 norm <= B
+    non_zero_indices = list(np.random.choice(range(n), B))
     while True:
-        noise = vector(np.random.randint(-B, B+1, n))
-        if (noise.norm(1) <= B): break
-    print("norm of the noise: ", noise.norm())
+        noise = []
+        for i in range(n):
+            if i in non_zero_indices:
+                noise.append(random.randint(-2, 2))
+            else:
+                noise.append(0)
+        noise = vector(noise)
+        if (noise.norm(1) <= B) and (0 < noise.norm(1)): break
     point_t = lattice_point + noise
-    return (discrete_error(primes, modulus, point_t), noise)
+    start = time.time()
+    res = discrete_error(primes, modulus, point_t)
+    print("decoding time:", time.time() - start)
+    return (res, noise)
 
 
 
-result = test_decoding(5, 3, 2)
+result = test_decoding(100, 20)
+print(result[0])
+print(result[1])
+
+result = test_decoding(200, 20)
+print(result[0])
+print(result[1])
+
+result = test_decoding(100, 5)
+print(result[0])
+print(result[1])
+
+result = test_decoding(200, 5)
+print(result[0])
+print(result[1])
+
+result = test_decoding(250, 20)
+print(result[0])
+print(result[1])
+
+result = test_decoding(250, 5)
+print(result[0])
+print(result[1])
+
+result = test_decoding(300, 20)
+print(result[0])
+print(result[1])
+
+result = test_decoding(300, 5)
 print(result[0])
 print(result[1])

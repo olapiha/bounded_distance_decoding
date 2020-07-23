@@ -114,7 +114,7 @@ def lattice_construction(modulus_factors, primes):
     # rows are basis vectors here!! That's why .T
     return primal_basis.T
 
-
+'''
 begin = time.time()
 print(test_lattice_construction(200, 20))
 print(time.time() - begin)
@@ -133,3 +133,4 @@ print(time.time() - begin)
 begin = time.time()
 print(test_lattice_construction(300, 5))
 print(time.time() - begin)
+'''

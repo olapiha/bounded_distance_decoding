@@ -127,10 +127,11 @@ def test_decoding_with_optimal_parameters(n):
     return test_decoding(q, d, n, k, B)
 
 for i in range(1):
+    pass
+    #start = time.time()
+    #test_decoding_with_optimal_parameters(50)
+    #end = time.time()
     '''
-    start = time.time()
-    result = test_decoding_with_optimal_parameters(100)
-    end = time.time()
     print("full execution time: ", end-start)
     print("calculated error: ", result[0])
     start = time.time()
@@ -139,7 +140,6 @@ for i in range(1):
     print("full execution time: ", end-start)
     print("calculated error: ", result[0])
     print("real error:       ", result[1])
-    '''
     start = time.time()
     result = test_decoding_with_optimal_parameters(350)
     end = time.time()
@@ -152,3 +152,4 @@ for i in range(1):
     print("full execution time: ", end-start)
     print("calculated error: ", result[0])
     print("real error:       ", result[1])
+    '''
