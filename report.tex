@@ -42,9 +42,16 @@
 
 \maketitle
 
+
+
 \section{Introduction}
 \label{sec:intro}
-\textbf{Bounded Distance Decoding problem.} Message decoding is a problem that arises when two parties need to communicate over a noisy channel. Here we are in the setting where we are only concerned with the integrity of transmitted data and we assume there's no adversary listening and modifying messages in the network. We are dealing with information loss that occurs due to our information flow being \textit{slightly disturbed} by forces of nature.
+
+
+
+\textbf{Bounded Distance Decoding problem.}
+
+Message decoding is a problem that arises when two parties need to communicate over a noisy channel. Here we are in the setting where we are only concerned with the integrity of transmitted data and we assume there's no adversary listening and modifying messages in the network. We are dealing with information loss that occurs due to our information flow being \textit{slightly disturbed} by forces of nature.
 
 To achieve that we encode messages as points in Euclidean space. Now we can model the rate of "disturbance" as distance between the input and output points. And call it "slight" if it can be bounded by a constant. A natural way to arrange the space of messages is a Euclidean lattice(all integer linear combinations of a linearly independent set of vectors in $\mathbb{R}^{n}$).
 
@@ -60,13 +67,12 @@ We would like to have an algorithm where the decoding radius is close to $\frac{
 
 An instance of such problem is called a Bounded Distance Decoding problem and it is considered a hard problem for a random lattice and decoding radius of $\frac{\lambda_{1}(\LL)}{2}$ in the norm $l_{\infty}$ \cite{[LM09]}.
 
-
 Our work focuses on two families of lattices for which BDD problem has an efficient solution and error is close to the Minkowski's bound. The first one is a generalization of a lattice discussed in \cite{[DP19]} and used in Chor-Rivest cryptosystem \cite{[CR88]}. The second one was used in \cite{[LLXY17]} for construction of a trapdoor function and has a similar decoding algorithm. Apart from decoding algorithms we discuss an efficient way to compute the basis of a given lattice. It is important to be able to compute some representation of the lattice efficiently because this is a way to craft lattice points from messages we would like to transmit.
 
 In this work we generalize the lattice family from \cite{[DP19]} and suggest an efficient way to compute it. The decoding algorithm of the same article extends to our case directly. The second lattice family was discussed in \cite{[LLXY17]} we extend the decoding algorithm devised for them to handle more types of error. We also suggest security improvements for the encryption scheme from \cite{[LLXY17]} using our decoding algorithm and perform its cryptanalysis to improve their parameter selection.
 
-
 \textbf{Discrete logarithm lattices.}
+
 In this work we will discuss many lattices of similar flavour. They are defined as a kernel of a morphism from $\ZZ^{n}$ to another group. Let us give you a short definition of the lattice given in \cite{[DP19]} which serves as a basis for our first generalization.
 
 Let us consider numbers $m$ which is a prime power, $n$ and $B$ such that we can find $n$ primes $p_{1}, \dots , p_{n}$ which do not divide $m$ and are bounded by $B$. We consider a group morphism:
@@ -80,7 +86,6 @@ It is easy to see that the image will indeed be an element of $(\ZZ/m\ZZ)^*$ due
 \[
     \LL \coloneqq \ker \psi = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
 \]
-
 The basis of this lattice is simple to compute it only requires computation of $n$ discrete logarithms in $(\ZZ/m\ZZ)^*$ it can be done because the multiplicative group of a field $\ZZ/m\ZZ$ is cyclic. Discrete logarithms can be computed in polynomial time as they are calculated modulo a smooth number. More on that you can find in \cite{[DP19]}. The generalization we give will require more work in this regard.
 
 \textbf{Efficient decoding algorithm.}
@@ -93,11 +98,10 @@ We use a decoding algorithm discussed in \cite{[DP19]} and \cite{[LLXY17]}. We p
     \item Reconstruct the numerator $n$ and the denominator $d$ of $v$ that correspond to positive and negative parts of the error. Recover prime number factorization of $n$ and $d$ using trial division. Powers of primes will be the coordinates of our error.
     \item Subtract just recovered error from $t'$.
 \end{itemize}
-
-
 In this work by an efficient algorithm we mean an algorithm that runs in polynomial time.
 
 \textbf{Organisation of the document.}
+
 In the section \ref{sec:gen_integers} we discuss the first lattice family. We detail on:
 \begin{itemize}
     \item how to compute its basis \ref{subsec:compute_basis_integers}
@@ -113,10 +117,16 @@ The next part of our work \ref{sec:polynomials} is dedicated to the family of po
 Then we compare these two families with respect to basis computation and decoding algorithms in \ref{sec:comparison}. Finally, we perform cryptanalysis of the encryption scheme presented in \cite{[LLXY17]} and propose improvements to it in the section \ref{sec:cryptanalysis}.
 
 \textbf{Implementation.}
+
 Sagemath implementation of every algorithm for basis computation and message decoding discussed in the document is available on github via link: \textcolor{red}{TBA}.
+
+
 
 \section{Generalization of the construction for integers}
 \label{sec:gen_integers}
+
+
+
 In this section we present a generalization of the decoding algorithm introduced in \cite{[DP19]}. In their paper Léo Ducas and Cécile Pierrot use properties of the group $(\ZZ/m\ZZ)^*$ for modulus $m$ which is a prime power. The decoding radius achievable in polynomial-time depends on the ratio
 \[
 \frac{\ln(m)}{\varphi(m)}
@@ -130,6 +140,8 @@ Our result is a deterministic efficient algorithm for computation of the basis f
 
 \subsection{Definition of discrete logarithm lattice }
 \label{subsec:def_integers}
+
+
 In this chapter we take $m = \prod_{i=1}^{k} q_{j}^{e_{j}}$ where $\{q_{j}\}$ are odd prime numbers and $\{e_{j}\}$ are positive integers. Similarly to the initial construction we take numbers $n$ and $B$ such that we can find $n$ primes $p_{1}, \dots , p_{n}$ different from every $q_{j}$ and bounded by $B$. We consider a group morphism:
 \[
     \psi : \ZZ^{n} \rightarrow (\ZZ/m\ZZ)^*
@@ -168,8 +180,11 @@ This is almost a parity check representation of $\LL$ except we have many parity
     \LL_{j} \coloneqq \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\varphi(q_{j}^{e_{j}})}\}
 \]
 
+
 \subsection{Computing lattice basis}
 \label{subsec:compute_basis_integers}
+
+
 Our goal is to compute a basis of discrete logarithm lattice to be able to encode messages as its points afterwards. The idea of our algorithm is to compute a basis of the dual lattice first. And then obtain primal one from the dual.
 Let us recall a definition of a dual lattice and a dual basis.
 \begin{definition}
@@ -188,7 +203,6 @@ Linear maps can be represented as an inner product function with a fixed vector.
     \end{itemize}
 \end{definition}
 If B is a square matrix then $(B^{T})^{-1}$ satisfies the definition. In the case of a non square matrix one can verify that $D = B(B^{T}B)^{-1}$ is the dual basis. \footnote{Since columns of $B$ are basis vectors, $B$ is a full column rank matrix. Therefore, $B^{T}B$ is always invertible.}
-
 
  Our algorithm \label{algorithm} has the following steps
 \begin{enumerate}
@@ -244,7 +258,7 @@ Now taking dual lattices of both sides of the equation we obtain:
 
 \end{proof}
 
-\begin{lemma}
+\begin{lemma}\label{lemma:dual_gen_set}
     Let B be a square matrix, $B \in \mathbb{R}^{n \times n}$. Suppose we are given parity check representation of a lattice $\LL = \{x \in \ZZ^{n} | Bx \equiv 0 \pmod{p}\}$
     Then \textbf{rows} of the matrix
     \[
@@ -298,6 +312,8 @@ A way to calculate a basis of primal lattice having the basis of the dual is str
 
 \subsection{Complexity analysis}
 \label{subsec:complexity_integers}
+
+
 The first step (\ref{step1}) of the basis computation algorithm (\ref{algorithm}) boils down to many computations of discrete logarithms in a finite group. For every distinct prime factor $q_{j}^{e_{j}}$ of the modulus we compute $n$ discrete logarithms(one for every prime $p_{i}$). It is $n \cdot k$ iterations in total. Let's refer to $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ as group $G$. Group order is equal to $|G| = \varphi(q_{j}^{e_{j}}) =  q_{j}^{e_{j}-1}(q_{j}-1) = \prod_{i=1}^{k} t_{i}^{a_{i}}$.
 It is a $q$-smooth integer, so to efficiently calculate discrete logarithms in this group we can use a combination of Pohlig-Hellman \cite{[PH78]} and Pollard-$\rho$ \cite{[Pol78]} algorithms. Overall complexity in group operations is
 \[
@@ -310,9 +326,9 @@ It is easy to see that step two (\ref{step2}) takes linear time in $n + k$. Step
 Finally, step four (\ref{step4}) includes matrix multiplication and inversion for matrices whose dimension is bounded by $n + k$. They take polynomial time.
 
 
-
 \subsection{Decoding radius}
 \label{subsec:radius_integers}
+
 
 Decoding algorithm extends naturally to the generalized setting. Let us remind that normalized decoding $l_{1}$-radius was equal to
 \[
@@ -337,8 +353,11 @@ Let us compare initial construction, its generalization and theoretical upper bo
   \label{fig:gen_int}
 \end{figure}
 
+
 \subsection{Was it all worth it?}
 \label{subsec:improvement_integers}
+
+
 As it turns out factorization of $m$ does not affect the decoding radius substantially. It can only introduce a minor improvement. We prove that with the following lemma:
 
 \begin{lemma}
@@ -379,8 +398,13 @@ where $\gamma$ is the Euler constant, $e^{-\gamma} = 0.56145948\dots$
 
 \section{New Construction for Polynomial Lattices}
 \label{sec:polynomials}
+
+
+
 \subsection{Definition of Polynomial Lattices}
 \label{subsec:def_polynomials}
+
+
 Let us set parameters a prime power $q$ and integers $k$, $d$ and $n$. Let $\FF_{q}[x]$ be polynomial ring over a field  $\FF_{q}$. We take a set of $k$ irreducible polynomials $c_{j}(x) \in \FF_{q}[x]$, $j =1, ...,k$ of degree $d$. According to the analogue of the prime number theorem for polynomials $k$ must not be greater than $\frac{q^d}{d}$.
 
 Define $c(x) \coloneqq \prod_{j = 1}^{k} c_{j}(x)$. We are going to work in the multiplicative group of the quotient ring of  $\FF_{q}[x]$ with respect to $c(x)$.
@@ -415,8 +439,10 @@ Supposing we know $\beta_{j}$ a generator of $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$
 \]
 What might be confusing is that each $\log_{\beta_{j}}$ has a different input domain. For every $j$:  $\log_{\beta_{j}}$ acts from $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ into $(\ZZ/(q^{d} - 1)\ZZ)$.
 
+
 \subsection{Lattice computation for polynomials}
 \label{subsec:compute_basis_polynomials}
+
 
 We obtained a parity check representation of $\LL$.
 To calculate a basis of $\LL$ we can follow a simplified version of the algorithm for the discrete logarithm lattice. We obtain the dual basis by scaling parity check matrix and concatenating it with $I_{n}$. Then we remove linear dependencies and finally obtain primal basis from the dual.
@@ -427,7 +453,6 @@ To calculate a basis of $\LL$ we can follow a simplified version of the algorith
     \item \label{step3_p} Recover the primal basis from the dual.
 \end{enumerate}
 
-
 \subsubsection{Parity check representation \ref{step1_p}.}
 \label{subsubsec:parity_check_polynomials}
 To compute the parity check representation of the polynomial lattice we need to compute the following:
@@ -436,13 +461,29 @@ $\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$. The
 \subsubsection{Dual basis \ref{step2_p}.}
 \label{subsubsec:dual_gen_set_polynomials}
 
+Having the parity check matrix, Lemma \ref{lemma:dual_gen_set} gives us a straightforward way to compute the generating set of the dual. To obtain its basis we eliminate linear dependencies by reducing it to its Hermite noraml form as in the section \ref{subsubsection:hermite_form}.
 
 \subsubsection{Recovering Primal basis from Dual \ref{step3_p}.}
 \label{subsubsec:primal_from_dual_polynomials}
 
+Lattices that admit a parity check representation are called q-ary lattices.
+
+ToDo plan for the section:
+What is the q-ary lattice
+Checl if defined the parity check representations.
+It's easier for q-ary lattices
+what is the systematic form
+How do we add the permutation to it
+prove the fact about the systematic form about how to obtain the generatin se modulo
+How to get the basis out of modulo q and that we don't really need to do it
+How do we compute it in practice what is the complexity
+
+
 
 \subsection{Complexity of the basis computation.}
 \label{subsec:complexity_polynomials}
+
+
 Let us analyse every step of the basis computation algorithm to check if it is efficient:
 \begin{itemize}
     \item
@@ -454,7 +495,6 @@ Let us analyse every step of the basis computation algorithm to check if it is e
 
 Note to self: Don't forget an intro to each section!
 
-
 \begin{enumerate}
     \item Round every coordinate to $t$ to deal only with discrete error $\lfloor t \rceil = v + \lfloor e \rceil$. Note $e' = \lfloor e \rceil$, $t' = \lfloor t \rceil$.
     \item Compute $\psi(t) = \prod_{i=1}^{n}(x - \alpha_{i})^{v_{i} + e'_i} \pmod{c(x)} = \prod_{i=1}^{n}(x - \alpha_{i})^{e'_i} \pmod{c(x)}$.
@@ -462,7 +502,6 @@ Note to self: Don't forget an intro to each section!
     \item Recover prime number factorization of $n$ and $d$ using trial division. Powers of primes will be the coordinates of our error.
     \item Subtract just recovered error from $t'$.
 \end{enumerate}
-
 
 \subsubsection{Rational function reconstruction \ref{step:rfr}}
 \label{subsubsec:rfr}
@@ -505,6 +544,7 @@ There's only $n$ possible roots, one trial division takes $O(m)$ time and the nu
 
 \subsection{Decoding radius}
 \label{subsec:radius_polynomials}
+
 
 \subsubsection{Only positive discrete error}
 \label{subsubsec:positive_error}
