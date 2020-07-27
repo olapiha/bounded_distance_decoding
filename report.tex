@@ -29,7 +29,7 @@
 
 
 
-\title{Comparing Lattice Families for efficient Bounded Distance Decoding near Minkowski’s Bound}
+\title{Comparing Lattice Families for Bounded Distance Decoding near Minkowski’s Bound}
 
 \author{ Oleksandra Lapiha }
 \usepackage{xcolor}
@@ -44,13 +44,13 @@
 
 \section{Introduction}
 \label{sec:intro}
-\textbf{Bounded Distance Decoding problem.} Message decoding is a problem that arises when two parties need to communicate over a noisy channel. Here we are in the setting where we only care about integrity of transmitted data and we assume there's no adversary listening and modifying messages in the network. We are fighting information loss that occurs due to our infrastructure being \textit{slightly disturbed} by forces of nature.
+\textbf{Bounded Distance Decoding problem.} Message decoding is a problem that arises when two parties need to communicate over a noisy channel. Here we are in the setting where we are only concerned with the integrity of transmitted data and we assume there's no adversary listening and modifying messages in the network. We are dealing with information loss that occurs due to our information flow being \textit{slightly disturbed} by forces of nature.
 
-To achieve that we encode messages as points in Euclidean space. Now we can model the rate of "disturbance" as distance between the input and output points. And call "slight" if can be bounded by a constant. A natural way to arrange the space of messages is a Euclidean lattice(all integer linear combinations of a linearly independent set of vectors in $\mathbb{R}^{n}$).
+To achieve that we encode messages as points in Euclidean space. Now we can model the rate of "disturbance" as distance between the input and output points. And call it "slight" if it can be bounded by a constant. A natural way to arrange the space of messages is a Euclidean lattice(all integer linear combinations of a linearly independent set of vectors in $\mathbb{R}^{n}$).
 
-The decoding procedure aims to identify the point of the lattice closest to the output point. If the disturbance in the network is small enough the closest lattice point will indeed be the input message. This will help us identify the upper bound on how much error a perfect decoding algorithm can handle. We know that the distance between lattice points is bounded from below by the length of the shortest vector $\lambda_{1}(\LL)$ of the lattice. If the error exceeds $\frac{\lambda_{1}(\LL)}{2}$, closest point might not be the input message anymore so decoding becomes impossible.
+The decoding procedure aims to identify the point of the lattice closest to the output point. If the disturbance in the network is small enough the closest lattice point will indeed be the input message. This will help us identify the upper bound on how much error a perfect decoding algorithm can handle. We know that the distance between lattice points is bounded from below by the length of the shortest vector($\lambda_{1}(\LL)$) of the lattice. If the error exceeds $\frac{\lambda_{1}(\LL)}{2}$, the closest point might not be the input message anymore so decoding becomes impossible.
 
-We would like to have an algorithm where the decoding radius is close to $\frac{\lambda_{1}(\LL)}{2}$. Unfortunately, Lattice Shortest Vector Problem(SVP) is believed to be hard in general case, so we cannot evaluate exactly how good our decoding radius is. Nevertheless, we have an upper-bound on the length of the shortest vector. So we aim to get a decoding radius close to it instead.
+We would like to have an algorithm where the decoding radius is close to $\frac{\lambda_{1}(\LL)}{2}$. Unfortunately, the Lattice Shortest Vector Problem(SVP) is believed to be hard in the general case, so we cannot evaluate exactly how good our decoding radius is. Nevertheless, we have an upper-bound on the length of the shortest vector. So we aim to get a decoding radius close to it instead.
 \begin{theorem}[Minkowski's First Theorem]
     For any full-rank lattice $\LL$ of rank $n$,
     \[
@@ -61,12 +61,13 @@ We would like to have an algorithm where the decoding radius is close to $\frac{
 An instance of such problem is called a Bounded Distance Decoding problem and it is considered a hard problem for a random lattice and decoding radius of $\frac{\lambda_{1}(\LL)}{2}$ in the norm $l_{\infty}$ \cite{[LM09]}.
 
 
-Our work focuses on two families of latices for which BDD problem has an efficient solution and error is close to the Minkowski bound. The first one is a generalization of a lattice discussed in \cite{[DP19]} and used in Chor-Rivest cryptosystem \cite{[CR88]}. The second one was used in \cite{[LLXY17]} for construction of a trapdoor function and has a similar decoding algorithm. Apart from decoding algorithms we discuss efficient way to compute baisis of a given latiice. It is important to be able to compute some representation of the lattice efficiently because this is a way to craft lattice points from messages we would like to transmit.
+Our work focuses on two families of lattices for which BDD problem has an efficient solution and error is close to the Minkowski's bound. The first one is a generalization of a lattice discussed in \cite{[DP19]} and used in Chor-Rivest cryptosystem \cite{[CR88]}. The second one was used in \cite{[LLXY17]} for construction of a trapdoor function and has a similar decoding algorithm. Apart from decoding algorithms we discuss an efficient way to compute the basis of a given lattice. It is important to be able to compute some representation of the lattice efficiently because this is a way to craft lattice points from messages we would like to transmit.
 
-In this work we generalize the lattice family from \cite{[DP19]} suggest an efficient way to compute it. The decoding algorithm of the same article extends to our case directly. The second lattice family was discussed in \cite{[LLXY17]} we extend decoding algorithm devised for them to handle more types of error. We also suggest security improvements for the encryption scheme from \cite{[LLXY17]} using our decoding algorithm and perform cryptanalysis of the mentioned to improve their parameter selection.
+In this work we generalize the lattice family from \cite{[DP19]} and suggest an efficient way to compute it. The decoding algorithm of the same article extends to our case directly. The second lattice family was discussed in \cite{[LLXY17]} we extend the decoding algorithm devised for them to handle more types of error. We also suggest security improvements for the encryption scheme from \cite{[LLXY17]} using our decoding algorithm and perform its cryptanalysis to improve their parameter selection.
+
 
 \textbf{Discrete logarithm lattices.}
-In this work we will discuss many lattices of similar flavour. They are defined as a kernel of a morphism from $\ZZ^{n}$ to another group. Let us give you a short definition of the lattice given in \cite{[DP19]} which is a basis for our first generalization.
+In this work we will discuss many lattices of similar flavour. They are defined as a kernel of a morphism from $\ZZ^{n}$ to another group. Let us give you a short definition of the lattice given in \cite{[DP19]} which serves as a basis for our first generalization.
 
 Let us consider numbers $m$ which is a prime power, $n$ and $B$ such that we can find $n$ primes $p_{1}, \dots , p_{n}$ which do not divide $m$ and are bounded by $B$. We consider a group morphism:
 \[
@@ -80,17 +81,17 @@ It is easy to see that the image will indeed be an element of $(\ZZ/m\ZZ)^*$ due
     \LL \coloneqq \ker \psi = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
 \]
 
-The basis of this lattice is simple to compute it only requires computation of $n$ discrete logarithms in $(\ZZ/m\ZZ)^*$ it can be done because multiplicative group of a field is cylic. Discrete logarithms can calculated in polynomial time as $m$ is a smooth number. More on that you can find in \cite{[DP19]}. The generalization we give will require more work in this regard.
+The basis of this lattice is simple to compute it only requires computation of $n$ discrete logarithms in $(\ZZ/m\ZZ)^*$ it can be done because the multiplicative group of a field $\ZZ/m\ZZ$ is cyclic. Discrete logarithms can be computed in polynomial time as they are calculated modulo a smooth number. More on that you can find in \cite{[DP19]}. The generalization we give will require more work in this regard.
 
 \textbf{Efficient decoding algorithm.}
 
-We use a decoding algorithm dicussed in \cite{[DP19]} and \cite{[LLXY17]}. We provide a few modifications for it to fit our scenario in the second part of the work, but the sceleton of the algorithm will stay the same. We are given a lattice $\LL$ defined above and a point $t = (t_1, \dots t_n) \in \mathbb{R}^{n}$ which doesn't belong to $\LL$ and we would like to find the lattice point $x$ closest to $t$. We assume that error is vector of real numbers whose norm is bounded. The algorithm has the following building blocks:
+We use a decoding algorithm discussed in \cite{[DP19]} and \cite{[LLXY17]}. We provide a few modifications for it to fit our scenario in the second part of the work, but the skeleton of the algorithm will stay the same. We are given a lattice $\LL$ defined above and a point $t = (t_1, \dots t_n) \in \mathbb{R}^{n}$ which doesn't belong to $\LL$ and we would like to find the lattice point $x$ closest to $t$. We assume that error is a vector of real numbers whose norm is bounded. The algorithm has the following building blocks:
 
 \begin{itemize}
-    \item round every coordinate to $t$ to deal only with discrete error $t = x + \lfloor e' \rceil$. Note $e = \lfloor e' \rceil$. Lattice point $x$ is not affected by this operation since $\LL \subset \ZZ^{n}$.
-    \item Compute $\psi(t) = \prod_{i=1}^{n}p_{i}^{x_{i} + e_i} \pmod{m} = \prod_{i=1}^{n}p_{i}^{e_i} \pmod{m}$. If the error is small enough here we recover non-reduced value $v = \prod_{i=1}^{n}p_{i}^{e_i}$ .
-    \item Reconstruct the numerator $n$ and the denominator $d$ of $v$ that correspond to positive and negative parts of the error. Recover prime number factorization of $n$ and $d$ using trial division. Powers of primes will be the coordinates of our error
-    \item Substract just recovered error from $t$.
+    \item Round every coordinate to $t$ to deal only with discrete error $\lfloor t \rceil = x + \lfloor e \rceil$. Note $e' = \lfloor e \rceil$, $t' = \lfloor t \rceil$. Lattice point $x$ is not affected by this operation since $\LL \subset \ZZ^{n}$.
+    \item Compute $\psi(t) = \prod_{i=1}^{n}p_{i}^{x_{i} + e'_i} \pmod{m} = \prod_{i=1}^{n}p_{i}^{e'_i} \pmod{m}$. If the error is small enough here we recover non-reduced value $v = \prod_{i=1}^{n}p_{i}^{e'_i}$.
+    \item Reconstruct the numerator $n$ and the denominator $d$ of $v$ that correspond to positive and negative parts of the error. Recover prime number factorization of $n$ and $d$ using trial division. Powers of primes will be the coordinates of our error.
+    \item Subtract just recovered error from $t'$.
 \end{itemize}
 
 
@@ -105,14 +106,14 @@ In the section \ref{sec:gen_integers} we discuss the first lattice family. We de
 \end{itemize}
 The next part of our work \ref{sec:polynomials} is dedicated to the family of polynomial lattices.
 \begin{itemize}
-    \item it's basis computation is discussed in the section \label{subsec:compute_basis_polynomials}
-    \item the decoding radius for this case is discussed in \label{subsec:radius_polynomials}
-    \item ToDo: maybe remane sections so they follow the same pattern in the second part.
+    \item it's basis computation is discussed in the section \ref{subsec:compute_basis_polynomials}
+    \item the decoding radius for this case is discussed in \ref{subsec:radius_polynomials}
+    \item \textcolor{red}{ToDo:} maybe rename sections so they follow the same pattern in the second part.
 \end{itemize}
-Then we compare these two families with respect to basis computation and decoding algorithms in \label{sec:comparison}. Finally we perform cryptanalysis of the encryption scheme presented in \cite{[LLXY17]} and propose improvements to it in the section \label{sec:cryptanalysis}.
+Then we compare these two families with respect to basis computation and decoding algorithms in \ref{sec:comparison}. Finally, we perform cryptanalysis of the encryption scheme presented in \cite{[LLXY17]} and propose improvements to it in the section \ref{sec:cryptanalysis}.
 
 \textbf{Implementation.}
-Sagemath implementation of every algorithm for basis computation and message decoding discussed in the document is available on github via link: TBA.
+Sagemath implementation of every algorithm for basis computation and message decoding discussed in the document is available on github via link: \textcolor{red}{TBA}.
 
 \section{Generalization of the construction for integers}
 \label{sec:gen_integers}
@@ -477,7 +478,7 @@ $\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$. The
 \label{subsec:complexity_polynomials}
 Let us analyse every step of the basis computation algorithm to check if it is efficient:
 \begin{itemize}
-    \item 
+    \item
     \item
 \end{itemize}
 
