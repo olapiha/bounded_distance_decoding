@@ -117,11 +117,11 @@ Sagemath implementation of every algorithm for basis computation and message dec
 
 \section{Generalization of the construction for integers}
 \label{sec:gen_integers}
-In this section we present first generalization of the decoding algorithm introduced in \cite{[DP19]}. In their paper Léo Ducas and Cécile Pierrot use properties of the group $(\ZZ/m\ZZ)^*$ for modulus $m$ which is a prime power. The decoding radius achievable in polynomial-time depends on the ratio
+In this section we present a generalization of the decoding algorithm introduced in \cite{[DP19]}. In their paper Léo Ducas and Cécile Pierrot use properties of the group $(\ZZ/m\ZZ)^*$ for modulus $m$ which is a prime power. The decoding radius achievable in polynomial-time depends on the ratio
 \[
-\frac{m}{\varphi(m)}
+\frac{\ln(m)}{\varphi(m)}
 \]
-The higher the ratio the larger the achievable decoding radius is. In our generalization we take $m'$ an arbitrary product of prime powers. If $m$ and $m'$ are of the same size, as $m'$ is smoother $\varphi(m')$ will be smaller which gives us a better decoding radius.
+The higher the ratio the larger the achievable decoding radius will be. In our generalization we take $m'$ an arbitrary product of prime powers. If $m$ and $m'$ are of the same size, as $m'$ is smoother $\varphi(m')$ will be smaller which gives us a better decoding radius.
 
 In the construction for $m$ prime power authors compute lattice basis directly using the fact that $(\ZZ/m\ZZ)^*$ is cyclic and we can calculate discrete logarithms of its elements.
 
@@ -130,13 +130,7 @@ Our result is a deterministic efficient algorithm for computation of the basis f
 
 \subsection{Definition of discrete logarithm lattice }
 \label{subsec:def_integers}
-In this chapter we take $m = \prod_{i=1}^{k} q_{j}^{e_{j}}$ where $\{q_{j}\}$ are odd prime numbers and $\{e_{j}\}$ are positive integers. We work with a group $(\ZZ/m\ZZ)^*$ which is not cyclic anymore so we cannot exploit properties of discrete logarithm right away. Nevertheless, the Chinese Remainder Theorem (CRT) gives us the structure of the group:
-\[
-    (\ZZ/m\ZZ)^* \sim \prod_{j=1}^{k}(\ZZ/q_{j}^{e_{j}}\ZZ)^*
-\]
-For every prime $q_{j} > 2$ and every $e_{j} \geq 1$ the group $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ is known to be cyclic. So now, we can consider discrete logarithms in every component of the product to \toimprove{find a lattice basis}.\footnote{Not clear yet what is the lattice you are talking about. Maybe you can swap this paragraph with the definition that follows. When done, you can then say "the lattice $\LL$" rather than just "the lattice".}
-
-Similarly to the initial construction we take numbers $n$ and $B$ such that we can find $n$ primes $p_{1}, \dots , p_{n}$ different from every $q_{j}$ and bounded by $B$. We consider a group morphism:
+In this chapter we take $m = \prod_{i=1}^{k} q_{j}^{e_{j}}$ where $\{q_{j}\}$ are odd prime numbers and $\{e_{j}\}$ are positive integers. Similarly to the initial construction we take numbers $n$ and $B$ such that we can find $n$ primes $p_{1}, \dots , p_{n}$ different from every $q_{j}$ and bounded by $B$. We consider a group morphism:
 \[
     \psi : \ZZ^{n} \rightarrow (\ZZ/m\ZZ)^*
 \]
@@ -149,11 +143,18 @@ The kernel of $\psi$ is a subgroup of $\ZZ^{n}$ so it is a lattice. We will call
 \[
     \LL \coloneqq \ker \psi = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
 \]
+
+We work with a group $(\ZZ/m\ZZ)^*$ which is not cyclic anymore so we cannot exploit properties of discrete logarithm right away. Nevertheless, the Chinese Remainder Theorem (CRT) gives us the structure of the group:
+\[
+   (\ZZ/m\ZZ)^* \sim \prod_{j=1}^{k}(\ZZ/q_{j}^{e_{j}}\ZZ)^*
+\]
+For every prime $q_{j} > 2$ and every $e_{j} \geq 1$ the group $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ is known to be cyclic. So now, we can consider discrete logarithms in every component of the product to find a lattice basis.
+
 Applying the CRT gives us the following equivalence
 \[
     \LL = \ker \psi = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{q_{j}^{e_{j}}}\}
 \]
-Or going even further, suppose we know for every $j$ a generator ${\beta_{j}}$ of  $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$. Using the morphism between cyclic group and group of exponents we get a representation in terms of conditions on the exponents:
+Going even further, suppose we know for every $j$ a generator ${\beta_{j}}$ of  $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$. Using the morphism between the cyclic group and group of exponents we get a representation in terms of conditions on the exponents:
 \[
     \LL = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\varphi(q_{j}^{e_{j}})}\}
 \]
@@ -169,14 +170,14 @@ This is almost a parity check representation of $\LL$ except we have many parity
 
 \subsection{Computing lattice basis}
 \label{subsec:compute_basis_integers}
-Our goal is to compute a basis of discrete log lattice to be able to encode messages as its points afterwards. The idea of our algorithm is to compute a basis of the dual lattice first. And then obtain primal one from the dual.
-Let us remind a definition of a dual lattice and a dual basis.
+Our goal is to compute a basis of discrete logarithm lattice to be able to encode messages as its points afterwards. The idea of our algorithm is to compute a basis of the dual lattice first. And then obtain primal one from the dual.
+Let us recall a definition of a dual lattice and a dual basis.
 \begin{definition}
     For a lattice $\LL \subseteq \mathbb{R}^{n}$ we define $\LL^{*} \subseteq (\mathbb{R}^{n})^{*}$ as a lattice of all linear maps $f:\mathbb{R}^{n} \rightarrow \mathbb{R}$ such that every lattice point is mapped to an integer value.
 \end{definition}
-Linear maps can be represented as inner product with a fixed vector. So equivalently
+Linear maps can be represented as an inner product function with a fixed vector. So equivalently
 \[
-    \LL^{*} = \{y \in \mathbb{R}^{n} | \forall x \in \LL:  \langle y,x\rangle \in \ZZ \}
+    \LL^{*} = \{y \in \mathbb{R}^{n} | \forall x \in \LL:  \langle x,y\rangle \in \ZZ \}
 \]
 
 \begin{definition}
@@ -186,7 +187,7 @@ Linear maps can be represented as inner product with a fixed vector. So equivale
         \item $B^{T}D = I$
     \end{itemize}
 \end{definition}
-If B is an invertible square matrix $(B^{T})^{-1}$ satisfies the definition. In the case a non square matrix one can easily verify that $D = B(B^{T}B)^{-1}$ is the dual basis. \footnote{Since columns of $B$ are basis vectors, $B$ is a full column rank matrix. Therefore, $B^{T}B$ is always invertible.}
+If B is a square matrix then $(B^{T})^{-1}$ satisfies the definition. In the case of a non square matrix one can verify that $D = B(B^{T}B)^{-1}$ is the dual basis. \footnote{Since columns of $B$ are basis vectors, $B$ is a full column rank matrix. Therefore, $B^{T}B$ is always invertible.}
 
 
  Our algorithm \label{algorithm} has the following steps
@@ -223,7 +224,7 @@ This space $\LL_{1} + \LL_{2}$ can be generated by concatenation of bases of $\L
     Suppose $\LL = \bigcap_{j=1}^{k} \LL_{j} \neq \{0\}$ and $\LL^{*}$, $\LL_{j}^{*}$ are duals of the respective lattices. Then $\LL^{*} = \sum_{j=1}^{k} \LL_{j}^{*}$
 \end{lemma}
 \begin{proof}
-    Let us start from the end. Take lattices $\LL_{1}, \dots, \LL_{n}$ what is the dual of their sum.
+    Let us start from the end. Take lattices $\LL_{1}, \dots, \LL_{n}$ which is the dual of their sum.
     \footnote{We can take all $x_{i}$ equal to 0 but 1 of them}
 \[
 \begin{split}
@@ -278,17 +279,17 @@ And the other way:
 A generating set of the sum of lattices can be obtained by concatenation of their bases, so we obtain our desired result.
 \end{proof}
 
-The algorithm takes parity check representations of every lattice $\LL_{j}$ scales them and adds an identity matrix. Output is the concatenation of calculated generating sets.
+The basis computation algorithm takes parity check representations of every lattice $\LL_{j}$ scales them and adds an identity matrix. Output is the concatenation of calculated generating sets.
 
 \subsubsection{Eliminating linear dependencies using elementary matrix transformations (\ref{step3})}
 \label{subsubsec:hermite_form}
-Now we have obtained a generating set of the dual lattice but we would like to have its basis. The idea is to transform the matrix to its row echelon form so the resulting set has some zero vectors which we will discard and the basis of the lattice.
+Now we have obtained a generating set of the dual lattice but we would like to have its basis. The idea is to transform the matrix to its row echelon form so the resulting set has some zero vectors which we will discard and obtain the basis of the lattice.
 
 Out of all elementary matrix transformations we are only allowed adding to a row an integer multiple of another row, interchanging two rows, multiplying a row by -1. These three possibilities are called unimodular transformations. As you may have noticed the only restriction is that we can't multiply a row by an integer different from $\pm 1$. This would result in a sublattice of $\LL$ with a higher determinant.
 
-We use an algorithm for reducing the matrix to its Hermite normal form. It is an equivalent of row echelon form for matrices over $\ZZ$ with a restriction to unimodular transformations. Our input matrix can have rational coefficients so we first transform them into integers multiplying by the least common multiple of all denominators. We divide by it when matrix is in the Hermite form.
+We use an algorithm for reducing the matrix to its Hermite normal form. It is an equivalent of row echelon form for matrices over $\ZZ$ with a restriction to unimodular transformations. Our input matrix can have rational coefficients so we first transform them into integers multiplying by the least common multiple of all denominators. We divide by it when the matrix is in the Hermite form.
 
-Resulting vectors are going to be quite long. If we want to control the size of the basis we can use LLL algorithm instead. This change will for example make our encoded messages shorter and easier to decode.
+Resulting vectors might be quite long. If we want to control the size of the basis we can use the LLL algorithm instead. This change will for example make our encoded messages shorter and easier to decode.
 
 \subsubsection{Primal basis from dual basis (\ref{step4})}
 \label{subsubsec:primal_from_dual}
@@ -297,54 +298,48 @@ A way to calculate a basis of primal lattice having the basis of the dual is str
 
 \subsection{Complexity analysis}
 \label{subsec:complexity_integers}
-The first step (\ref{step1}) of basis computation algorithm (\ref{algorithm}) boils down to many computations of discrete logarithm in a finite group. For every distinct prime factor $q_{j}^{e_{j}}$ of the modulus we compute $n$ discrete logarithms(one for every prime $p_{i}$). It is $n \cdot k$ iterations in total. Let's refer to $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ as group $G$. Group order is equal to $|G| = \varphi(q_{j}^{e_{j}}) =  q_{j}^{e_{j}-1}(q_{j}-1) = \prod_{i=1}^{k} t_{i}^{a_{i}}$.
+The first step (\ref{step1}) of the basis computation algorithm (\ref{algorithm}) boils down to many computations of discrete logarithms in a finite group. For every distinct prime factor $q_{j}^{e_{j}}$ of the modulus we compute $n$ discrete logarithms(one for every prime $p_{i}$). It is $n \cdot k$ iterations in total. Let's refer to $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ as group $G$. Group order is equal to $|G| = \varphi(q_{j}^{e_{j}}) =  q_{j}^{e_{j}-1}(q_{j}-1) = \prod_{i=1}^{k} t_{i}^{a_{i}}$.
 It is a $q$-smooth integer, so to efficiently calculate discrete logarithms in this group we can use a combination of of Pohlig-Hellman \cite{[PH78]} and Pollard-$\rho$ \cite{[Pol78]} algorithms. Overall complexity in group operations is
 \[
     O(\sum_{i=1}^{k} a_{i}(\ln(|G|) + \sqrt{t_{i}}))
 \]
 To be polynomial in lattice dimension $a_{i} \leq e_{j}-1$ and $t_{i} \leq q_{j}$ need to be polynomial in $n$. As we have $n \cdot k$ such operations, $k$ should be polynomial in $n$.
 
-It is easy to see that step two (\ref{step2}) takes linear time in $n + k$. Step three (\ref{step3}) is LLL algorithm, which is proven to run in polynomial time in $n + k$.
+It is easy to see that step two (\ref{step2}) takes linear time in $n + k$. Step three (\ref{step3}) is Hermite normal form reduction which has the same complexity as Gaussian elimination so runs in time polynomial in $n + k$.
 
-Finally, step four (\ref{step4}) includes matrix multiplication and inversion for matrices which dimension is bounded by $n + k$. They obviously take polynomial time.
+Finally, step four (\ref{step4}) includes matrix multiplication and inversion for matrices whose dimension is bounded by $n + k$. They take polynomial time.
 
 
 
 \subsection{Decoding radius}
 \label{subsec:radius_integers}
 
-The decoding algorithm that we discussed in the introduction \ref{sec:intro} works.
-
-The decoding radius for the general continous error:
+Decoding algorithm extends naturally to the generalized setting. Let us remind that normalized decoding $l_{1}$-radius was equal to
 \[
-    r_{\mathbb{Z}} = \frac{\ln(m/2)}{4 \cdot (\varphi(m))^{1/n} \cdot \ln(B)}
+    \bar r_{1} = \frac{\ln(m/2)}{4 \varphi(m)^{1/n} \cdot \ln(B)}
 \]
+where $B$ is a constant bounding all $p_{i}$
 
-We still haven't configured parameters $k, q_{j}, p_{i}$. $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $p_{i}$ to be equal to first $n$ prime numbers and $q_{j}$ equal to the next $k$ smallest primes the we haven't used yet.
+We still haven't configured parameters $k, q_{j}, p_{i}$. $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $p_{i}$ to be equal to first $n$ prime numbers and $q_{j}$ equal to the next $k$ smallest primes that we haven't used yet.
 
-The ratio $\frac{ln(m/2)}{\varphi(m)}$ decreases as $m$ tends to infinity, so to make use of the difference in the ratio in the generalizartion, we would like $m$ to have the same size as in the original construction. We would like to have $e_i \sim \frac{\ln(3) \cdot n}{\ln(q) \cdot k}$, but it has to be an integer, so we round this value. Then we have:
+The ratio $\frac{ln(m/2)}{\varphi(m)}$ decreases as $m$ tends to infinity, so to make use of the difference in the ratio in the generalization, we would like $m$ to have the same size as in the original construction. We would like to have $e_i \sim \frac{\ln(3) \cdot n}{\ln(q) \cdot k}$, but it has to be an integer, so we round this value. Then we have:
 \[
     m = \prod_{i = 1}^{k} q_i^{round(\frac{\ln(3) \cdot n}{\ln(q) \cdot k})} \sim 3^n
 \]
 
 The only parameter left to configure is $k$. The way we set up $e_i$s number of factors will only increase the ratio $\frac{ln(m/2)}{\varphi(m)}$. So the more factors we have the better.
 
-Let us compare initial construction, its generalization and theoretical upperbound with respect to the decoding radius.
+Let us compare initial construction, its generalization and theoretical upper bound with respect to the decoding radius.
 
 \begin{figure}
   \includegraphics[width=\linewidth]{generalization_integers.png}
-  \caption{Comparison of the nomalised decoding radius for initial construction(in green) and the generalization(in yellow). Here we took k = 20. }
+  \caption{Comparison of the normalised decoding radius for initial construction(in green) and the generalization(in yellow). Here we took k = 20. }
   \label{fig:gen_int}
 \end{figure}
 
 \subsection{Was it all worth it?}
 \label{subsec:improvement_integers}
-Decoding algorithm extends naturally to the generalized setting. Let us remind that normalized decoding $l_{1}$-radius was equal to
-\[
-    \bar r^{(1)} = \frac{\ln(m/2)}{4 \varphi(m)^{1/n} \cdot \ln(B)}
-\]
-where $B$ is a constant bounding all $p_{i}$
-As it turns out factorization of $m$ does not affect the decoding radius substantially. It can only introduce a minor improvement. We prove that with a following lemma:
+As it turns out factorization of $m$ does not affect the decoding radius substantially. It can only introduce a minor improvement. We prove that with the following lemma:
 
 \begin{lemma}
 Assume the primes $p_{1}, \dots, p_{n}$ are the same for both lattices. If $a \cdot m \sim b \cdot m' \sim e^n$, when $n \rightarrow \infty$ Then
@@ -379,6 +374,8 @@ where $\gamma$ is the Euler constant, $e^{-\gamma} = 0.56145948\dots$
 \end{split}
 \]
 \end{proof}
+
+
 
 \section{New Construction for Polynomial Lattices}
 \label{sec:polynomials}
