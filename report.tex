@@ -299,7 +299,7 @@ A way to calculate a basis of primal lattice having the basis of the dual is str
 \subsection{Complexity analysis}
 \label{subsec:complexity_integers}
 The first step (\ref{step1}) of the basis computation algorithm (\ref{algorithm}) boils down to many computations of discrete logarithms in a finite group. For every distinct prime factor $q_{j}^{e_{j}}$ of the modulus we compute $n$ discrete logarithms(one for every prime $p_{i}$). It is $n \cdot k$ iterations in total. Let's refer to $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$ as group $G$. Group order is equal to $|G| = \varphi(q_{j}^{e_{j}}) =  q_{j}^{e_{j}-1}(q_{j}-1) = \prod_{i=1}^{k} t_{i}^{a_{i}}$.
-It is a $q$-smooth integer, so to efficiently calculate discrete logarithms in this group we can use a combination of of Pohlig-Hellman \cite{[PH78]} and Pollard-$\rho$ \cite{[Pol78]} algorithms. Overall complexity in group operations is
+It is a $q$-smooth integer, so to efficiently calculate discrete logarithms in this group we can use a combination of Pohlig-Hellman \cite{[PH78]} and Pollard-$\rho$ \cite{[Pol78]} algorithms. Overall complexity in group operations is
 \[
     O(\sum_{i=1}^{k} a_{i}(\ln(|G|) + \sqrt{t_{i}}))
 \]
@@ -388,9 +388,9 @@ Chinese Remainder Theorem helps to determine the structure of $\big(\FF_{q}[x]/c
 \[
     \big(\FF_{q}[x]/c(x)\big)^{*} \sim \prod_{i=1}^{k}\big(\FF_{q}[x]/c_{i}(x)\big)^{*} \sim \prod_{i=1}^{k}\FF_{q^{d}}^*
 \]
-Multiplicative group of a field is cyclic, therefore, we can consider discrete logarithms in every component of the product to find a lattice basis.
+Every component is quotient by an irreducible polynomial, therefore it's a field. Multiplicative group of a field is cyclic, so we can consider discrete logarithms in every component of the product to find a lattice basis.
 
-Consider a vector $a = (\alpha_{1}, ... , \alpha_{n}) \in \FF_{q}^{n}$ where $\alpha_{i}$s are pairwise different. Since polynomials $c_{j}(\cdot)$ are irreducible over $\FF_{q}$ neither of $\alpha_{i}$ can be their root. So for all $\alpha_{i}$ we also have: $c(\alpha_{i}) \neq 0$.
+Consider a vector $\alpha = (\alpha_{1}, ... , \alpha_{n}) \in \FF_{q}^{n}$ where $\alpha_{i}$s are pairwise different. Since polynomials $c_{j}(\cdot)$ are irreducible over $\FF_{q}$ neither of $\alpha_{i}$ can be their root. So for all $\alpha_{i}$ we have: $c(\alpha_{i}) \neq 0$.
 
 Now consider a group morphism:
 \[
@@ -400,11 +400,12 @@ Now consider a group morphism:
     (u_{1}, ..., u_{n}) \mapsto \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \pmod{c(x)}
 \]
 
-Lattice is defined as the kernel of the morphism:
+Similarly to previous constructions the lattice is defined as the kernel of the morphism:
 \[
     \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c(x)}\}
 \]
-Applying CRT gives us the following equivalence
+We will be calling $\LL$ the polynomial lattice from now on.
+Applying CRT gives us an equivalent definition for $\LL$:
 \[
     \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c_{j}(x)}\}
 \]
@@ -414,20 +415,56 @@ Supposing we know $\beta_{j}$ a generator of $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$
 \]
 What might be confusing is that each $\log_{\beta_{j}}$ has a different input domain. For every $j$:  $\log_{\beta_{j}}$ acts from $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ into $(\ZZ/(q^{d} - 1)\ZZ)$.
 
-We obtained a parity check representation of $\LL$.
-To calculate a basis of $\LL$ we can follow simplified version of the algorithm for integers. We obtain dual basis by scaling parity check matrix and concatenating it with $I_{n}$. Then we remove linear dependencies and finally obtain primal basis from the dual.
-
 \subsection{Lattice computation for polynomials}
 \label{subsec:compute_basis_polynomials}
 
-\subsubsection{Factorization by trial division}
-\label{subsubsec:factoring_polynomials}
-Input: A polynomial $g$ such that $deg(g) \leq m$ whose roots are among $\alpha_1, \dots , \alpha_n \in \mathbb{F}_q$\\
-Output: $e_1, \dots , e_n$ s.t. $g = \prod_{i = 1}^{n}(x - \alpha_i)^{e_i}$\\
-There's only $n$ possible roots, one trial division takes $O(m)$ time and the number of factors is bounded by $m$. So overall complexity is $O(m^2n)$.
+We obtained a parity check representation of $\LL$.
+To calculate a basis of $\LL$ we can follow a simplified version of the algorithm for the discrete logarithm lattice. We obtain the dual basis by scaling parity check matrix and concatenating it with $I_{n}$. Then we remove linear dependencies and finally obtain primal basis from the dual.
+
+\begin{enumerate}
+    \item \label{step1_p} Obtain the parity check representation of $\LL$.
+    \item \label{step2_p} Transform it into the basis of $\LL^{*}$.
+    \item \label{step3_p} Recover the primal basis from the dual.
+\end{enumerate}
 
 
-\subsubsection{Rational function reconstruction}
+\subsubsection{Parity check representation \ref{step1_p}.}
+\label{subsubsec:parity_check_polynomials}
+To compute the parity check representation of the polynomial lattice we need to compute the following:
+$\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$. The order of multiplicative group is $q^{d} - 1$ which is not necessarily a smooth integer so we cannot use Pohlig-Hellman \cite{[PH78]} and Pollard-$\rho$ \cite{[Pol78]} approach anymore. We are goig to choose $q^{d} = n^{O(1)}$ so group order is overall polynomial in the lattice dimension and use Pollard-$\rho$ \cite{[Pol78]} algorithm to compute discrete logarithms.
+
+\subsubsection{Dual basis \ref{step2_p}.}
+\label{subsubsec:dual_gen_set_polynomials}
+
+
+\subsubsection{Recovering Primal basis from Dual \ref{step3_p}.}
+\label{subsubsec:primal_from_dual_polynomials}
+
+
+\subsection{Complexity of the basis computation.}
+\label{subsec:complexity_polynomials}
+Let us analyse every step of the basis computation algorithm to check if it is efficient:
+\begin{itemize}
+    \item
+    \item
+\end{itemize}
+
+\subsection{Decoding algorithm modification}
+\label{subsec:decoding_polynomials}
+
+Note to self: Don't forget an intro to each section!
+
+
+\begin{enumerate}
+    \item Round every coordinate to $t$ to deal only with discrete error $\lfloor t \rceil = v + \lfloor e \rceil$. Note $e' = \lfloor e \rceil$, $t' = \lfloor t \rceil$.
+    \item Compute $\psi(t) = \prod_{i=1}^{n}(x - \alpha_{i})^{v_{i} + e'_i} \pmod{c(x)} = \prod_{i=1}^{n}(x - \alpha_{i})^{e'_i} \pmod{c(x)}$.
+    \item \label{step:rfr} Reconstruct the numerator $n$ and the denominator $d$ of $\prod_{i=1}^{n}(x - \alpha_{i})^{e'_i}$ that correspond to positive and negative parts of the error.
+    \item Recover prime number factorization of $n$ and $d$ using trial division. Powers of primes will be the coordinates of our error.
+    \item Subtract just recovered error from $t'$.
+\end{enumerate}
+
+
+\subsubsection{Rational function reconstruction \ref{step:rfr}}
 \label{subsubsec:rfr}
 I found \href{http://www.cecm.sfu.ca/~mmonagan/papers/fastRFR.pdf}{here}
 an algorithm which they call Wang's algorithm for rational function reconstruction.\\
@@ -459,25 +496,11 @@ So if the solution exists it must be one of the pairs $(r_i, t_i)$ of the EEA.
 
 \textcolor{red}{ToDo:} Add a lemma to prove the following: If $deg(n) + deg(d) \leq \frac{deg(f)}{2}$ than the solution corresponds to the unique row of the EEA where $deg(q) > \frac{deg(f)}{2}$
 
-\begin{question}
-Check if we can use FEEA.
-\end{question}
-\subsubsection{Computing logs}
-\label{subsubsec:logs_polynomials}
-To construct the lattice we need to compute the following:
-$\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$. The order of multiplicative group is $q^{d} - 1$ which might not be a smooth integer so we cannot use Pohlig-Hellman+Pollard pho. We can choose $q^{d} = n^{O(1)}$ ($poly(n)$) so group order is overall small(e.g. $d = constant$ and $q=n^{O(1)}$ does work, so does $q=constant$ and $d = O(\log n)$).
-
-\subsubsection{Recovering Primal basis from Dual}
-\label{subsubsec:primal_from_dual_polynomials}
-
-
-\subsection{Complexity of the basis computation.}
-\label{subsec:complexity_polynomials}
-Let us analyse every step of the basis computation algorithm to check if it is efficient:
-\begin{itemize}
-    \item
-    \item
-\end{itemize}
+\subsubsection{Factorization by trial division}
+\label{subsubsec:factoring_polynomials}
+Input: A polynomial $g$ such that $deg(g) \leq m$ whose roots are among $\alpha_1, \dots , \alpha_n \in \mathbb{F}_q$\\
+Output: $e_1, \dots , e_n$ s.t. $g = \prod_{i = 1}^{n}(x - \alpha_i)^{e_i}$\\
+There's only $n$ possible roots, one trial division takes $O(m)$ time and the number of factors is bounded by $m$. So overall complexity is $O(m^2n)$.
 
 
 \subsection{Decoding radius}
