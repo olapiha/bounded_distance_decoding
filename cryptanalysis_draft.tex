@@ -362,8 +362,7 @@ Binary case of ISD+MitM \\
 $w_2$, p, cost = 3, 63, 2.366108e+05 \\
 Ternary case of ISD+MitM \\
 $w_2$, p, cost = 3, 64, 3.293097e+05 \\
-
-
+$2$ times improvement \\
 
 n = 100.0 \\
 k = 10.0 \\
@@ -385,7 +384,7 @@ Binary case of ISD+MitM \\
 $w_2$, p, cost = 7, 62, 2.006729e+07 \\
 Ternary case of ISD+MitM \\
 $w_2$, p, cost = 5, 65, 1.854533e+08 \\
-
+$2^{3}$ times improvement
 
 
 n = 500.0 \\
@@ -408,6 +407,7 @@ Binary case of ISD+MitM \\
 $w_2$, p, cost = 23, 310, 2.087190e+24 \\
 Ternary case of ISD+MitM \\
 $w_2$, p, cost = 21, 315, 3.433996e+27 \\
+$2^{11}$ times improvement
 
 
 
@@ -431,7 +431,7 @@ Binary case of ISD+MitM \\
 $w_2$, p, cost = 37, 622, 1.362168e+41 \\
 Ternary case of ISD+MitM \\
 $w_2$, p, cost = 33, 633, 3.432411e+46 \\
-
+$2^{18}$ times improvement
 
 The optimal parameters for binary and ternary case seem to be close let us assume they are the same and compute cost difference depending on n,k
 
@@ -451,9 +451,72 @@ $T_2 \sim \frac{ k \cdot  \binom{n}{w} \cdot  2^{w2/2} \cdot  (w2\cdot \binom{(n
     \frac{T_2}{T_1} > \frac{\frac{ k \cdot  \binom{n}{w} \cdot  2^{w2/2} \cdot  (w2\cdot \binom{(n-k)/2}{w2/2} + \frac{\binom{n}{w2}\cdot p^n}{q^n})}{\binom{(n-k)/2}{w2/2}^2 \cdot  \binom{k}{w-w2} \cdot  \big( 1 - \frac{\binom{k}{w-w2} \cdot  (w-w2) \cdot  \binom{(n-k)/2}{w2/2} }{ q^{k}\cdot p } \big)}}{T_1} = 2^{w_2/2}
 \]
 
-Therefore using ternary error increases the cost the attack against the scheme by at least $2^{w_2/2}$. Which for paramaters n = 1000, k = 72, w = 50.0, q = 1000.0 means $2^{16,5}$ times!
+Therefore using ternary error increases the cost the attack against the scheme by at least $2^{w_2/2}$. Which for paramaters n = 500, k = 40, w = 30.0, q = 500.0 means $2^{11,5}$ times!
 
 \section{Question 6}
+
+n = 230.0 \\
+k = 201.0 \\
+w = 28.0 \\
+q = 263.0 \\
+Binary Bruteforce \\
+cost = 4.632333e+39 \\
+Ternary Bruteforce \\
+cost = 1.243483e+48 \\
+Binary case of ISD \\
+$w_2$, cost = 3, 9.283314e+07 \\
+Ternary case of ISD \\
+$w_2$, cost = 2, 1.147437e+08 \\
+Binary case of MitM \\
+cost = 1.256474e+22 \\
+Ternary case of MitM \\
+cost = 2.058607e+26 \\
+Binary case of ISD+MitM \\
+$w_2$, p, cost = 3, 2, 2.778036e+07 \\
+Ternary case of ISD+MitM \\
+$w_2$, p, cost = 3, 3, 2.794195e+07 \\
+
+n = 260.0 \\
+k = 228.0 \\
+w = 31.0 \\
+q = 293.0 \\
+Binary Bruteforce \\
+cost = 1.007463e+44 \\
+Ternary Bruteforce \\
+cost = 2.163511e+53 \\
+Binary case of ISD \\
+$w_2$, cost = 3, 1.463750e+08 \\
+Ternary case of ISD \\
+$w_2$, cost = 2, 1.958499e+08 \\
+Binary case of MitM \\
+cost = 8.031734e+23 \\
+Ternary case of MitM \\
+cost = 3.721982e+28 \\
+Binary case of ISD+MitM \\
+$w_2$, p, cost = 3, 2, 4.523610e+07 \\
+Ternary case of ISD+MitM \\
+$w_2$, p, cost = 3, 3, 4.547101e+07 \\
+
+Here are costs of the attack for the smallest and largest parameters suggested by LLXY17 for their encryption scheme. Their estimate seccurity level for the first one is $2^{106}$ and $2^{119}$. With our best attack we are able to break it with average cost $2^{25}$ and $2^{26}$
+
+Problem: In practice I see that it didn't give this advantage -> Going to ternary error gave an advantage of $2^{1,5}$, wch is not significant.
+
+To obtain the security of levels $2^{106}$ and $2^{119}$ we need the following parameters:
+n = 500.0 \\
+k = 300.0 \\
+w = 199.0 \\
+q = 503.0 \\
+gives security of level $2^{113}$ but for the ternary errors it gives $2^{145}$!
+
+n = 400.0 \\
+k = 200.0 \\
+w = 199.0 \\
+q = 503.0 \\
+gives security of level $2^{118}$ but for the ternary errors it gives $2^{164}$!
+
+
+
+
 
 
 \bibliography{cryptanalysis_draft}

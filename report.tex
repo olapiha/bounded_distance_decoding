@@ -26,6 +26,7 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{remark}{Remark}
 \newtheorem{definition}{Definition}
+\newtheorem{corrolary}{Corrolary}
 
 
 
@@ -86,7 +87,15 @@ It is easy to see that the image will indeed be an element of $(\ZZ/m\ZZ)^*$ due
 \[
     \LL \coloneqq \ker \psi = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
 \]
-The basis of this lattice is simple to compute it only requires computation of $n$ discrete logarithms in $(\ZZ/m\ZZ)^*$ it can be done because the multiplicative group of a field $\ZZ/m\ZZ$ is cyclic. Discrete logarithms can be computed in polynomial time as they are calculated modulo a smooth number. More on that you can find in \cite{[DP19]}. The generalization we give will require more work in this regard.
+
+\begin{definition}
+For every matrix $H \in \mathbb{R}^{n \times m}$ the following defines a lattice$\LL = {x \in \ZZ^{n}: Hx \equiv 0 \pmod{q}}$ this representation is called a parity check representation of the lattice.
+\end{definition}
+
+Using the properties of parity check repr it is simple to compute the basis of this lattice it only requires computation of $n$ discrete logarithms in $(\ZZ/m\ZZ)^*$ it can be done because the multiplicative group of a field $\ZZ/m\ZZ$ is cyclic. Discrete logarithms can be computed in polynomial time as they are calculated modulo a smooth number. More on that you can find in \cite{[DP19]}. The generalization we give will require more work in this regard.
+
+
+
 
 \textbf{Efficient decoding algorithm.}
 
@@ -424,20 +433,19 @@ Now consider a group morphism:
     (u_{1}, ..., u_{n}) \mapsto \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \pmod{c(x)}
 \]
 
-Similarly to previous constructions the lattice is defined as the kernel of the morphism:
+Similarly to previous constructions the lattice is defined as the kernel of the morphism $\psi$:
 \[
     \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c(x)}\}
 \]
-We will be calling $\LL$ the polynomial lattice from now on.
-Applying CRT gives us an equivalent definition for $\LL$:
+We will be calling $\LL$ the polynomial lattice from now on. Applying CRT gives us an equivalent definition for $\LL$:
 \[
     \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c_{j}(x)}\}
 \]
-Supposing we know $\beta_{j}$ a generator of $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ for every $j$ we get another representation:
+Supposing we know $\beta_{j}$ a generator of $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ for every $j$ we get another representation by computing discrete logarithms in the multiplicative group of every component:
 \[
     \LL = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} | \forall 1 \leq j \leq k: \sum_{i=1}^{n}u_{i}log_{\beta_{j}}(x - \alpha_{i}) \equiv 0 \pmod{q^{d} -1}\}
 \]
-What might be confusing is that each $\log_{\beta_{j}}$ has a different input domain. For every $j$:  $\log_{\beta_{j}}$ acts from $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ into $(\ZZ/(q^{d} - 1)\ZZ)$.
+What might cuase a confusion is that each $\log_{\beta_{j}}$ has a different input domain. For every $j$:  $\log_{\beta_{j}}$ acts from $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ into $(\ZZ/(q^{d} - 1)\ZZ)$.
 
 
 \subsection{Lattice computation for polynomials}
@@ -445,7 +453,7 @@ What might be confusing is that each $\log_{\beta_{j}}$ has a different input do
 
 
 We obtained a parity check representation of $\LL$.
-To calculate a basis of $\LL$ we can follow a simplified version of the algorithm for the discrete logarithm lattice. We obtain the dual basis by scaling parity check matrix and concatenating it with $I_{n}$. Then we remove linear dependencies and finally obtain primal basis from the dual.
+To calculate a basis of $\LL$ we can follow a simplified version of the algorithm for discrete logarithm lattices. We obtain the dual basis by scaling parity check matrix and concatenating it with $I_{n}$. Then we remove linear dependencies and finally obtain primal basis from the dual. So basis computation algorithm has the following steps:
 
 \begin{enumerate}
     \item \label{step1_p} Obtain the parity check representation of $\LL$.
@@ -455,27 +463,60 @@ To calculate a basis of $\LL$ we can follow a simplified version of the algorith
 
 \subsubsection{Parity check representation \ref{step1_p}.}
 \label{subsubsec:parity_check_polynomials}
-To compute the parity check representation of the polynomial lattice we need to compute the following:
-$\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$. The order of multiplicative group is $q^{d} - 1$ which is not necessarily a smooth integer so we cannot use Pohlig-Hellman \cite{[PH78]} and Pollard-$\rho$ \cite{[Pol78]} approach anymore. We are goig to choose $q^{d} = n^{O(1)}$ so group order is overall polynomial in the lattice dimension and use Pollard-$\rho$ \cite{[Pol78]} algorithm to compute discrete logarithms.
+To compute the parity check representation of the polynomial lattice we need to compute
+$\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$ and form them into a matrix. The order of multiplicative group is $q^{d} - 1$ which is not necessarily a smooth integer so we cannot use Pohlig-Hellman \cite{[PH78]} and Pollard-$\rho$ \cite{[Pol78]} approach to compute them efficiently. We are going to choose $q^{d} = n^{O(1)}$ so group order is overall polynomial in the lattice dimension and use Pollard-$\rho$ \cite{[Pol78]} algorithm to compute discrete logarithms.
 
 \subsubsection{Dual basis \ref{step2_p}.}
 \label{subsubsec:dual_gen_set_polynomials}
 
-Having the parity check matrix, Lemma \ref{lemma:dual_gen_set} gives us a straightforward way to compute the generating set of the dual. To obtain its basis we eliminate linear dependencies by reducing it to its Hermite noraml form as in the section \ref{subsubsection:hermite_form}.
+Lemma \ref{lemma:dual_gen_set} gives us a straightforward way to compute the generating set of the dual from a parity check matrix. To obtain its basis we eliminate linear dependencies by reducing the generating matrix to its Hermite noraml form as in the section \ref{subsubsec:hermite_form}.
 
 \subsubsection{Recovering Primal basis from Dual \ref{step3_p}.}
 \label{subsubsec:primal_from_dual_polynomials}
 
-Lattices that admit a parity check representation are called q-ary lattices.
+Lattices that admit a parity check representation are called q-ary lattices. They lie between $\ZZ^{n}_{q}$ and $\ZZ^{n}$: $\ZZ^{n}_{q}  \subset \LL \subset \ZZ^{n}$. For this kind of lattices, it's possible to transform the parity check lattice into its basis efficiently. In the algorithm we will rely on the parity check matrix to have a special shape.
+\begin{definition}
+A matrix $A \in \mathbb{R}^{n \times m}$ is in the systematic form if it has the following form:
+\[
+A = \big[ I_{n} | A' \big]
+\]
+Where $I_{n}$ stands for an identity matrix of dimensions $n \times n$ and $A'$ is an arbitrary matrix of dimensions $n \times (m-n)$
+\end{definition}
 
-ToDo plan for the section:
-What is the q-ary lattice
-Checl if defined the parity check representations.
-It's easier for q-ary lattices
-what is the systematic form
-How do we add the permutation to it
-prove the fact about the systematic form about how to obtain the generatin se modulo
-How to get the basis out of modulo q and that we don't really need to do it
+
+\textcolor{red}{Question:} Is H in Z or in R?? (fix it in the introduction as well)
+
+
+\begin{lemma}
+Suppose $\LL$ is defined by a parity check matrix. $\LL = {x \in \ZZ^{n}: Hx \equiv 0 \pmod(q)}$ and $H \in \ZZ^{k \times n}$ is in the systematic form $H = [I_{k}| D]$. Then rows of $G = [-D^{T}| I_{n-k}]$ are generating vectors of the lattice $\LL$ reduced modulo $q$.
+\end{lemma}
+\begin{proof}
+
+\end{proof}
+
+\begin{corrolary}
+Suppose the matrix $H$ is in permuted systematic form $e.g. \exists P - \text{ column permutation matrix } P \cdot H = [I | D]$. Then $P \cdot G$ are generating vectors of the lattice $\LL$ reduced modulo $q$.
+\end{corrolary}
+\begin{proof}
+
+\end{proof}
+
+Suppose we've obtained the set of generating vectors $G$ of the lattice $\LL$ modulo $q$. Since we are dealing with the q-ary lattice, to obtain the basis of the $\LL$ itself we need to add the basis of $\ZZ^{n}_{q}$ and remove resulting linear dependencies. It is n=not strictly nessesary to perfom these steps as having $G$ we can craft points of the lattice $\LL$.
+
+
+
+Let us put all the steps together in the algorthm:
+\begin{enumerate}
+    \item Reduce the parity check matrix to its permuted systematic form.
+    \item Transform it into the generating matrix modulo $q$.
+    \item Concatenate with $q \cdot I_{n}$.
+    \item Reduce obtained matrix to its Hermite normal form.
+\end{enumerate}
+
+ToDo:
+How to reduce to the systematic form
+Why do we use pernuted systematic form
+What is the likelyhood that the matrix is not going to have an invertible element in one of the rows.
 How do we compute it in practice what is the complexity
 
 
