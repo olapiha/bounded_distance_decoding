@@ -89,7 +89,7 @@ It is easy to see that the image will indeed be an element of $(\ZZ/m\ZZ)^*$ due
 \]
 
 \begin{definition}
-For every matrix $H \in \mathbb{R}^{n \times m}$ the following defines a lattice$\LL = {x \in \ZZ^{n}: Hx \equiv 0 \pmod{q}}$ this representation is called a parity check representation of the lattice.
+For every matrix $H \in \ZZ_{q}^{n \times m}$ the following defines a lattice$\LL = {x \in \ZZ^{n}: Hx \equiv 0 \pmod{q}}$ this representation is called a parity check representation of the lattice.
 \end{definition}
 
 Using the properties of parity check repr it is simple to compute the basis of this lattice it only requires computation of $n$ discrete logarithms in $(\ZZ/m\ZZ)^*$ it can be done because the multiplicative group of a field $\ZZ/m\ZZ$ is cyclic. Discrete logarithms can be computed in polynomial time as they are calculated modulo a smooth number. More on that you can find in \cite{[DP19]}. The generalization we give will require more work in this regard.
@@ -471,10 +471,12 @@ $\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$ and 
 
 Lemma \ref{lemma:dual_gen_set} gives us a straightforward way to compute the generating set of the dual from a parity check matrix. To obtain its basis we eliminate linear dependencies by reducing the generating matrix to its Hermite noraml form as in the section \ref{subsubsec:hermite_form}.
 
-\subsubsection{Recovering Primal basis from Dual \ref{step3_p}.}
-\label{subsubsec:primal_from_dual_polynomials}
+\subsubsection{Recovering Primal basis from Dual \ref{step3_p} (Theory).}
+\label{subsubsec:primal_from_dual_t_polynomials}
 
-Lattices that admit a parity check representation are called q-ary lattices. They lie between $\ZZ^{n}_{q}$ and $\ZZ^{n}$: $\ZZ^{n}_{q}  \subset \LL \subset \ZZ^{n}$. For this kind of lattices, it's possible to transform the parity check lattice into its basis efficiently. In the algorithm we will rely on the parity check matrix to have a special shape.
+In this section $q$ is and arbitrary integer, not related to the lattices cnstructed before.
+
+Lattices that admit a parity check representation are called $q$-ary lattices. They lie between $\ZZ^{n}_{q}$ and $\ZZ^{n}$: $\ZZ^{n}_{q}  \subset \LL \subset \ZZ^{n}$. For this kind of lattices, it's possible to transform the parity check lattice into its basis efficiently. In the algorithm we will rely on the parity check matrix to have a special shape.
 \begin{definition}
 A matrix $A \in \mathbb{R}^{n \times m}$ is in the systematic form if it has the following form:
 \[
@@ -483,12 +485,8 @@ A = \big[ I_{n} | A' \big]
 Where $I_{n}$ stands for an identity matrix of dimensions $n \times n$ and $A'$ is an arbitrary matrix of dimensions $n \times (m-n)$
 \end{definition}
 
-
-\textcolor{red}{Question:} Is H in Z or in R?? (fix it in the introduction as well)
-
-
-\begin{lemma}
-Suppose $\LL$ is defined by a parity check matrix. $\LL = {x \in \ZZ^{n}: Hx \equiv 0 \pmod(q)}$ and $H \in \ZZ^{k \times n}$ is in the systematic form $H = [I_{k}| D]$. Then rows of $G = [-D^{T}| I_{n-k}]$ are generating vectors of the lattice $\LL$ reduced modulo $q$.
+\begin{lemma}\label{coolfact}
+    Suppose $\LL$ is defined by a parity check matrix. $\LL = \{x \in \ZZ^{n}: Hx \equiv 0 \pmod{q}\}$ and $H \in \ZZ_{q}^{k \times n}$ is in the systematic form $H = [I_{k}| D]$. Then rows of $G = [-D^{T}| I_{n-k}]$ are generating vectors of the lattice $\LL$ reduced modulo $q$.
 \end{lemma}
 \begin{proof}
 
@@ -501,11 +499,18 @@ Suppose the matrix $H$ is in permuted systematic form $e.g. \exists P - \text{ c
 
 \end{proof}
 
-Suppose we've obtained the set of generating vectors $G$ of the lattice $\LL$ modulo $q$. Since we are dealing with the q-ary lattice, to obtain the basis of the $\LL$ itself we need to add the basis of $\ZZ^{n}_{q}$ and remove resulting linear dependencies. It is n=not strictly nessesary to perfom these steps as having $G$ we can craft points of the lattice $\LL$.
+\subsubsection{Recovering Primal basis from Dual \ref{step3_p} (Practice).}
+\label{subsubsec:primal_from_dual_pr_polynomials}
 
+Let us build an algorithm specific to the polynomial lattices. First in our case $q \rightarrow q^{d} -1$. Now $q$ means a prime power - the modulus of the base field $\FF_{q}$.
 
+At the start of this step of lattice computation we are given the parity check matrix if the polynomial lattice. The lattice is the set of solutions to a homogeneous equation modulo $q^{d} -1$ defined by the parity check matrix, therefore, none of the elementary trasformations modulo $q^{d} -1$ can change it. So we can apply Gaussian elimination to reduce it to the systematic form.
 
-Let us put all the steps together in the algorthm:
+Here $q^{d} -1$ is not a prime number, so some of the elements of $H$ might not be invertible modulo $q^{d} -1$, and we cannot render them equal to one. That is why it is useful to have permuted systematic form. We can then try to invert elements of a particular row until we find an invertible one. In practice the algorithm is able to reduce every matrix to its systematic form, so we make an assumption that there's not so many element we cannot invert.
+
+Using Lemma \ref{coolfact} we can obtain the set of generating vectors $G$ of the polynomial lattice $\LL$ modulo $q$. Since we are dealing with the q-ary lattice, to obtain the basis of the $\LL$ itself we need to add the basis of $\ZZ^{n}_{q}$ and remove resulting linear dependencies. It is not strictly nessesary to perfom these steps as having $G$ we can craft points of the lattice $\LL$.
+
+Let us put all the steps together in an algorthm:
 \begin{enumerate}
     \item Reduce the parity check matrix to its permuted systematic form.
     \item Transform it into the generating matrix modulo $q$.
@@ -513,22 +518,24 @@ Let us put all the steps together in the algorthm:
     \item Reduce obtained matrix to its Hermite normal form.
 \end{enumerate}
 
-ToDo:
-How to reduce to the systematic form
-Why do we use pernuted systematic form
-What is the likelyhood that the matrix is not going to have an invertible element in one of the rows.
-How do we compute it in practice what is the complexity
-
-
 
 \subsection{Complexity of the basis computation.}
 \label{subsec:complexity_polynomials}
 
-
 Let us analyse every step of the basis computation algorithm to check if it is efficient:
 \begin{itemize}
-    \item
-    \item
+    \item Obtaining $H$ - the parity check representation.
+
+
+    \item Reducing $H$ to its premuted sytematic form.
+
+
+    \item Obtaining the lattice genrating set $G$ modulo $q^{d} -1$.
+
+
+    \item Obtaining lattice baisis.
+
+
 \end{itemize}
 
 \subsection{Decoding algorithm modification}
