@@ -522,7 +522,7 @@ Let us put all the steps together in an algorthm:
 \subsection{Complexity of the basis computation.}
 \label{subsec:complexity_polynomials}
 
-Let us analyse every step of the basis computation algorithm to check if it is efficient:
+Let us briefly comment on every step of the basis computation algorithm to check if it is efficient:
 \begin{itemize}
     \item Obtaining $H$ - the parity check representation.
 
@@ -541,7 +541,7 @@ Let us analyse every step of the basis computation algorithm to check if it is e
 \subsection{Decoding algorithm modification}
 \label{subsec:decoding_polynomials}
 
-Note to self: Don't forget an intro to each section!
+We could check now if the framework of the decoding algorithm developped before wil fit this new setting. In this section we discuss the modification we need to make and the decoding radius we can achieve with this approach. Modifying the algorithm to treat polinomials instead of integers leads to the following steps.
 
 \begin{enumerate}
     \item Round every coordinate to $t$ to deal only with discrete error $\lfloor t \rceil = v + \lfloor e \rceil$. Note $e' = \lfloor e \rceil$, $t' = \lfloor t \rceil$.
@@ -551,10 +551,15 @@ Note to self: Don't forget an intro to each section!
     \item Subtract just recovered error from $t'$.
 \end{enumerate}
 
+Except for the step \ref{step:rfr} translates directly to the case of polynomials. Step \ref{step:rfr} needs more work, let us discuss rational function reconstruction in more detail.
+
 \subsubsection{Rational function reconstruction \ref{step:rfr}}
 \label{subsubsec:rfr}
-I found \href{http://www.cecm.sfu.ca/~mmonagan/papers/fastRFR.pdf}{here}
-an algorithm which they call Wang's algorithm for rational function reconstruction.\\
+In the work of \cite{[KM06]} authors study rational function reconstruction in depth. The main algorithm the discuss is based in Extended Euclidean Division. They refer to it as Wang's algorithm. Here is it's formal description.
+
+
+Question: Should I give more intuition and explanations?
+
 Goal: Given $g,f$ find $n, d \in \mathbb{F}[x]$ that $deg(n) + deg(d) < \frac{deg(f)}{2}$ and $\frac{n}{d} = g \pmod{f}$\\
 Algorithm:(function $lc()$ outputs the leading coefficient)
 \begin{enumerate}
@@ -572,16 +577,22 @@ Algorithm:(function $lc()$ outputs the leading coefficient)
 \end{enumerate}
 \begin{lemma}
 Let $\mathbb{F}$ be a field, $f, g, r, s, t \in \mathbb{F}[x]$ with $r = sf + tg$, $t \neq 0$, $deg(f) > 0$, and $deg(r) + deg(t) <deg(f)$.
-Suppose $r_i, s_i, t_i$ for $0 \leq i \leq l + 1$ be the elements of the ith iteration in the Extended Euclidean Algorithm for $f$ and $g$ (e.i. $r_i = s_if + t_ig$). \\
+Suppose $r_i, s_i, t_i$ for $0 \leq i \leq l + 1$ be the elements of the ith iteration in the Extended Euclidean Algorithm(EEA) for $f$ and $g$ (e.i. $r_i = s_if + t_ig$). \\
 Then there exists a nonzero element $\alpha \in \mathbb{F}[x]$ such that $r = \alpha r_j$, $s = \alpha s_j$, $t = \alpha t_j$, where $deg(r_j) \leq deg(r) < deg(r_{j-1})$
 \end{lemma}
 \begin{proof}
-\href{http://www.cecm.sfu.ca/~mmonagan/theses/sara.pdf}{(Lemma 3.2 page 35)}
+Find the proof in \cite{[GG13]} (Lemma 5.15 page 116)
 \end{proof}
 
 So if the solution exists it must be one of the pairs $(r_i, t_i)$ of the EEA.
 
-\textcolor{red}{ToDo:} Add a lemma to prove the following: If $deg(n) + deg(d) \leq \frac{deg(f)}{2}$ than the solution corresponds to the unique row of the EEA where $deg(q) > \frac{deg(f)}{2}$
+\begin{lemma}
+Let $\mathbb{F}$ be a field $f,g,n,d \in \mathbb{F}[x]$ are polynomials such that $lc(d) = 1$, $gcd(n,d) = gcd(f,d) = 1$ and $g = frac{n}{d} \pmod{f}$. Let $j$ be the index of a quotient with maximal degree in the EEA for $f$ and $g$. If $deg(f) > 2(deg(n) + deg(d))$ the $j$ is unique and $n = r_j$, $d = t_j$
+\end{lemma}
+\begin{proof}
+Find the proof in \cite{[KM06]} (Lemma 2.3 page 186)
+\end{proof}
+
 
 \subsubsection{Factorization by trial division}
 \label{subsubsec:factoring_polynomials}
@@ -593,6 +604,7 @@ There's only $n$ possible roots, one trial division takes $O(m)$ time and the nu
 \subsection{Decoding radius}
 \label{subsec:radius_polynomials}
 
+Rational function reconstruction puts an upperbound on how much error this algorithm can decode. Let us first consider a simpler case where every coordinate of the error in positive, so the step \ref{step:rfr} becomes trivial. The goal of this section is to find the parameters which provide maximal normalized decoding radius for arbitrary discrete error and calculate the this upperbound.
 
 \subsubsection{Only positive discrete error}
 \label{subsubsec:positive_error}
@@ -604,23 +616,31 @@ If $\|e\|_1 = \sum_{i =1}^{n} e_i \leq deg(c) = d \cdot k$ the operation above w
 So $l_1(r_1) = d \cdot k$.
 
 Due to the nature of the bound above it is natural to talk about the length $r_1$ in $l_1$ norm.
+
+
 \subsubsection{Arbitrary discrete error}
 \label{subsubsec:discrete_error}
 Now we have $\forall i: e_i \in \mathbb{Z}$. Then
 \[
 \prod_{i = 1}^{n}(x - \alpha_i)^{t_i} \pmod{c(x)} = \prod_{i = 1}^{n}(x - \alpha_i)^{e_i} = \frac{\prod_{i \in I}(x - \alpha_i)^{e_i}}{\prod_{j \in J}(x - \alpha_j)^{-e_j}}
 \]
+
 \begin{lemma}
 Given $g,c$ where $deg(c) = d \cdot k$ we can recover $f_{1}, f_{2} \in \mathbb{F}[x]$ that  $\forall i = 1;2$: $deg(f_{i}) \leq \floor{\frac{dk}{2}}$ and $\frac{f_{1}}{f_{2}} = g \pmod{c}$ in polynomial time.
 \end{lemma}
+
 So we can decode every message for which $\|e\|_1 = \sum_{i =1}^{n} |e_i| \leq \floor{\frac{dk}{2}}$
+
+If we know more about the shape of the error the upper bound becomes even better. We can reconstruct $g = \frac{n}{d} \pmod{f}$ if it is known that $deg n < N$, $deg d < D$ where $N + D < deg f$ refer to \cite{KM06} for more information.
+
+
 \subsubsection{Normalized radius}
 \label{subsubsec:normalized_discrete_error}
-Directly follows from \cite{[DP19]}. $\bar{r}_1 = \frac{dk}{det(\mathcal{L})^{1/n}}$ where $det(\mathcal{L}) = \Phi(c(x)) = (q^{d} - 1)^{k}$.
+From the bound on the error we already have we obtain the mormalized raduis $\bar{r}_1 = \frac{dk}{2 \cdot det(\mathcal{L})^{1/n}}$ where $det(\mathcal{L}) = \Phi(c(x)) = (q^{d} - 1)^{k}$.
 \[
-\bar{r}_1 = \frac{dk}{(q^{d} - 1)^{k/n}}
+\bar{r}_1 = \frac{dk}{2 \cdot (q^{d} - 1)^{k/n}}
 \]
-What should be the values of $d$ and $k$?
+Let us optimize the values of $d$ and $k$.
 
 We have the following constraints:
 \begin{enumerate}\label{constraints}
@@ -628,37 +648,37 @@ We have the following constraints:
     \item $dk < q^{d}$
     \item $n \leq q$
 \end{enumerate}
-From these we can immediately conclude that $d$ must be constant \\
+From these we can immediately conclude that $d$ must be constant. \\
 
-We aim to be at most a logarithmic factor away from Minkowski bound, for that this asymptotics suffice: $q = a \cdot n$, $d = b$, $k =  c \cdot \frac{n}{\log(n)}$. What we are going to do next is finding optimal values for parameters $a, b$ and $c$. We want to maximize the following function:
+To obtain not more than a logarithmic gap from Minkowski's bound we need the following asymptotics: $q = a \cdot n$, $d = b$, $k =  c \cdot \frac{n}{\log(n)}$. What we are going to do next is finding optimal values for parameters $a, b$ and $c$. We want to maximize the following function:
 \[
-\bar{r}_1 = \frac{bc \cdot n}{\log(n)((an)^{b} - 1)^{c/\log(n)}}  \sim \frac{bc \cdot n}{e^{bc}\log(n)}
+\bar{r}_1 = \frac{bc \cdot n}{2\log(n)((an)^{b} - 1)^{c/\log(n)}}  \sim \frac{bc \cdot n}{2e^{bc}\log(n)}
 \]
  Parameter $a$ by constraint 3 in \ref{constraints} should be greater or equal to 1.
  \[
-    \frac{bc \cdot n}{\log(n)((an)^{b} - 1)^{c/\log(n)}} \leq \frac{bc \cdot n}{\log(n)(n^{b} - 1)^{c/\log(n)}}
+    \frac{bc \cdot n}{2\log(n)((an)^{b} - 1)^{c/\log(n)}} \leq \frac{bc \cdot n}{2\log(n)(n^{b} - 1)^{c/\log(n)}}
  \]
 
-The choice of $a$ does not affect choices of $b$ and $c$ so we can configure it to 1.
+The choice of $a$ is independent from choices of $b$ and $c$ so we can configure it to the smalles possible value $a = 1$.
 
-The function we are considering with fixed parameters $c, b$ tend to the same value as $\frac{bc \cdot n}{\log(n)n^{cb/\log(n)}}$. To simplify the analysis we will find the best parameters for the latter.
+The function we are considering with fixed parameters $c, b$ tend to the same value as $\frac{bc \cdot n}{2\log(n)n^{cb/\log(n)}}$. To simplify the analysis we will find the best parameters for the latter.
 
 Note $d \coloneqq bc$, $f_n(d) = \frac{d \cdot n^{1 - \frac{d}
-{\log(n)} }}{\log(n)}$.
+{\log(n)} }}{2\log(n)}$.
 We would like to prove that for any value of $n$, $argmax(f_n(d)) = 1$
 \[
 \begin{split}
     f_n'(d) & = \frac{n^{1 - \frac{d}
-    {\log(n)}}}{\log(n)} + \frac{d \cdot n^{1 - \frac{d}
-    {\log(n)}} \cdot \log(n) \big(-\frac{1}{\log(n)}\big)}{\log(n)} \\
-    & = \frac{n^{1 - \frac{d}{\log(n)}}}{\log(n)}(1-d)
+    {\log(n)}}}{2\log(n)} + \frac{d \cdot n^{1 - \frac{d}
+    {\log(n)}} \cdot \log(n) \big(-\frac{1}{\log(n)}\big)}{2\log(n)} \\
+    & = \frac{n^{1 - \frac{d}{\log(n)}}}{2\log(n)}(1-d)
 \end{split}
 \]
 $d = 1$ is the only solution to the equation $f_n'(d) = 0$. It is easy to verify that it corresponds to the maximum of $f_n(d)$ and it doesn't depend on the value of $n$.
 
 Therefore, $b \cdot c = 1$. In practice we fix $b = 2, c = \frac{1}{2}$. In the end, the decoding radius our algorithm achieves is
 \[
-    \bar{r}_1 = \frac{n}{\log(n)(n^{2} - 1)^{1/2\log(n)}}
+    \bar{r}_1 = \frac{n}{2 \cdot \log(n)(n^{2} - 1)^{1/2\log(n)}}
 \]
 
 \subsection{Comparing the decoding radius of the algorithms}

@@ -85,8 +85,8 @@ def primal_basis_from_dual(B):
 
 def test_lattice_construction(n, t):
     primes = primes_first_n(n+t)
-    modulus_factors = primes[1:t+1]
-    primes = [2] + primes[t+1:]
+    modulus_factors = primes[n:]
+    primes = primes[:n]
     modulus_factors = [(q, round((ln(3)* n)/(ln(q) * t))) for q in modulus_factors]
     return (modulus_factors, primes, lattice_construction(modulus_factors, primes))
 
