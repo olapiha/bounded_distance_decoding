@@ -374,38 +374,14 @@ Let us compare initial construction, its generalization and theoretical upper bo
 
 As it turns out factorization of $m$ does not affect the decoding radius substantially. It can only introduce a minor improvement. We prove that with the following lemma:
 
-\begin{lemma}
+\begin{lemma}\label{lemma:no_imrovement}
 Assume the primes $p_{1}, \dots, p_{n}$ are the same for both lattices. If $a \cdot m \sim b \cdot m' \sim e^n$, when $n \rightarrow \infty$ Then
 \[
     \frac{\bar r_{m}^{(1)}}{\bar r_{m'}^{(1)}} \rightarrow 1, n \rightarrow \infty
 \]
 \end{lemma}
 \begin{proof}
-Since the primes are the same, they are also bounded by the same constant $B$ so the term $\frac{1}{4 \ln(B)}$ cancels out in the numerator and denominator.
-\[
-\begin{split}
-\frac{\bar r_{m}^{(1)}}{\bar r_{m'}^{(1)}}
-& = \frac{\ln(m/2) \cdot \varphi(m')^{1/n}}{\ln(m'/2) \cdot \varphi(m)^{1/n}} \\
-& = \frac{\ln(e^n/2a) \cdot \varphi(m')^{1/n}}{\ln(e^n/2b) \cdot \varphi(m)^{1/n}} \\
-& = \frac{\varphi(m')^{1/n}}{\varphi(m)^{1/n}}
-\end{split}
-\]
-We apply a few classic results to estimate the growth of $\varphi(n)$ \cite{[HW09]}:
-\[
-    \limsup\limits_{n \rightarrow \infty} \frac{\varphi(n)}{n} = 1
-\]
-\[
-    \liminf\limits_{n \rightarrow \infty} \frac{\varphi(n) \cdot \ln\ln(n)}{n} = e^{-\gamma}
-\]
-where $\gamma$ is the Euler constant, $e^{-\gamma} = 0.56145948\dots$
-\[
-\begin{split}
-\lim_{n \rightarrow \infty} \frac{\varphi(m')^{1/n}}{\varphi(m)^{1/n}}
-& \leq \frac{\limsup\limits_{n \rightarrow \infty} \varphi(m')^{1/n}}{\liminf\limits_{n \rightarrow\infty}\varphi(m)^{1/n}} \\
-& = \lim_{n \rightarrow \infty} \bigg(\frac{m \cdot \ln\ln (m')}{m'}\bigg)^{1/n} \\
-& = \lim_{n \rightarrow \infty} (\ln\ln(e^n/b))^{1/n} = 1
-\end{split}
-\]
+    The proof is in the appendix \ref{app:B}
 \end{proof}
 
 
@@ -500,10 +476,6 @@ Where $I_{n}$ stands for an identity matrix of dimensions $n \times n$ and $A'$ 
 \begin{corrolary}
 Suppose the matrix $H$ is in permuted systematic form $e.g. \exists P - \text{ column permutation matrix } P \cdot H = [I | D]$. Then $P \cdot G$ are generating vectors of the lattice $\LL$ reduced modulo $q$.
 \end{corrolary}
-\begin{proof}
-
-\end{proof}
-
 \subsubsection{Recovering Primal basis from Dual \ref{step3_p} (Practice).}
 \label{subsubsec:primal_from_dual_pr_polynomials}
 
@@ -696,12 +668,25 @@ But both of them are still logatihmically far from Minkowski's bound. The figure
 \section{LLXY17 Cryptanalysis}
 \label{sec:cryptanalysis}
 
+Let us give a high level description of the encryption scheme presented in \cite{[LLXY17]}. It is based on the family of polynomial lattices that we described above. The public key of Alice is a matrix $G$ that enerates a sublattice of a polynomial lattice $\LL$. When Bob wants to send a message $m$ to Alice he generates a random noise $ e \in \{0,1\}^{n}$ of hamming weight $w$ and sends the ciphertext $c = Gm + e$.
 
-\subsection{Information Set Decoding}
+Alice's private key containes parameters $c(x)$ and $(\alpha_1, \dots, \alpha_n)$ used to construct the lattice $\LL$. To decode the message Alice performs error decoding algorithm discussed in the section \ref{subsec:decoding_polynomials}. As we saw, for the decoding procedure to work $w$(the $l_1$ norm of $e$) should be less than the upperbound on the error.
+
+We given the ciphertext $c$ we would like to obtain the message without the key. Having the generating matrx $G$ we can obtain the parity check representation $H$ of $\LL$. Multiplying the ciphertext by $H$ we obtain:
+\[
+    H \cdot c = H \cdot Gm + H \cdot e = H \cdot e
+\]
+
+We would like to try evey possible value of the error until $H \cdot c = H \cdot e$. If we can learn the value of the error, we can subtract it from the cipher text and obtain the message multiplying by $G^{-1}$.
+
+Let us consider three different approaches to make the bruteforce attack more efficient.
+
+We compute the cost of every attack in the appendix \ref{app:A}
 
 
+\subsection{Information Set Decoding Attack}
 
-Notation: we take a vector $t \in \ZZ_q^{k}$, a matrix $A \in \ZZ_q^{k \times n}$. It can be reduced to its(maybe permuted) systematic form $H  = U \cdot A = [I_{k}|D]$.
+We take a vector $y \in \ZZ_q^{k}$, a matrix $A \in \ZZ_q^{k \times n}$. It can be reduced to its permuted systematic form $H  = U \cdot A = [I_{k}|D]$.
 
 
 The goal is to find a vector $x \in \{0,1\}^{n}$ with small Hamming weight $|x| = w$ that
@@ -711,11 +696,11 @@ Ax = y
 
 Or equivalently $Hx = U\cdot Ax = Uy =: t$, here we can use our knowledge about the shape of $H$.
 
-What we do in this attack is an improvement of a bruteforce. The partition $x$ on two vectors $x_1 \in \{0,1\}^{k}$ and  $x_2  \in \{0,1\}^{n-k}$ so we have
+In this attack we partition $x$ on two vectors $x_1 \in \{0,1\}^{k}$ and  $x_2  \in \{0,1\}^{n-k}$ so we have
 \[
 t = x_1 + D \cdot x_2
 \]
-We make a bet of the weight partition between $|x_1| = w_1$ and $|x_2| = w_2$, where $w_1 + w_2 = w$. Now we enumerate only the possible values of $x_2$, compute $x_1 = t - D \cdot x_2$ and check if it satisfies $|x_1| = w_1$. If we don't find a correct pair with this weight distribution, we rerandomize H and t and start over.
+We make a bet of the weight partition between $|x_1| = w_1$ and $|x_2| = w_2$, where $w_1 + w_2 = w$. Now we enumerate only the possible values of $x_2$, compute $x_1 = t - D \cdot x_2$ and check if it satisfies $|x_1| = w_1$. If we don't find a correct pair with this weight distribution, we rerandomize H and t and start over. Here we present the pseudoce of the attack. \ref{ISD}
 \begin{algorithm}
 \caption{ISD attack}\label{ISD}
 \begin{algorithmic}[1]
@@ -734,13 +719,12 @@ We make a bet of the weight partition between $|x_1| = w_1$ and $|x_2| = w_2$, w
 
 \subsection{Meet in the Middle}
 In this attack we have the same goal but no information about the form of the matrix A.
-We partition $x$ and $A$ on two equal parts: $A = [A_1 | A_2]$, $x = x_1 | x_2$.
+We partition $x$ and $A$ on two equal parts: $A = [A_1 | A_2]$, $x = (x_1 | x_2)$.
 Then $Ax = y$ is equivalent to
 \[
     A_1x_1 + A_2x_2 = y
 \]
-If we can find vectors $x_1$ and $x_2$ for which values $A_1x_1$ and $y - A_2x_2$ coincide
-and sum of their weights is equal to $w$ they form a solution to our problem.
+If we can find vectors $x_1$ and $x_2$ for which values $A_1x_1$ and $y - A_2x_2$ coincide. Here we make a bet that weight is distributed equall between the two parts.Similarly we present the pseudocode of the attack below \ref{MitM}.
 
 
 \begin{algorithm}
@@ -766,14 +750,16 @@ and sum of their weights is equal to $w$ they form a solution to our problem.
 \end{algorithmic}
 \end{algorithm}
 
-\subsection{ISD + MitM}
+\subsection{Combining the two approaches.}
 
-Let us return to the case when $A$ is reduced to the systematic form $H = U \cdot A = [I_{k}| D_1 | D_2]$ we partition $x = (x_0 |x_1 |x_2)$ on three vectors $x_0 = \in \{0,1\}^{k}$, $x_1,x_2 \in \{0,1\}^{\frac{n-k}{2}}$. Then
+Now we would like to combine Information Set Decoding attack with Meet in the Middle approach to make it even more efficient.
+
+We return to the case when $A$ is reduced to the systematic form $H = U \cdot A = [I_{k}| D_1 | D_2]$ we partition $x = (x_0 |x_1 |x_2)$ on three vectors $x_0 = \in \{0,1\}^{k}$, $x_1,x_2 \in \{0,1\}^{\frac{n-k}{2}}$. Then
 \[
   Ax = x_0 + D_1x_1 + D_2x_2
 \]
 
-We make bet that $|x_0| = w_1$, $|x_1| = |x_2| = \frac{w_2}{2}$ and perform Meet-in-the-Middle attack trying to find approximate collisions between $D_1x_1$ and all possible $t - D_2x_2$
+We make bet that $|x_0| = w_1$, $|x_1| = |x_2| = \frac{w_2}{2}$ and perform Meet-in-the-Middle attack. Now we would like to find \textbf{approximate} collisions between $D_1x_1$ and all possible $t - D_2x_2$
 
 For that we desing a compression function $f$ that will often map close vectors to the same value. It operates as follows:
 \[
@@ -781,7 +767,8 @@ For that we desing a compression function $f$ that will often map close vectors 
 \]
 Here $p$ is a parameter of the function.
 
-We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We will need to deal with false positives and false negatives in this collision search. Too many false positives can increase the cost of the search for every randomization of the public key matrix and too many false negatives can increase the number of randomizations itself. Let us estimate the cost of running our attack.
+We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We will need to deal with false positives and false negatives in this collision search. Too many false positives can increase the cost of the search for every randomization of the public key matrix and too many false negatives can increase the number of randomizations themselves. To ease the analysis we present pseudocode of the algorithm. \ref{algo}
+
 
 \begin{algorithm}
 \caption{ISD+MitM attack}\label{algo}
@@ -807,11 +794,10 @@ We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
-To ease the analysis we present pseudocode of the algorithm. \ref{algo}
 
 \subsection{Adding negative errors}
 \label{subsec:negative_error_improvement}
-Our algorithm allows to decode negative errors efficiently, so adding it will improve security. By how much?
+Our algorithm allows to decode errors of both signs efficiently, so adding it will improve security of [LLXY17] encyption scheme. Let us estimate how resistant is the scheme agains our most efficient attack when it uses $ e \in \{0,1\}^{n}$ and $ e \in \{0,1,-1\}^{n}$ of the same $l_1$ norm. The costs and imprevement are presented in the following table.\\
 
 \begin{tabular}{ |l||p{2,5cm}|p{2,5cm}|p{2,5cm}|p{2,5cm}|p{2cm}|  }
  \hline
@@ -819,26 +805,29 @@ Our algorithm allows to decode negative errors efficiently, so adding it will im
  \hline
  Parameters & Bruteforce & ISD & MitM & IDS+MitM & imrovement rate \\
  \hline
- \makecell{n = 100.0 \\ k = 10.0 \\ w = 5.0 \\ q = 100.0} & 4.517251e+09 & 2.960902e+07 & 2.116580e+05 & 2.366108e+05 & 3\\
+ \makecell{n = 100.0 \\ k = 10.0 \\ w = 5.0 \\ q = 100.0} & 4.517251e+09 & 2.960902e+07 & 2.116580e+05 & 2.366108e+05 & \\
  \hline
- Ternary & 1.445520e+11 & 6.725278e+07 & 1.197318e+06 & 3.293097e+05 & 3\\
+ Ternary & 1.445520e+11 & 6.725278e+07 & 1.197318e+06 & 3.293097e+05 & 2\\
  \hline
- \makecell{ n = 100.0 \\ k = 10.0 \\ w = 9.0 \\ q = 100.0} & 1.902232e+14 & 2.801449e+11 & 8.084476e+07 & 2.006729e+07 & 7 \\
+ \makecell{ n = 100.0 \\ k = 10.0 \\ w = 9.0 \\ q = 100.0} & 1.902232e+14 & 2.801449e+11 & 8.084476e+07 & 2.006729e+07 &  \\
  \hline
- Ternary & 9.739427e+16 & 1.699224e+12 & 1.829308e+09 & 1.854533e+08 & 5 \\
+ Ternary & 9.739427e+16 & 1.699224e+12 & 1.829308e+09 & 1.854533e+08 & $2^{3}$ \\
  \hline
- \makecell{n = 500.0 \\ k = 40.0 \\ w = 30.0 \\ q = 500.0} & 1.792122e+51 &  3.963162e+39 & 3.737340e+27 & 2.087190e+24 & 23 \\
+ \makecell{n = 500.0 \\ k = 40.0 \\ w = 30.0 \\ q = 500.0} & 1.792122e+51 &  3.963162e+39 & 3.737340e+27 & 2.087190e+24 &  \\
  \hline
- Ternary & 1.924276e+60 & 1.091922e+41 & 1.224651e+32 & 3.433996e+27 & 21 \\
+ Ternary & 1.924276e+60 & 1.091922e+41 & 1.224651e+32 & 3.433996e+27 & $2^{11}$\\
  \hline
- \makecell{n = 1000.0 \\ k = 72.0 \\ w = 50.0 \\ q = 1000.0} & 3.473881e+88 & 2.056657e+67 & 3.262500e+46 &  1.362168e+41 & 37 \\
+ \makecell{n = 1000.0 \\ k = 72.0 \\ w = 50.0 \\ q = 1000.0} & 3.473881e+88 & 2.056657e+67 & 3.262500e+46 &  1.362168e+41 &  \\
  \hline
- Ternary & 3.911243e+103 & 8.987320e+68 & 1.094713e+54 & 3.432411e+46 & 33 \\
+ Ternary & 3.911243e+103 & 8.987320e+68 & 1.094713e+54 & 3.432411e+46 & $2^{18}$ \\
  \hline
 \end{tabular}
 
 \subsection{LLXY17 parameter selection}
 \label{subsec:param_improvement}
+
+We would also like to comment on parameter selection made for the scheme. In the following table we present costs of the attack for the smallest and largest parameters suggested by \cite{[LLXY17]} for their encryption scheme. Their estimate seccurity level for the first one is $2^{106}$ and $2^{119}$. With our best attack we are able to break it with average cost of $2^{25}$ and $2^{26}$ which is feasible in practice. \\
+
 
 \begin{tabular}{ |l||p{2,5cm}|p{2,5cm}|p{2,5cm}| }
  \hline
@@ -851,8 +840,9 @@ Our algorithm allows to decode negative errors efficiently, so adding it will im
  \makecell{n = 260.0 \\ k = 228.0 \\ w = 31.0 \\ q = 293.0} & $2^{119}$ & 4.523610e+07 & $2^{26}$ \\
  \hline
 \end{tabular}
+\\
 
-Here are costs of the attack for the smallest and largest parameters suggested by \cite{[LLXY17]} for their encryption scheme. Their estimate seccurity level for the first one is $2^{106}$ and $2^{119}$. With our best attack we are able to break it with average cost $2^{25}$ and $2^{26}$ which is feasible in practice. In concusion parameters taken for this scheme need to be seriously reconsidered.
+In concusion parameters taken for this scheme need to be seriously reconsidered.
 
 \section{Future work}
 
@@ -860,8 +850,37 @@ The main question left to answer is what are the correct parameters to use in th
 
 
 \appendix
-
+\section{Proof of Lemma \ref{lemma:no_imrovement}}
+\label{app:B}
+\begin{proof}
+Since the primes are the same, they are also bounded by the same constant $B$ so the term $\frac{1}{4 \ln(B)}$ cancels out in the numerator and denominator.
+\[
+\begin{split}
+\frac{\bar r_{m}^{(1)}}{\bar r_{m'}^{(1)}}
+& = \frac{\ln(m/2) \cdot \varphi(m')^{1/n}}{\ln(m'/2) \cdot \varphi(m)^{1/n}} \\
+& = \frac{\ln(e^n/2a) \cdot \varphi(m')^{1/n}}{\ln(e^n/2b) \cdot \varphi(m)^{1/n}} \\
+& = \frac{\varphi(m')^{1/n}}{\varphi(m)^{1/n}}
+\end{split}
+\]
+We apply a few classic results to estimate the growth of $\varphi(n)$ \cite{[HW09]}:
+\[
+    \limsup\limits_{n \rightarrow \infty} \frac{\varphi(n)}{n} = 1
+\]
+\[
+    \liminf\limits_{n \rightarrow \infty} \frac{\varphi(n) \cdot \ln\ln(n)}{n} = e^{-\gamma}
+\]
+where $\gamma$ is the Euler constant, $e^{-\gamma} = 0.56145948\dots$
+\[
+\begin{split}
+\lim_{n \rightarrow \infty} \frac{\varphi(m')^{1/n}}{\varphi(m)^{1/n}}
+& \leq \frac{\limsup\limits_{n \rightarrow \infty} \varphi(m')^{1/n}}{\liminf\limits_{n \rightarrow\infty}\varphi(m)^{1/n}} \\
+& = \lim_{n \rightarrow \infty} \bigg(\frac{m \cdot \ln\ln (m')}{m'}\bigg)^{1/n} \\
+& = \lim_{n \rightarrow \infty} (\ln\ln(e^n/b))^{1/n} = 1
+\end{split}
+\]
+\end{proof}
 \section{Calculating the cost of attacks}
+\label{app:A}
 
 \subsection{ISD: Binary case}
 The average cost of such algorithm can be calculated as
