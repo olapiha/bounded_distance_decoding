@@ -4,7 +4,9 @@
 \usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{makecell}
 \usepackage{mathtools}
+\usepackage{dsfont}
 \usepackage{xcolor}
 \usepackage[normalem]{ulem}
 \usepackage{hyperref}
@@ -12,6 +14,9 @@
     colorlinks=true,
     linkcolor=blue
 }
+\usepackage{algorithm}% http://ctan.org/pkg/algorithm
+\usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
+
 
 
 \newcommand{\floor}[1]{\lfloor #1 \rfloor}
@@ -357,8 +362,8 @@ The only parameter left to configure is $k$. The way we set up $e_i$s number of 
 Let us compare initial construction, its generalization and theoretical upper bound with respect to the decoding radius.
 
 \begin{figure}
-  \includegraphics[width=\linewidth]{generalization_integers.png}
-  \caption{Comparison of the normalised decoding radius for initial construction(in green) and the generalization(in yellow). Here we took k = 20. }
+  \includegraphics[width=\linewidth]{plot4.png}
+  \caption{Comparison of the normalized decoding radius for initial construction(in green) and the generalization(in yellow). Here we took k = 20. }
   \label{fig:gen_int}
 \end{figure}
 
@@ -519,25 +524,6 @@ Let us put all the steps together in an algorthm:
 \end{enumerate}
 
 
-\subsection{Complexity of the basis computation.}
-\label{subsec:complexity_polynomials}
-
-Let us briefly comment on every step of the basis computation algorithm to check if it is efficient:
-\begin{itemize}
-    \item Obtaining $H$ - the parity check representation.
-
-
-    \item Reducing $H$ to its premuted sytematic form.
-
-
-    \item Obtaining the lattice genrating set $G$ modulo $q^{d} -1$.
-
-
-    \item Obtaining lattice baisis.
-
-
-\end{itemize}
-
 \subsection{Decoding algorithm modification}
 \label{subsec:decoding_polynomials}
 
@@ -555,26 +541,33 @@ Except for the step \ref{step:rfr} translates directly to the case of polynomial
 
 \subsubsection{Rational function reconstruction \ref{step:rfr}}
 \label{subsubsec:rfr}
-In the work of \cite{[KM06]} authors study rational function reconstruction in depth. The main algorithm the discuss is based in Extended Euclidean Division. They refer to it as Wang's algorithm. Here is it's formal description.
+In the work of \cite{[KM06]} authors study rational function reconstruction in depth.  Given $g,f$ the goal is to find $n, d \in \mathbb{F}[x]$ that $deg(n) + deg(d) < \frac{deg(f)}{2}$ and $\frac{n}{d} = g \pmod{f}$ The main algorithm the discuss is based in Extended Euclidean Algorithm(EEA). We perform extended euclidean division and the select a step where the degree of the xcurrent quotient is greater or equal to $\frac{deg f}{2}$. The authors refer to it as Wang's algorithm. Here is its formal description.
+
+\begin{algorithm}
+\caption{RFR}\label{RFR}
+\begin{algorithmic}[1]
+\Procedure{Reconstruct}{$f,g$}
+    \State $r_0 = f$  $r_1 = g$
+    \State $t_0 = 0$  $t_1 = 1$
+    \State $q = 1$
+    \While{$deg(q) \leq \frac{deg(f)}{2}$}
+        \State $q = r_0 // r_1$
+        \State $(r_0, r_1) = (r_1, r_0 - qr_1)$
+        \State $(t_0, t_1) = (t_1, t_0 - qt_1)$
+    \EndWhile
+    \If{$GCD(r_0, t_0) \neq 1$ or $deg(r_0) + deg(t_0) \geq \frac{deg(f)}{2}$}
+        \State \Return FAIL
+    \Else:
+            \State \Return  $(\frac{r_0}{lc(t_0)}, \frac{t_0}{lc(t_0)})$
+    \EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+Here function $lc()$ outputs the leading coefficient of the input polynomial.
 
 
-Question: Should I give more intuition and explanations?
+Correctness of this algorithm follows from the following two lemmas. The first one proves that under certain conditions one of the rows of EEA contains the correct $n$ and $d$. The second lemma tells us how to select the correct row.
 
-Goal: Given $g,f$ find $n, d \in \mathbb{F}[x]$ that $deg(n) + deg(d) < \frac{deg(f)}{2}$ and $\frac{n}{d} = g \pmod{f}$\\
-Algorithm:(function $lc()$ outputs the leading coefficient)
-\begin{enumerate}
-    \item   $r_0 = f$  $r_1 = g$\\
-            $t_0 = 0$  $t_1 = 1$\\
-            $q = 1$\\
-    \item While $deg(q) \leq \frac{deg(f)}{2}$ do\\
-            $q = r_0 // r_1$\\
-            $(r_0, r_1) = (r_1, r_0 - qr_1)$\\
-            $(t_0, t_1) = (t_1, t_0 - qt_1)$\\
-    \item if $GCD(r_0, t_0) \neq 1$ or $deg(r_0) + deg(t_0) \geq \frac{deg(f)}{2}$:\\
-            return FAIL\\
-          else:\\
-            return $(\frac{r_0}{lc(t_0)}, \frac{t_0}{lc(t_0)})$
-\end{enumerate}
 \begin{lemma}
 Let $\mathbb{F}$ be a field, $f, g, r, s, t \in \mathbb{F}[x]$ with $r = sf + tg$, $t \neq 0$, $deg(f) > 0$, and $deg(r) + deg(t) <deg(f)$.
 Suppose $r_i, s_i, t_i$ for $0 \leq i \leq l + 1$ be the elements of the ith iteration in the Extended Euclidean Algorithm(EEA) for $f$ and $g$ (e.i. $r_i = s_if + t_ig$). \\
@@ -631,7 +624,7 @@ Given $g,c$ where $deg(c) = d \cdot k$ we can recover $f_{1}, f_{2} \in \mathbb{
 
 So we can decode every message for which $\|e\|_1 = \sum_{i =1}^{n} |e_i| \leq \floor{\frac{dk}{2}}$
 
-If we know more about the shape of the error the upper bound becomes even better. We can reconstruct $g = \frac{n}{d} \pmod{f}$ if it is known that $deg n < N$, $deg d < D$ where $N + D < deg f$ refer to \cite{KM06} for more information.
+If we know more about the shape of the error the upper bound becomes even better. We can reconstruct $g = \frac{n}{d} \pmod{f}$ if it is known that $deg n < N$, $deg d < D$ where $N + D < deg f$ refer to \cite{[KM06]} for more information.
 
 
 \subsubsection{Normalized radius}
@@ -690,37 +683,389 @@ For the first family final normalized error radius that the algorithm can handle
 \]
 And for the second construction it is much better:
 \[
-    \bar{r}_1 = \frac{n}{\log(n)(n^{2} - 1)^{1/2\log(n)}}
+    \bar{r}_1 = \frac{n}{2 \cdot \log(n)(n^{2} - 1)^{1/2\log(n)}}
 \]
 But both of them are still logatihmically far from Minkowski's bound. The figure \ref{fig:everything} will help you to see the difference in practice.
 
 \begin{figure}
-  \includegraphics[width=\linewidth]{everything.png}
-  \caption{Comparison of all algorithms and theoretical upperbound(in red): basic algorithm for integer lattice(in green), generalized algorithm for integer lattice(in yellow), algorithm for polynomial lattices(in blue)}
+  \includegraphics[width=\linewidth]{plot5.png}
+  \caption{Comparison of all algorithms and theoretical upperbound(in red): basic algorithm for integer lattice(in green), algorithm for polynomial lattices(in blue)}
   \label{fig:everything}
 \end{figure}
 
-\section{LLXY17 Cryptanalysis?}
+\section{LLXY17 Cryptanalysis}
 \label{sec:cryptanalysis}
 
-\subsection{Classic attacks on lattices}
-\label{subsec:attacks}
 
-\subsubsection{ISD Attack}
-\label{subsec:isd_attack}
+\subsection{Information Set Decoding}
 
-\subsubsection{MitM Attack}
-\label{subsec:mitm_attack}
 
-\subsubsection{ISD+MitM Combination}
-\label{subsec:combination_attack}
 
-\subsection{Improving LLXY17 parameter selection}
-\label{subsec:param_improvement}
+Notation: we take a vector $t \in \ZZ_q^{k}$, a matrix $A \in \ZZ_q^{k \times n}$. It can be reduced to its(maybe permuted) systematic form $H  = U \cdot A = [I_{k}|D]$.
+
+
+The goal is to find a vector $x \in \{0,1\}^{n}$ with small Hamming weight $|x| = w$ that
+\[
+Ax = y
+\]
+
+Or equivalently $Hx = U\cdot Ax = Uy =: t$, here we can use our knowledge about the shape of $H$.
+
+What we do in this attack is an improvement of a bruteforce. The partition $x$ on two vectors $x_1 \in \{0,1\}^{k}$ and  $x_2  \in \{0,1\}^{n-k}$ so we have
+\[
+t = x_1 + D \cdot x_2
+\]
+We make a bet of the weight partition between $|x_1| = w_1$ and $|x_2| = w_2$, where $w_1 + w_2 = w$. Now we enumerate only the possible values of $x_2$, compute $x_1 = t - D \cdot x_2$ and check if it satisfies $|x_1| = w_1$. If we don't find a correct pair with this weight distribution, we rerandomize H and t and start over.
+\begin{algorithm}
+\caption{ISD attack}\label{ISD}
+\begin{algorithmic}[1]
+\Procedure{Decoding}{$A,y$}
+    \State Reduce A it's randomized systematic form: $(I_k |D)$
+    \For{$x_2$ of weight $w_2$}
+        \State compute $x_1 = t - Dx_2$
+        \If {$|x_1| = w_1$ and contains only $0,1$}
+        \State \Return Derandomize $x = (x_1, x_2)$
+        \EndIf
+    \EndFor
+\State \textbf{goto} \emph{line 2}.
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Meet in the Middle}
+In this attack we have the same goal but no information about the form of the matrix A.
+We partition $x$ and $A$ on two equal parts: $A = [A_1 | A_2]$, $x = x_1 | x_2$.
+Then $Ax = y$ is equivalent to
+\[
+    A_1x_1 + A_2x_2 = y
+\]
+If we can find vectors $x_1$ and $x_2$ for which values $A_1x_1$ and $y - A_2x_2$ coincide
+and sum of their weights is equal to $w$ they form a solution to our problem.
+
+
+\begin{algorithm}
+\caption{MitM attack}\label{MitM}
+\begin{algorithmic}[1]
+\Procedure{Decoding}{$A,y$}
+    \State Generate random matrix $U$
+    \State $(A_1|A_2) \gets A \cdot U$
+    \State $t = y \cdot U$
+    \For{$x_1$ of weight $\frac{w}{2}$}
+    \State compute $A_1x_1$
+    \State store in the hash table
+    \EndFor
+    \For{$x_2$ of weight $\frac{w}{2}$}
+    \State compute $t - A_2x_2$
+    \State look up in the hash table for a collision
+    \If {collision found}
+        \State \Return $x = (x_1, x_2)$
+    \EndIf
+    \EndFor
+\State \textbf{goto} \emph{line 2}.
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{ISD + MitM}
+
+Let us return to the case when $A$ is reduced to the systematic form $H = U \cdot A = [I_{k}| D_1 | D_2]$ we partition $x = (x_0 |x_1 |x_2)$ on three vectors $x_0 = \in \{0,1\}^{k}$, $x_1,x_2 \in \{0,1\}^{\frac{n-k}{2}}$. Then
+\[
+  Ax = x_0 + D_1x_1 + D_2x_2
+\]
+
+We make bet that $|x_0| = w_1$, $|x_1| = |x_2| = \frac{w_2}{2}$ and perform Meet-in-the-Middle attack trying to find approximate collisions between $D_1x_1$ and all possible $t - D_2x_2$
+
+For that we desing a compression function $f$ that will often map close vectors to the same value. It operates as follows:
+\[
+\forall v = (v_1, \dots , v_k)\in \ZZ_{q}^{k}: f_{p}(v) = (\lfloor v1/p \rceil, \lfloor v2/p \rceil, \dots, \lfloor vk/p \rceil)
+\]
+Here $p$ is a parameter of the function.
+
+We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We will need to deal with false positives and false negatives in this collision search. Too many false positives can increase the cost of the search for every randomization of the public key matrix and too many false negatives can increase the number of randomizations itself. Let us estimate the cost of running our attack.
+
+\begin{algorithm}
+\caption{ISD+MitM attack}\label{algo}
+\begin{algorithmic}[1]
+\Procedure{Decoding}{$A,y$}
+    \State Reduce A it's randomized systematic form: $(I_k |D_1|D_2)$
+    \For{$x_1$ of weight $\frac{w_2}{2}$}
+    \State compute $f_{p}(D_1x_1)$
+    \State store in the hash table
+    \EndFor
+    \For{$x_2$ of weight $\frac{w_2}{2}$}
+    \State compute $f_{p}(t - D_2x_2)$
+    \State look up in the hash table for a collision
+    \If {collision found}
+        \State compute $D_1x_1$
+        \State compute $x_0 = t - D_2x_2 - D_1x_1$
+        \If {$|x_0| = w_1$ and contains only $0,1$}
+        \State \Return Derandomize $x = (x_0, x_1, x_2)$
+        \EndIf
+    \EndIf
+    \EndFor
+\State \textbf{goto} \emph{line 2}.
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+To ease the analysis we present pseudocode of the algorithm. \ref{algo}
 
 \subsection{Adding negative errors}
 \label{subsec:negative_error_improvement}
 Our algorithm allows to decode negative errors efficiently, so adding it will improve security. By how much?
+
+\begin{tabular}{ |l||p{2,5cm}|p{2,5cm}|p{2,5cm}|p{2,5cm}|p{2cm}|  }
+ \hline
+ \multicolumn{6}{|c|}{Cost of attacks for different parameters} \\
+ \hline
+ Parameters & Bruteforce & ISD & MitM & IDS+MitM & imrovement rate \\
+ \hline
+ \makecell{n = 100.0 \\ k = 10.0 \\ w = 5.0 \\ q = 100.0} & 4.517251e+09 & 2.960902e+07 & 2.116580e+05 & 2.366108e+05 & 3\\
+ \hline
+ Ternary & 1.445520e+11 & 6.725278e+07 & 1.197318e+06 & 3.293097e+05 & 3\\
+ \hline
+ \makecell{ n = 100.0 \\ k = 10.0 \\ w = 9.0 \\ q = 100.0} & 1.902232e+14 & 2.801449e+11 & 8.084476e+07 & 2.006729e+07 & 7 \\
+ \hline
+ Ternary & 9.739427e+16 & 1.699224e+12 & 1.829308e+09 & 1.854533e+08 & 5 \\
+ \hline
+ \makecell{n = 500.0 \\ k = 40.0 \\ w = 30.0 \\ q = 500.0} & 1.792122e+51 &  3.963162e+39 & 3.737340e+27 & 2.087190e+24 & 23 \\
+ \hline
+ Ternary & 1.924276e+60 & 1.091922e+41 & 1.224651e+32 & 3.433996e+27 & 21 \\
+ \hline
+ \makecell{n = 1000.0 \\ k = 72.0 \\ w = 50.0 \\ q = 1000.0} & 3.473881e+88 & 2.056657e+67 & 3.262500e+46 &  1.362168e+41 & 37 \\
+ \hline
+ Ternary & 3.911243e+103 & 8.987320e+68 & 1.094713e+54 & 3.432411e+46 & 33 \\
+ \hline
+\end{tabular}
+
+\subsection{LLXY17 parameter selection}
+\label{subsec:param_improvement}
+
+\begin{tabular}{ |l||p{2,5cm}|p{2,5cm}|p{2,5cm}| }
+ \hline
+ \multicolumn{4}{|c|}{Cost of attacks for LLXY17 parameters } \\
+ \hline
+ Parameters & Claimed security & IDS+MitM cost & in binary \\
+ \hline
+ \makecell{n = 230.0 \\ k = 201.0 \\ w = 28.0 \\ q = 263.0} & $2^{106}$ & 2.778036e+07 & $2^{25}$ \\
+ \hline
+ \makecell{n = 260.0 \\ k = 228.0 \\ w = 31.0 \\ q = 293.0} & $2^{119}$ & 4.523610e+07 & $2^{26}$ \\
+ \hline
+\end{tabular}
+
+Here are costs of the attack for the smallest and largest parameters suggested by \cite{[LLXY17]} for their encryption scheme. Their estimate seccurity level for the first one is $2^{106}$ and $2^{119}$. With our best attack we are able to break it with average cost $2^{25}$ and $2^{26}$ which is feasible in practice. In concusion parameters taken for this scheme need to be seriously reconsidered.
+
+\section{Future work}
+
+The main question left to answer is what are the correct parameters to use in the scheme of \cite{[LLXY17]}. For that we need to take into account the cost of our most efficient attack, the attacks discussed in the original paper and the constraints of our decoding algorithm. After the parameter are computed we need to see if the scheme is still practical.
+
+
+\appendix
+
+\section{Calculating the cost of attacks}
+
+\subsection{ISD: Binary case}
+The average cost of such algorithm can be calculated as
+\[
+T = \frac{x_2\text{ bruteforce cost}}{Pr(w_2\text{ is a correct bet on the weight of }x_2)}
+\]
+Let us compute the values above.
+The numerator:
+\begin{itemize}
+    \item Step 3-4: $O(k\cdot n^2)$
+    \item Step 5: $O(k \cdot (n-1) \cdot (k-1))$
+    \item Step 6-11: $O(k \cdot w_2 \cdot \binom{n-k}{w_2})$
+\end{itemize}
+In total we have: $k \cdot (n^2 + (n-1)(k-1) + w_2\binom{n-k}{w_2})$
+The denominator:
+\[
+\begin{split}
+    Pr(w_2\text{ is a correct bet on the weight of }x_2) & = Pr(|x_2| = w_2||x| = w) \\
+    & = \frac{\binom{n-k}{w_2} \cdot \binom{k}{w_1}}{\binom{n}{w}}
+\end{split}
+\]
+Therefore
+\[
+T = \frac{k\cdot\binom{n}{w}\cdot(n^2 + (n-1)(k-1) + w_2\binom{n}{w_2})}{\binom{k}{w_1}\binom{n-k}{w_2}}
+\]
+\subsection{ISD: Ternary case}
+The numerator:
+Only the number of choices for $x_2$ change
+\[
+    k\cdot(n^2 + (n-1)(k-1) + w_2\binom{n-k}{w_2}\cdot2^{w_2})
+\]
+The denominator:
+\[
+\begin{split}
+    Pr(w_2\text{ is a correct bet on the weight of }x_2) & = Pr(|x_2| = w_2||x| = w) \\
+    & = \frac{\binom{n-k}{w_2} \cdot \binom{k}{w_1}}{\binom{n}{w}}
+\end{split}
+\]
+Therefore
+\[
+T = \frac{k\cdot\binom{n}{w}\cdot(n^2 + (n-1)(k-1) + w_2\binom{n}{w_2}\cdot2^{w_2})}{\binom{k}{w_1}\binom{n-k}{w_2}}
+\]
+
+To minimize the average cost we take an optimal value of $w_1$ calculated with a script.
+
+\subsection{MitM: Binary case}
+
+
+Here we bet the weight is distributed equaly on both sides. So the average cost can be calculated as follows:
+\[
+  T = \frac{\text{cost of finding a collision}}{Pr(|x_1| = |x_2| = w/2| |x| =w)}
+\]
+Numerator:
+\begin{itemize}
+    \item Step 2: $n*k*log(q)$
+    \item Step 3-4: $O(k \cdot n^2)$
+    \item Step 5-8: $O(k \cdot \frac{w}{2} \cdot \binom{n/2}{w/2})$
+    \item Step 9-15: $O(k \cdot \frac{w}{2} \cdot \binom{n/2}{w/2})$
+\end{itemize}
+
+In total:
+
+TIME COST = $O(k \cdot (n^2 + w\binom{n/2}{w/2}))$
+
+We need to store every $x_1$
+
+
+MEMORY COST = $\binom{n/2}{w/2} \cdot log(n) \cdot \frac{w}{2}$
+
+Denominator:
+$Pr(|x_1| = |x_2| = w/2) = \frac{\binom{n/2}{w/2}^{2}}{\binom{n}{w}}$
+
+Total cost(only time):
+\[
+  T = \frac{k \cdot \binom{n}{w} \cdot (n^2 + w\binom{n/2}{w/2})}{\binom{n/2}{w/2}^2}
+\]
+
+\subsection{MitM: Ternary case}
+
+Numerator:
+
+TIME COST = $k \cdot (n^2 + w \cdot \binom{n/2}{w/2} \cdot 2^{w/2})$
+
+We need to store every $x_1$
+
+MEMORY COST = $\binom{n/2}{w/2} \cdot 2^{w/2} \cdot log(n) \cdot \frac{w}{2}$
+
+Denominator:
+$Pr(|x_1| = |x_2| = w/2) = \frac{\binom{n/2}{w/2}^{2}}{\binom{n}{w}}$
+
+Total cost(only time):
+\[
+  T = \frac{k \cdot \binom{n}{w} \cdot 2^{w/2} \cdot (n^2 + w\binom{n/2}{w/2})}{\binom{n/2}{w/2}^2}
+\]
+
+\subsection{ISD+MitM: Binary case}
+
+
+Computational cost:
+Let us first compute the cost of running the algorithm when we were lucky to generate such matrix $U$ that we end up finding vector $x$ that satisfies all the coditions.
+\begin{itemize}
+    \item Step 3-4: $O(k \cdot n^2)$
+    \item Step 5: $O(k \cdot (n-1) \cdot (k-1))$
+    \item Step 6-9: $O(k \cdot \frac{w_2}{2} \cdot \binom{(n-k)/2}{w_2/2})$
+    \item Step 10-19: $O(k \cdot \frac{w_2}{2} \cdot \binom{(n-k)/2}{w_2/2} + k \cdot \{\text{\# positives}\})$
+\end{itemize}
+In total we have: $k \cdot (n^2 + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} + + E(\{\text{\# positives}\}))$
+
+Memory cost:
+We only store in memory the hash table of $x_1$ in a cell with index $f_{p}(D_1x_1)$ for every $x_1$.
+The weight of $x_1$ is small so we only remember the set of nonzero coordinates $log(n) \cdot \frac{w_2}{2}$ Number of such $x_1$: $\binom{(n-k)/2}{w_2/2}$
+
+So the overall complexity is  $\binom{(n-k)/2}{w_2/2} \cdot log(n) \cdot \frac{w_2}{2}$
+
+Total average cost:
+\[
+    T = \frac{k \cdot (n^2 + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} + E(\{\text{\# positives}\}))}{Pr(\text{weight distribution bet was successful, there was no false negative in the collision search})}
+\]
+Let us calculate missing parts of the formula:
+\[
+\begin{split}
+    E(\{\text{\#positives}\}) = \binom{n}{w_2} \cdot Pr(\text{positive})
+\end{split}
+\]
+\[
+\begin{split}
+    Pr(\text{positive}) & = Pr(\text{collision happens}) \\
+    & = \frac{1}{\lfloor q/p \rceil}^{n}
+\end{split}
+\]
+
+To simplify the notations for the computation of false negatives $y_1 \coloneqq D_1x_1$, $y_2 \coloneqq t-D_2x_2$ let us call $T$ the hash table of $y_1$s. The number of boxes($\lfloor q/p \rceil$) we denote with $b$. We assume that $y_1, y_2$ are distributed uniformly over $\ZZ_q^{k}$ because otherwise we would be able to obtain some information on $x_1$ and $x_2$ and speed up the bruteforce which would break our security assumption(THINK AGAIN ABOUT THIS). $t_i$ signify non-zero coordinates of$x_0$
+\[
+\begin{split}
+    Pr_{y_2}(\text{false negative}) & = Pr_{y_2}(\exists y_1 \in t: f_p(y_1) \neq f_p(y_2), |x_0| \coloneqq |y_2 - y_1| = w_1, x_0 \in \{0,1\}^{k}) \\
+    & = Pr_{y_2}(\exists x_0 s.t. |x_0| = w_1, x_0 \in\{0,1\}^{k}: f_p(y_2 - x_0) \neq f_p(y_2), y_2 - x_0 \in T) \\
+    & \leq (\text{union bound}) \leq \sum_{x_0} Pr_{y_2}(f_p(y_2 - x_0) \neq f_p(y_2), y_2 - x_0 \in T) \\
+    & \leq (\text{union bound}) \leq \sum_{x_0} \sum_{i = 1}^{w_1} Pr_{y_2}((y_2)_{t_i} \in \{kp+1 p=0, \dots b\}, y_2 - x_0 \in T) \\
+    & = \sum_{x_0} \sum_{i = 1}^{w_1} \frac{\binom{n-k/2}{w_2/2} \cdot \frac{b}{q}}{q^k} \\
+    & = \sum_{x_0} w_1 \cdot \frac{\binom{n-k/2}{w_2/2} \cdot \frac{b}{q}}{q^k} \\
+    & = \binom{k}{w_1} \cdot w_1 \cdot \frac{\binom{n-k/2}{w_2/2} \cdot \frac{b}{q}}{q^k}
+\end{split}
+\]
+\[
+\begin{split}
+    Pr(\text{weight distribution is correct}) & = Pr(|x_0| = w_1, |x_1| = |x_2| = \frac{w_2}{2}) \\
+    & = \frac{\binom{n-k/2}{w_2/2}^{2}\binom{k}{w_1}}{\binom{n}{w}}
+\end{split}
+\]
+Putting everything together we obtain the total average cost.
+
+\subsection{ISD+MitM: Ternary case}
+
+Computational cost:
+\begin{itemize}
+    \item Step 3-4: $O(k \cdot n^2)$
+    \item Step 5: $O(k \cdot (n-1) \cdot (k-1))$
+    \item Step 6-9: $O(k \cdot \frac{w_2}{2} \cdot \binom{(n-k)/2}{w_2/2} \cdot 2^{w_2/2})$
+    \item Step 10-19: $O(k \cdot \frac{w_2}{2} \cdot \binom{(n-k)/2}{w_2/2} \cdot 2^{w_2/2} + k \cdot \{\text{\# positives}\})$
+\end{itemize}
+In total we have: $k \cdot (n^2 + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} \cdot 2^{w_2/2} + E(\{\text{\# positives}\}))$
+
+Memory cost:
+We only store in memory the hash table of $x_1$ in a cell with index $f_{p}(D_1x_1)$ for every $x_1$.
+The weight of $x_1$ is small so we only remember the set of nonzero coordinates $log(n) \cdot \frac{w_2}{2}$ Number of such $x_1$: $\binom{(n-k)/2}{w_2/2} \cdot 2^{w_2/2}$
+
+So the overall complexity is  $\binom{(n-k)/2}{w_2/2} \cdot 2^{w_2/2} \cdot log(n) \cdot \frac{w_2}{2}$
+
+Total average cost:
+\[
+    T = \frac{k \cdot (n^2 + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} \cdot 2^{w_2/2} + E(\{\text{\# positives}\}))}{Pr(\text{weight distribution bet was successful, there was no false negative})}
+\]
+Let us calculate missing parts of the formula:
+\[
+\begin{split}
+    E(\{\text{\# positives}\}) = \binom{n}{w_2} \cdot 2^{w_2/2} \cdot Pr(\text{positive})
+\end{split}
+\]
+\[
+\begin{split}
+    Pr(\text{positive}) & = Pr(\text{collision happens}) \\
+    & = \frac{1}{\lfloor q/p \rceil}^{n}
+\end{split}
+\]
+\[
+\begin{split}
+    Pr_{y_2}(\text{false negative}) & = Pr_{y_2}(\exists y_1 \in t: f_p(y_1) \neq f_p(y_2), |x_0| \coloneqq |y_2 - y_1| = w_1, x_0 \in \{0,1\}^{k}) \\
+    & = Pr_{y_2}(\exists x_0 s.t. |x_0| = w_1, x_0 \in\{0,1\}^{k}: f_p(y_2 - x_0) \neq f_p(y_2), y_2 - x_0 \in T) \\
+    & \leq (\text{union bound}) \leq \sum_{x_0} Pr_{y_2}(f_p(y_2 - x_0) \neq f_p(y_2), y_2 - x_0 \in T) \\
+    & \leq (\text{union bound}) \leq \sum_{x_0} \sum_{i = 1}^{w_1} \mathds{1}_{(x_0 = 1)}Pr_{y_2}((y_2)_{t_i} \in \{kp+1 p=0, \dots b\}, y_2 - x_0 \in T) \\
+    & + \mathds{1}_{(x_0 = -1)}Pr_{y_2}((y_2)_{t_i} \in \{kp-1 p=0, \dots b\}, y_2 - x_0 \in T) \\
+    & = \sum_{x_0} \sum_{i = 1}^{w_1} \frac{\binom{n-k/2}{w_2/2} \cdot \frac{b}{q}}{q^k} \\
+    & = \sum_{x_0} w_1 \cdot \frac{\binom{n-k/2}{w_2/2} \cdot \frac{b}{q}}{q^k} \\
+    & = \binom{k}{w_1} \cdot 2^{w_1} \cdot w_1 \cdot \frac{\binom{n-k/2}{w_2/2} \cdot \frac{b}{q}}{q^k}
+\end{split}
+\]
+
+\[
+\begin{split}
+    Pr(\text{weight distribution is correct}) & = Pr(|x_0| = w_1, |x_1| = |x_2| = \frac{w_2}{2}) \\
+    & = \frac{\binom{n-k/2}{w_2/2}^{2}\binom{k}{w_1}}{\binom{n}{w}}
+\end{split}
+\]
+Putting everything together we obtain the total average cost.
 
 \bibliography{report}
 \bibliographystyle{ieeetr}
