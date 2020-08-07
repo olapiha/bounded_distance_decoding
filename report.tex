@@ -470,7 +470,16 @@ Where $I_{n}$ stands for an identity matrix of dimensions $n \times n$ and $A'$ 
     Suppose $\LL$ is defined by a parity check matrix. $\LL = \{x \in \ZZ^{n}: Hx \equiv 0 \pmod{q}\}$ and $H \in \ZZ_{q}^{k \times n}$ is in the systematic form $H = [I_{k}| D]$. Then rows of $G = [-D^{T}| I_{n-k}]$ are generating vectors of the lattice $\LL$ reduced modulo $q$.
 \end{lemma}
 \begin{proof}
-
+Let us first prove that every vector generated with the matrix $G$ belongs to the lattice. Let us take an arbitrary vector $x$ and prove that $G^{T} \cdot x$ belongs to $\LL$. So $G$ generates a sublattice of $\LL$. If we prove that their determinants coincide we would prove the lemma.
+\[
+\forall x: H \cdot G^{T}x = [I_{k}|D] \cdot [-D^{T}| I_{n-k}]^{T}x = (D - D)x = 0 \pmod{x}
+\]
+If $G$ generates the lattice modulo $q$ then
+$
+G' = \left[ \begin{array}{c|c} -D^{T} & I_{n-k} \\ \hline qI_k & 0 \end{array}\right]
+$
+generates all of the lattice $\LL$. $det(G') = q^{k}$. It is left to prove that $\LL$ has the same determinant.
+ToDo: finish writing the proof.
 \end{proof}
 
 \begin{corrolary}
