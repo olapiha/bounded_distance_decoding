@@ -59,25 +59,25 @@
 
 Message decoding is a problem that arises when two parties need to communicate over a noisy channel. Here we are in the setting where we are only concerned with the integrity of transmitted data and we assume there's no adversary listening and modifying messages in the network. We are dealing with information loss that occurs due to our information flow being \textit{slightly disturbed} by forces of nature.
 
-To achieve integrity we encode messages as points in Euclidean space. Now we can model the rate of "disturbance" as distance between the input and output points. And call it "slight" if it can be bounded by a constant. A natural way to arrange the space of messages is a Euclidean lattice(all integer linear combinations of a linearly independent set of vectors in $\mathbb{R}^{n}$).
+To achieve integrity we encode messages as points in Euclidean space. Now we can model the rate of "disturbance" as the distance between the input and output points. And call it "slight" if it can be bounded by a constant. A natural way to arrange the space of messages is a Euclidean lattice(all integer linear combinations of a linearly independent set of vectors in $\mathbb{R}^{n}$).
 
 The decoding procedure aims to identify the point of the lattice closest to the output point. If the disturbance in the network is small enough the closest lattice point will indeed be the input message. This will help us identify the upper bound on how much error a perfect decoding algorithm can handle. We know that the distance between lattice points is bounded from below by the length of the shortest vector(note $\lambda_{1}(\LL)$) of the lattice. If the error exceeds $\frac{\lambda_{1}(\LL)}{2}$, the closest point might not be the input message anymore so decoding becomes impossible.
 
 We would like to have an algorithm where the decoding radius is close to $\frac{\lambda_{1}(\LL)}{2}$. Unfortunately, the Lattice Shortest Vector Problem(SVP) is believed to be hard in the general case, so we cannot evaluate exactly how good our decoding radius is. Nevertheless, we have an upper-bound on the length of the shortest vector. So we aim to get a decoding radius close to it instead.
 \begin{theorem}[Minkowski's First Theorem]
-    For any full-rank lattice $\LL$ of rank $n$ and for $l_1$ norm of the sortest vector length the following inequality holds:
+    For any full-rank lattice $\LL$ of rank $n$ and for $l_1$ norm of the shortest vector length the following inequality holds:
     \[
         \lambda_{1}(\LL) \leq \frac{n}{e} \det(\LL)^{1/n}
     \]
 \end{theorem}
-Using the $l_1$ norm will be natural for our decodig algorithm.
+Using the $l_1$ norm will be natural for our decoding algorithm.
 An instance of such problem is called a Bounded Distance Decoding problem and it is considered a hard problem for a random lattice and decoding radius of $\frac{\lambda_{1}(\LL)}{2}$ in the norm $l_{\infty}$ \cite{[LM09]}.
 
-Our work focuses on two families of lattices for which the BDD problem has an efficient solution and error is close to the Minkowski's bound. The first one is a generalization of a lattice discussed in \cite{[DP19]} and used in Chor-Rivest cryptosystem \cite{[CR88]}. The second one was used in \cite{[LLXY17]} for construction of a trapdoor function and has a similar decoding algorithm. Apart from decoding algorithms we discuss an efficient way to compute the basis of a given lattice. It is important to be able to compute some representation of the lattice efficiently because this is a way to craft lattice points from messages we would like to transmit. We also suggest security improvements for the encryption scheme from \cite{[LLXY17]} using our decoding algorithm and perform its cryptanalysis to improve their parameter selection.
+Our work focuses on two families of lattices for which the BDD problem has an efficient solution and error is close to the Minkowski's bound. The first one is a generalization of a lattice discussed in \cite{[DP19]} and used in Chor-Rivest cryptosystem \cite{[CR88]}. The second one was used in \cite{[LLXY17]} for construction of a trapdoor function and has a similar decoding algorithm. Apart from decoding algorithms, we discuss an efficient way to compute the basis of a given lattice. It is important to be able to compute some representation of the lattice efficiently because this is a way to craft lattice points from messages we would like to transmit. We also suggest security improvements for the encryption scheme from \cite{[LLXY17]} using our decoding algorithm and perform its cryptanalysis to improve their parameter selection.
 
 \textbf{Discrete logarithm lattices.}
 
-In this work we will discuss many lattices of similar flavour. They are defined as a kernel of a morphism from $\ZZ^{n}$ to another group. Let us give you a short definition of the lattice given in \cite{[DP19]} which serves as a basis for our first generalization.
+In this work, we will discuss many lattices of similar flavour. They are defined as a kernel of a morphism from $\ZZ^{n}$ to another group. Let us give you a short definition of the lattice given in \cite{[DP19]} which serves as a basis for our first generalization.
 
 Let us consider numbers $m$ which is a prime power, $n$ and $B$ such that we can find $n$ primes $p_{1}, \dots , p_{n}$ which do not divide $m$ and are bounded by $B$. We consider a group morphism:
 \[
@@ -95,7 +95,7 @@ The kernel of $\psi$ is a subgroup of $\ZZ^{n}$ so it is a lattice.
 For every matrix $H \in \ZZ_{q}^{n \times m}$ the following defines a lattice $\LL = \{x \in \ZZ^{n}: Hx \equiv 0 \pmod{q}\}$. This representation is called a parity check representation of the lattice $\LL$.
 \end{definition}
 
-Using the properties of parity check representation it is simple to compute the basis of this lattice. It only requires computation of $n$ discrete logarithms in $(\ZZ/m\ZZ)^*$ it can be done because the multiplicative group of a field $\ZZ/m\ZZ$ is cyclic. Discrete logarithms can be computed in polynomial time as they are calculated modulo a smooth number. More on that you can find in \cite{[DP19]}. The generalization we give will require more work in this regard.
+Using the properties of parity check representation it is simple to compute the basis of this lattice. It only requires the computation of $n$ discrete logarithms in $(\ZZ/m\ZZ)^*$ it can be done because the multiplicative group of a field $\ZZ/m\ZZ$ is cyclic. Discrete logarithms can be computed in polynomial time as they are calculated modulo a smooth number. More on that you can find in \cite{[DP19]}. The generalization we give will require more work in this regard.
 
 
 
@@ -127,13 +127,12 @@ The next part of our work \ref{sec:polynomials} is dedicated to the family of po
 \begin{itemize}
     \item it's basis computation is discussed in the section \ref{subsec:compute_basis_polynomials}
     \item the decoding radius for this case is discussed in \ref{subsec:radius_polynomials}
-    \item \textcolor{red}{ToDo:} maybe rename sections so they follow the same pattern in the second part.
 \end{itemize}
 Then we compare these two families with respect to basis computation and decoding algorithms in \ref{sec:comparison}. Finally, we perform cryptanalysis of the encryption scheme presented in \cite{[LLXY17]} and propose improvements to it in the section \ref{sec:cryptanalysis}.
 
 \textbf{Implementation.}
 
-Sagemath implementation of every algorithm for basis computation and message decoding discussed in the document is available on GitHub at: \textcolor{red}{TBA}.
+Sagemath implementation of every algorithm for basis computation and message decoding discussed in the document is available on GitHub at \textcolor{red}{TBA}.
 
 
 
@@ -142,11 +141,11 @@ Sagemath implementation of every algorithm for basis computation and message dec
 
 
 
-In this section we present a generalization of the decoding algorithm introduced in \cite{[DP19]}. In their paper Léo Ducas and Cécile Pierrot use properties of the group $(\ZZ/m\ZZ)^*$ for modulus $m$ which is a prime power to decode efficiently. The decoding radius achievable that way depends on the ratio
+In this section, we present a generalization of the decoding algorithm introduced in \cite{[DP19]}. In their paper, Léo Ducas and Cécile Pierrot use properties of the group $(\ZZ/m\ZZ)^*$ for modulus $m$ which is a prime power to decode efficiently. The decoding radius achievable that way depends on the ratio
 \[
 \frac{\ln(m)}{\varphi(m)}
 \]
-The higher the ratio the larger the decoding radius will be. In our generalization we take $m'$ an arbitrary product of prime powers. If $m$ and $m'$ are of the same size, as $m'$ is smoother $\varphi(m')$ will be smaller which gives us a better decoding radius.
+The higher the ratio the larger the decoding radius will be. In our generalization, we take $m'$ an arbitrary product of prime powers. If $m$ and $m'$ are of the same size, as $m'$ is smoother $\varphi(m')$ will be smaller which gives us a better decoding radius.
 
 In the construction for $m$ prime power authors compute lattice basis directly using the fact that $(\ZZ/m\ZZ)^*$ is cyclic and we can calculate discrete logarithms of its elements.
 
@@ -181,7 +180,7 @@ Applying the CRT gives us the following equivalence
 \[
     \LL = \ker \psi = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{q_{j}^{e_{j}}}\}
 \]
-Going even further, suppose we know for every $j$ a generator ${\beta_{j}}$ of  $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$. Using the morphism between the cyclic group and group of exponents we get a representation in terms of conditions on the exponents:
+Going even further, suppose we know for every $j$ a generator ${\beta_{j}}$ of  $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$. Using the morphism between the cyclic group and group of exponents we get representation in terms of conditions on the exponents:
 \[
     \LL = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\varphi(q_{j}^{e_{j}})}\}
 \]
@@ -200,7 +199,7 @@ This is almost a parity check representation of $\LL$ except we have many parity
 \label{subsec:compute_basis_integers}
 
 
-Our goal is to compute a basis of discrete logarithm lattice to be able to encode messages as its points afterwards. The idea of our algorithm is to compute a basis of the dual lattice first. And then obtain primal one from the dual.
+Our goal is to compute a basis of discrete logarithm lattice to be able to encode messages as its points afterwards. The idea of our algorithm is to compute the basis of the dual lattice first. And then obtain primal one from the dual.
 Let us recall a definition of a dual lattice and a dual basis.
 \begin{definition}
     For a lattice $\LL \subseteq \mathbb{R}^{n}$ we define $\LL^{*} \subseteq (\mathbb{R}^{n})^{*}$ as a lattice of all linear maps $f:\mathbb{R}^{n} \rightarrow \mathbb{R}$ such that every lattice point is mapped to an integer value.
@@ -217,7 +216,7 @@ Linear maps can be represented as an inner product function with a fixed vector.
         \item $B^{T}D = I$
     \end{itemize}
 \end{definition}
-If B is a square matrix then $(B^{T})^{-1}$ satisfies the definition. In the case of a non square matrix one can verify that $D = B(B^{T}B)^{-1}$ is the dual basis. \footnote{Since columns of $B$ are basis vectors, $B$ is a full column rank matrix. Therefore, $B^{T}B$ is always invertible.}
+If B is a square matrix then $(B^{T})^{-1}$ satisfies the definition. In the case of a non-square matrix, one can verify that $D = B(B^{T}B)^{-1}$ is the dual basis. \footnote{Since columns of $B$ are basis vectors, $B$ is a full column rank matrix. Therefore, $B^{T}B$ is always invertible.}
 
  Our algorithm \label{algorithm} has the following steps
 \begin{enumerate}
@@ -308,17 +307,17 @@ And the other way:
 A generating set of the sum of lattices can be obtained by concatenation of their bases, so we obtain our desired result.
 \end{proof}
 
-The basis computation algorithm takes parity check representations of every lattice $\LL_{j}$ scales them and adds an identity matrix. Output is the concatenation of calculated generating sets.
+The basis computation algorithm takes parity check representations of every lattice $\LL_{j}$ scales them and adds an identity matrix. The output is the concatenation of calculated generating sets.
 
 \subsubsection{Eliminating linear dependencies using elementary matrix transformations (\ref{step3})}
 \label{subsubsec:hermite_form}
 Now we have obtained a generating set of the dual lattice but we would like to have its basis. The idea is to transform the matrix to its row echelon form so the resulting set has some zero vectors which we will discard and obtain the basis of the lattice.
 
-Out of all elementary matrix transformations we are only allowed adding to a row an integer multiple of another row, interchanging two rows, multiplying a row by -1. These three possibilities are called unimodular transformations. As you may have noticed the only restriction is that we can't multiply a row by an integer different from $\pm 1$. This would result in a sublattice of $\LL$ with a higher determinant.
+Out of all elementary matrix transformations, we are only allowed adding to a row an integer multiple of another row, interchanging two rows, multiplying a row by -1. These three possibilities are called unimodular transformations. As you may have noticed the only restriction is that we can't multiply a row by an integer different from $\pm 1$. This would result in a sublattice of $\LL$ with a higher determinant.
 
 We use an algorithm for reducing the matrix to its Hermite normal form. It is an equivalent of row echelon form for matrices over $\ZZ$ with a restriction to unimodular transformations. Our input matrix can have rational coefficients so we first transform them into integers multiplying by the least common multiple of all denominators. We divide by it when the matrix is in the Hermite form.
 
-Resulting vectors might be quite long. If we want to control the size of the basis we can use the LLL algorithm instead. This change will for example make our encoded messages shorter and easier to decode.
+Resulting vectors might be quite long. If we want to control the size of the basis we can use the LLL algorithm instead. This change will, for example, make our encoded messages shorter and easier to decode.
 
 \subsubsection{Primal basis from dual basis (\ref{step4})}
 \label{subsubsec:primal_from_dual}
@@ -415,7 +414,7 @@ Now consider a group morphism:
     (u_{1}, ..., u_{n}) \mapsto \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \pmod{c(x)}
 \]
 
-Similarly to previous constructions the lattice is defined as the kernel of the morphism $\psi$:
+Similarly to previous constructions, the lattice is defined as the kernel of the morphism $\psi$:
 \[
     \LL = \ker \psi = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}(x - \alpha_{i})^{u_{i}} \equiv 1 \pmod{c(x)}\}
 \]
@@ -435,7 +434,7 @@ What might cuase a confusion is that each $\log_{\beta_{j}}$ has a different inp
 
 
 We obtained a parity check representation of $\LL$.
-To calculate a basis of $\LL$ we can follow a simplified version of the algorithm for discrete logarithm lattices. We obtain the dual basis by scaling parity check matrix and concatenating it with $I_{n}$. Then we remove linear dependencies and finally obtain primal basis from the dual. So basis computation algorithm has the following steps:
+To calculate a basis of $\LL$ we can follow a simplified version of the algorithm for discrete logarithm lattices. We obtain the dual basis by scaling the parity check matrix and concatenating it with $I_{n}$. Then we remove linear dependencies and finally obtain primal basis from the dual. So basis computation algorithm has the following steps:
 
 \begin{enumerate}
     \item \label{step1_p} Obtain the parity check representation of $\LL$.
@@ -451,14 +450,14 @@ $\forall 1 \leq i,j \leq n :$ $log_{\beta_j}(x - \alpha_i) \pmod{q^{d} -1}$ and 
 \subsubsection{Dual basis \ref{step2_p}.}
 \label{subsubsec:dual_gen_set_polynomials}
 
-Lemma \ref{lemma:dual_gen_set} gives us a straightforward way to compute the generating set of the dual from a parity check matrix. To obtain its basis we eliminate linear dependencies by reducing the generating matrix to its Hermite noraml form as in the section \ref{subsubsec:hermite_form}.
+Lemma \ref{lemma:dual_gen_set} gives us a straightforward way to compute the generating set of the dual from a parity check matrix. To obtain its basis we eliminate linear dependencies by reducing the generating matrix to its Hermite normal form as in the section \ref{subsubsec:hermite_form}.
 
 \subsubsection{Recovering Primal basis from Dual \ref{step3_p} (Theory).}
 \label{subsubsec:primal_from_dual_t_polynomials}
 
-In this section $q$ is and arbitrary integer, not related to the lattices cnstructed before.
+In this section, $q$ is an arbitrary integer, not related to the lattices constructed before.
 
-Lattices that admit a parity check representation are called $q$-ary lattices. They lie between $\ZZ^{n}_{q}$ and $\ZZ^{n}$: $\ZZ^{n}_{q}  \subset \LL \subset \ZZ^{n}$. For this kind of lattices, it's possible to transform the parity check lattice into its basis efficiently. In the algorithm we will rely on the parity check matrix to have a special shape.
+Lattices that admit a parity check representation are called $q$-ary lattices. They lie between $\ZZ^{n}_{q}$ and $\ZZ^{n}$: $\ZZ^{n}_{q}  \subset \LL \subset \ZZ^{n}$. For this kind of lattices, it's possible to transform the parity check lattice into its basis efficiently. In the algorithm, we will rely on the parity check matrix to have a special shape.
 \begin{definition}
 A matrix $A \in \mathbb{R}^{n \times m}$ is in the systematic form if it has the following form:
 \[
@@ -490,7 +489,7 @@ Parity check matrix defines the lattice as a kernel of a linear transformation d
 \[
     x \mapsto Hx \pmod{q}
 \]
-Since $H$ is in the systematic form, the image containes a space equivatent to $\ZZ_{q}^{k}$ so it cointains at least $q^{k}$ points. $\LL$ is a sublattice of $\ZZ^{n}$ so its determinant can be computed as
+Since $H$ is in the systematic form, the image contains a space equivalent to $\ZZ_{q}^{k}$ so it contains at least $q^{k}$ points. $\LL$ is a sublattice of $\ZZ^{n}$ so its determinant can be computed as
 \[
     det(\LL) = |\ZZ^{n}/\LL| \cdot det(\ZZ^{n}) = |\ZZ^{n}/ker(\phi)|
 \]
@@ -509,13 +508,13 @@ Suppose the matrix $H$ is in permuted systematic form $e.g. \exists P - \text{ c
 
 Let us build an algorithm specific to the polynomial lattices. First in our case $q \rightarrow q^{d} -1$. Now $q$ means a prime power - the modulus of the base field $\FF_{q}$.
 
-At the start of this step of lattice computation we are given the parity check matrix if the polynomial lattice. The lattice is the set of solutions to a homogeneous equation modulo $q^{d} -1$ defined by the parity check matrix, therefore, none of the elementary trasformations modulo $q^{d} -1$ can change it. So we can apply Gaussian elimination to reduce it to the systematic form.
+At the start of this step of lattice computation, we are given the parity check matrix if the polynomial lattice. The lattice is the set of solutions to a homogeneous equation modulo $q^{d} -1$ defined by the parity check matrix, therefore, none of the elementary transformations modulo $q^{d} -1$ can change it. So we can apply Gaussian elimination to reduce it to the systematic form.
 
-Here $q^{d} -1$ is not a prime number, so some of the elements of $H$ might not be invertible modulo $q^{d} -1$, and we cannot render them equal to one. That is why it is useful to have permuted systematic form. We can then try to invert elements of a particular row until we find an invertible one. In practice the algorithm is able to reduce every matrix to its systematic form, so we make an assumption that there's not so many element we cannot invert.
+Here $q^{d} -1$ is not a prime number, so some of the elements of $H$ might not be invertible modulo $q^{d} -1$, and we cannot render them equal to one. That is why it is useful to have permuted systematic form. We can then try to invert elements of a particular row until we find an invertible one. In practice the algorithm is able to reduce every matrix to its systematic form, so we make an assumption that there are not so many elements we cannot invert.
 
-Using Lemma \ref{coolfact} we can obtain the set of generating vectors $G$ of the polynomial lattice $\LL$ modulo $q$. Since we are dealing with the q-ary lattice, to obtain the basis of the $\LL$ itself we need to add the basis of $\ZZ^{n}_{q}$ and remove resulting linear dependencies. It is not strictly nessesary to perfom these steps as having $G$ we can craft points of the lattice $\LL$.
+Using Lemma \ref{coolfact} we can obtain the set of generating vectors $G$ of the polynomial lattice $\LL$ modulo $q$. Since we are dealing with the q-ary lattice, to obtain the basis of the $\LL$ itself we need to add the basis of $\ZZ^{n}_{q}$ and remove resulting linear dependencies. It is not strictly necessary to perform these steps as having $G$ we can craft points of the lattice $\LL$.
 
-Let us put all the steps together in an algorthm:
+Let us put all the steps together in an algorithm:
 \begin{enumerate}
     \item Reduce the parity check matrix to its permuted systematic form.
     \item Transform it into the generating matrix modulo $q$.
@@ -527,7 +526,7 @@ Let us put all the steps together in an algorthm:
 \subsection{Decoding algorithm modification}
 \label{subsec:decoding_polynomials}
 
-We could check now if the framework of the decoding algorithm developped before wil fit this new setting. In this section we discuss the modification we need to make and the decoding radius we can achieve with this approach. Modifying the algorithm to treat polinomials instead of integers leads to the following steps.
+We could check now if the framework of the decoding algorithm developed before will fit this new setting. In this section, we discuss the modification we need to make and the decoding radius we can achieve with this approach. Modifying the algorithm to treat polynomials instead of integers leads to the following steps.
 
 \begin{enumerate}
     \item Round every coordinate to $t$ to deal only with discrete error $\lfloor t \rceil = v + \lfloor e \rceil$. Note $e' = \lfloor e \rceil$, $t' = \lfloor t \rceil$.
@@ -566,7 +565,7 @@ In the work of \cite{[KM06]} authors study rational function reconstruction in d
 Here function $lc()$ outputs the leading coefficient of the input polynomial.
 
 
-Correctness of this algorithm follows from the following two lemmas. The first one proves that under certain conditions one of the rows of EEA contains the correct $n$ and $d$. The second lemma tells us how to select the correct row.
+The correctness of this algorithm follows from the following two lemmas. The first one proves that under certain conditions one of the rows of EEA contains the correct $n$ and $d$. The second lemma tells us how to select the correct row.
 
 \begin{lemma}
 Let $\mathbb{F}$ be a field, $f, g, r, s, t \in \mathbb{F}[x]$ with $r = sf + tg$, $t \neq 0$, $\deg(f) > 0$, and $\deg(r) + \deg(t) <\deg(f)$.
@@ -597,7 +596,7 @@ There's only $n$ possible roots, one trial division takes $O(m)$ time and the nu
 \subsection{Decoding radius}
 \label{subsec:radius_polynomials}
 
-Rational function reconstruction puts an upperbound on how much error this algorithm can decode. Let us first consider a simpler case where every coordinate of the error in positive, so the step \ref{step:rfr} becomes trivial. The goal of this section is to find the parameters which provide maximal normalized decoding radius for arbitrary discrete error and calculate the this upperbound.
+Rational function reconstruction puts an upper bound on how much error this algorithm can decode. Let us first consider a simpler case where every coordinate of the error is positive, so the step \ref{step:rfr} becomes trivial. The goal of this section is to find the parameters which provide maximal normalized decoding radius for arbitrary discrete error and calculate this upper bound.
 
 \subsubsection{Only positive discrete error}
 \label{subsubsec:positive_error}
@@ -652,7 +651,7 @@ To obtain not more than a logarithmic gap from Minkowski's bound we need the fol
     \frac{bc \cdot n}{2\log(n)((an)^{b} - 1)^{c/\log(n)}} \leq \frac{bc \cdot n}{2\log(n)(n^{b} - 1)^{c/\log(n)}}
  \]
 
-The choice of $a$ is independent from choices of $b$ and $c$ so we can configure it to the smalles possible value $a = 1$.
+The choice of $a$ is independent from choices of $b$ and $c$ so we can configure it to the smallest possible value $a = 1$.
 
 The function we are considering with fixed parameters $c, b$ tend to the same value as $\frac{bc \cdot n}{2\log(n)n^{cb/\log(n)}}$. To simplify the analysis we will find the best parameters for the latter.
 
@@ -685,7 +684,7 @@ And for the second construction it is much better:
 \[
     \bar{r}_1 = \frac{n}{2 \cdot \log(n)(n^{2} - 1)^{1/2\log(n)}}
 \]
-But both of them are still logatihmically far from Minkowski's bound. The figure \ref{fig:everything} will help you to see the difference in practice.
+But both of them are still logarithmically far from Minkowski's bound. The figure \ref{fig:everything} will help you to see the difference in practice.
 
 \begin{figure}
   \includegraphics[width=\linewidth]{plot5.png}
@@ -696,16 +695,16 @@ But both of them are still logatihmically far from Minkowski's bound. The figure
 \section{LLXY17 Cryptanalysis}
 \label{sec:cryptanalysis}
 
-Let us give a high level description of the encryption scheme presented in \cite{[LLXY17]}. It is based on the family of polynomial lattices that we described above. The public key of Alice is a matrix $G$ that enerates a sublattice of a polynomial lattice $\LL$. When Bob wants to send a message $m$ to Alice he generates a random noise $ e \in \{0,1\}^{n}$ of hamming weight $w$ and sends the ciphertext $c = Gm + e$.
+Let us give a high-level description of the encryption scheme presented in \cite{[LLXY17]}. It is based on the family of polynomial lattices that we described above. The public key of Alice is a matrix $G$ that generates a sublattice of a polynomial lattice $\LL$. When Bob wants to send a message $m$ to Alice he generates a random noise $ e \in \{0,1\}^{n}$ of hamming weight $w$ and sends the ciphertext $c = Gm + e$.
 
-Alice's private key containes parameters $c(x)$ and $(\alpha_1, \dots, \alpha_n)$ used to construct the lattice $\LL$. To decode the message Alice performs error decoding algorithm discussed in the section \ref{subsec:decoding_polynomials}. As we saw, for the decoding procedure to work $w$(the $l_1$ norm of $e$) should be less than the upperbound on the error.
+Alice's private key contains parameters $c(x)$ and $(\alpha_1, \dots, \alpha_n)$ used to construct the lattice $\LL$. To decode the message Alice performs error decoding algorithm discussed in section \ref{subsec:decoding_polynomials}. As we saw, for the decoding procedure to work $w$(the $l_1$ norm of $e$) should be less than the upperbound on the error.
 
-We given the ciphertext $c$ we would like to obtain the message without the key. Having the generating matrx $G$ we can obtain the parity check representation $H$ of $\LL$. Multiplying the ciphertext by $H$ we obtain:
+We are given the ciphertext $c$ we would like to obtain the message without the key. Having the generating matrix $G$ we can obtain the parity check representation $H$ of $\LL$. Multiplying the ciphertext by $H$ we obtain:
 \[
     H \cdot c = H \cdot Gm + H \cdot e = H \cdot e
 \]
 
-We would like to try evey possible value of the error until $H \cdot c = H \cdot e$. If we can learn the value of the error, we can subtract it from the cipher text and obtain the message multiplying by $G^{-1}$.
+We would like to try every possible value of the error until $H \cdot c = H \cdot e$. If we can learn the value of the error, we can subtract it from the ciphertext and obtain the message multiplying by $G^{-1}$.
 
 Let us consider three different approaches to make the bruteforce attack more efficient.
 
@@ -731,13 +730,13 @@ t = x_1 + D \cdot x_2
 We make a bet of the weight partition between $|x_1| = w_1$ and $|x_2| = w_2$, where $w_1 + w_2 = w$. Now we enumerate only the possible values of $x_2$, compute $x_1 = t - D \cdot x_2$ and check if it satisfies $|x_1| = w_1$. If we don't find a correct pair with this weight distribution, we rerandomize H and t and start over. Here we present the pseudoce of the attack. \ref{alg:ISD}
 
 \subsection{Meet in the Middle}
-In this attack we have the same goal but no information about the form of the matrix A.
+In this attack, we have the same goal but no information about the form of the matrix A.
 We partition $x$ and $A$ on two equal parts: $A = [A_1 | A_2]$, $x = (x_1 | x_2)$.
 Then $Ax = y$ is equivalent to
 \[
     A_1x_1 + A_2x_2 = y
 \]
-If we can find vectors $x_1$ and $x_2$ for which values $A_1x_1$ and $y - A_2x_2$ coincide. Here we make a bet that weight is distributed equall between the two parts.Similarly we present the pseudocode of the attack below \ref{alg:MitM}.
+If we can find vectors $x_1$ and $x_2$ for which values $A_1x_1$ and $y - A_2x_2$ coincide. Here we make a bet that weight is distributed equally between the two parts. Similarly, we present the pseudocode of the attack below \ref{alg:MitM}.
 
 \subsection{Combining the two approaches.}
 
@@ -783,7 +782,7 @@ Our algorithm allows to decode errors of both signs efficiently, so adding it wi
 \subsection{LLXY17 parameter selection}
 \label{subsec:param_improvement}
 
-We would also like to comment on parameter selection made for the scheme. In the following table we present costs of the attack for the smallest and largest parameters suggested by \cite{[LLXY17]} for their encryption scheme. Their estimate seccurity level for the first one is $2^{106}$ and $2^{119}$. With our best attack we are able to break it with average cost of $2^{25}$ and $2^{26}$ which is feasible in practice. \\
+We would also like to comment on parameter selection made for the scheme. In the following table, we present costs of the attack for the smallest and largest parameters suggested by \cite{[LLXY17]} for their encryption scheme. Their estimate security level for the first one is $2^{106}$ and $2^{119}$. With our best attack, we are able to break it with an average cost of $2^{25}$ and $2^{26}$ which is feasible in practice. \\
 
 
 \begin{tabular}{ |l||p{2,5cm}|p{2,5cm}|p{2,5cm}| }
@@ -799,13 +798,13 @@ We would also like to comment on parameter selection made for the scheme. In the
 \end{tabular}
 \\
 
-In conclusion parameters taken for this scheme need to be seriously reconsidered.
+In conclusion, the parameters taken for this scheme need to be seriously reconsidered.
 
 \section{Future work}
 
-The main question left to answer is what are the correct parameters to use in the scheme of \cite{[LLXY17]}. For that we need to take into account the cost of our most efficient attack, the attacks discussed in the original paper and the constraints of our decoding algorithm. After the parameters are computed we need to see if the scheme is still practical.
+The main question left to answer is what are the correct parameters to use in the scheme of \cite{[LLXY17]}. For that, we need to take into account the cost of our most efficient attack, the attacks discussed in the original paper and the constraints of our decoding algorithm. After the parameters are computed we need to see if the scheme is still practical.
 
-In the attack developped for the ternary case we do not take into account that the eeror has to contain the same number of positive and negative coordinates, so our security analysis can be improved for the ternary errors.
+In the attack developed for the ternary case we do not take into account that the error has to contain the same number of positive and negative coordinates, so our security analysis can be improved for the ternary errors.
 
 
 \appendix
@@ -859,7 +858,7 @@ where $\gamma$ is the Euler constant, $e^{-\gamma} = 0.56145948\dots$
 \end{algorithmic}
 \end{algorithm}
 
-The average cost of such algorithm can be calculated as
+The average cost of such an algorithm can be calculated as
 \[
 T_{w_{2}} = \frac{x_2\text{ bruteforce cost}}{Pr(|x_2| = w_2||x| = w)}
 \]
@@ -921,7 +920,7 @@ To minimize the average cost we take an optimal value of $w_2$ calculated with a
 \end{algorithm}
 
 
-Here we bet that the weight is distributed equaly on both sides. So the average cost can be calculated as follows:
+Here we bet that the weight is distributed equally on both sides. So the average cost can be calculated as follows:
 \[
   T = \frac{\text{cost of finding a collision}}{Pr(|x_1| = |x_2| = w/2| |x| =w)}
 \]
@@ -1009,7 +1008,7 @@ The weight of $x_1$ is small so we only remember the set of nonzero coordinates 
 
 So the overall complexity is  $\binom{(n-k)/2}{w_2/2} \cdot \log(n) \cdot \frac{w_2}{2}$
 
-Total average cost can be computed with a formula:
+The total average cost can be computed with a formula:
 \[
     T = \frac{k \cdot (n^2 + (n-1)(k-1) + w_2\binom{(n-k)/2}{w_2/2} + E(\{\text{\# collisions}\}))}{Pr(|x_0| = w_1, |x_1| = |x_2| = \frac{w_2}{2} | |x| = w_1+w_2)Pr(\text{there was no false negative collision})}
 \]
@@ -1041,7 +1040,7 @@ Putting everything together we obtain the total average cost.
 
 \subsection{ISD+MitM: Ternary case}
 Note that we do \textbf{not} take into account that the error has to contain the same number of positive and negative coordinates, so the attack we present can be optimized even further.
- 
+
 Computational cost:
 \begin{itemize}
     \item Step 3-4: $O(k \cdot n^2)$
