@@ -1,14 +1,22 @@
 #!/usr/bin/env sage
 import numpy
 
-n = 400
-# first dimention of the public key matrix: n-t in their notation
-d = 200
-k = n - d
-# weight of the error(?): d-1 in their notation
-w = d-1
-q = next_prime(400)
+n = 100
+k = 10
+w = 9
+q = 100
 
+'''
+n = 500
+k = 40
+w = 30
+q = 500
+
+
+n = 1000
+k = 72
+w = 50
+q = 1000
 
 
 n=600
@@ -16,6 +24,8 @@ d=1
 k=floor((n)/(ln(n)))
 w=floor((d*k)/((q**d - 1)**(k/n)))
 q=next_prime(n)
+'''
+
 
 print(len(bin(binomial(n-d, ((n-d)*(d-1)/n).round()))))
 

@@ -760,16 +760,12 @@ We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We
 
 \subsection{Adding negative errors}
 \label{subsec:negative_error_improvement}
-Our algorithm allows to decode errors of both signs efficiently, so adding it will improve security of [LLXY17] encyption scheme. Let us estimate how resistant is the scheme agains our most efficient attack when it uses $ e \in \{0,1\}^{n}$ and $ e \in \{0,1,-1\}^{n}$ of the same $l_1$ norm. The costs and improvement are presented in the following table.\\
-\begin{tabular}{ |l||p{2,4cm}|p{2,4cm}|p{2,4cm}|p{2,4cm}|p{2cm}|  }
+Our algorithm allows to decode errors of both signs efficiently, so adding it will improve security of [LLXY17] encyption scheme. Let us estimate how resistant is the scheme agains our most efficient attack when it uses $ e \in \{0,1\}^{n}$ and $ e \in \{0,1,-1\}^{n}$ of the same $l_1$ norm. In the ternary case the error contains the same number of positive and negative coordinates so that we can provide the same decoding radius as for the positive error. The costs and improvement are presented in the following table.\\
+\begin{tabular}{ |l||p{2,35cm}|p{2,3cm}|p{2,3cm}|p{2,3cm}|p{2cm}|  }
  \hline
  \multicolumn{6}{|c|}{Cost of attacks for different parameters} \\
  \hline
  Parameters & Bruteforce & ISD & MitM & IDS+MitM & imrovement rate \\
- \hline
- \makecell{n = 100.0 \\ k = 10.0 \\ w = 5.0 \\ q = 100.0} & 4.517251e+09 & 2.960902e+07 & 2.116580e+05 & 2.366108e+05 & \\
- \hline
- Ternary & 1.445520e+11 & 6.725278e+07 & 1.197318e+06 & 3.293097e+05 & 2\\
  \hline
  \makecell{ n = 100.0 \\ k = 10.0 \\ w = 9.0 \\ q = 100.0} & 1.902232e+14 & 2.801449e+11 & 8.084476e+07 & 2.006729e+07 &  \\
  \hline
@@ -781,7 +777,7 @@ Our algorithm allows to decode errors of both signs efficiently, so adding it wi
  \hline
  \makecell{n = 1000.0 \\ k = 72.0 \\ w = 50.0 \\ q = 1000.0} & 3.473881e+88 & 2.056657e+67 & 3.262500e+46 &  1.362168e+41 &  \\
  \hline
- Ternary & 3.91124e+103 & 8.987320e+68 & 1.094713e+54 & 3.432411e+46 & $2^{18}$ \\
+ Ternary & 3.911243e+103 & 8.987320e+68 & 1.094713e+54 & 3.432411e+46 & $2^{18}$ \\
  \hline
 \end{tabular}
 \subsection{LLXY17 parameter selection}
@@ -808,6 +804,8 @@ In conclusion parameters taken for this scheme need to be seriously reconsidered
 \section{Future work}
 
 The main question left to answer is what are the correct parameters to use in the scheme of \cite{[LLXY17]}. For that we need to take into account the cost of our most efficient attack, the attacks discussed in the original paper and the constraints of our decoding algorithm. After the parameters are computed we need to see if the scheme is still practical.
+
+In the attack developped for the ternary case we do not take into account that the eeror has to contain the same number of positive and negative coordinates, so our security analysis can be improved for the ternary errors.
 
 
 \appendix
@@ -1042,7 +1040,8 @@ The probability of getting a correct weight distribution is:
 Putting everything together we obtain the total average cost.
 
 \subsection{ISD+MitM: Ternary case}
-
+Note that we do \textbf{not} take into account that the error has to contain the same number of positive and negative coordinates, so the attack we present can be optimized even further.
+ 
 Computational cost:
 \begin{itemize}
     \item Step 3-4: $O(k \cdot n^2)$
