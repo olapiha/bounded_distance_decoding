@@ -170,7 +170,7 @@ The kernel of $\psi$ is a subgroup of $\ZZ^{n}$ so it is a lattice. We will call
     \LL \coloneqq \ker \psi = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{m}\}
 \]
 
-We work with a group $(\ZZ/m\ZZ)^*$ which is not cyclic anymore so we cannot exploit properties of discrete logarithm right away. Nevertheless, the Chinese Remainder Theorem (CRT) gives us the structure of the group:
+We work with a group $(\ZZ/m\ZZ)^*$ that is not necessarily cyclic anymore so we cannot exploit properties of discrete logarithm right away. Nevertheless, the Chinese Remainder Theorem (CRT) gives us the structure of the group:
 \[
    (\ZZ/m\ZZ)^* \sim \prod_{j=1}^{k}(\ZZ/q_{j}^{e_{j}}\ZZ)^*
 \]
@@ -180,7 +180,7 @@ Applying the CRT gives us the following equivalence
 \[
     \LL = \ker \psi = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \prod_{i=1}^{n}p_{i}^{x_{i}} \equiv 1 \pmod{q_{j}^{e_{j}}}\}
 \]
-Going even further, suppose we know for every $j$ a generator ${\beta_{j}}$ of  $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$. Using the morphism between the cyclic group and group of exponents we get representation in terms of conditions on the exponents:
+Going even further, suppose we know for every $j$ a generator ${\beta_{j}}$ of  $(\ZZ/q_{j}^{e_{j}}\ZZ)^*$. Using the morphism between the cyclic multiplicative group and its additive group of exponents we get representation consisting of linear relations:
 \[
     \LL = \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} |  \forall 1 \leq j \leq k: \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\varphi(q_{j}^{e_{j}})}\}
 \]
@@ -188,28 +188,28 @@ Note that discrete logarithm functions that we are using have different input an
 \[
     \forall 1 \leq j \leq k: \log_{\beta_{j}}: (\ZZ/q_{j}^{e_{j}}\ZZ)^* \rightarrow (\ZZ/\varphi(q_{j}^{e_{j}})\ZZ)
 \]
-This is almost a parity check representation of $\LL$ except we have many parity check type conditions at the same time. Therefore, $\LL$ is an intersection of lattices $\LL_{j}$ where each of them is defined as
+This is almost a parity check representation of $\LL$ except we have many parity check type conditions with different moduli. Therefore, $\LL$ is an intersection of lattices $\LL_{j}$ where each of them is defined as a parity check lattice:
 \[
 \label{parity check}
     \LL_{j} \coloneqq \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\varphi(q_{j}^{e_{j}})}\}
 \]
 
 
-\subsection{Computing lattice basis}
+\subsection{Computing a basis of the lattice}
 \label{subsec:compute_basis_integers}
 
 
 Our goal is to compute a basis of discrete logarithm lattice to be able to encode messages as its points afterwards. The idea of our algorithm is to compute the basis of the dual lattice first. And then obtain primal one from the dual.
 Let us recall a definition of a dual lattice and a dual basis.
 \begin{definition}
-    For a lattice $\LL \subseteq \mathbb{R}^{n}$ we define $\LL^{*} \subseteq (\mathbb{R}^{n})^{*}$ as a lattice of all linear maps $f:\mathbb{R}^{n} \rightarrow \mathbb{R}$ such that every lattice point is mapped to an integer value.
+    For a lattice $\LL \subseteq \mathbb{R}^{n}$ we define $\LL^{*} \subseteq (\mathbb{R}^{n})^{*}$ as the lattice of all linear maps $f:\mathbb{R}^{n} \rightarrow \mathbb{R}$ such that every lattice point is mapped to an integer value.
 \end{definition}
 Linear maps can be represented as an inner product function with a fixed vector. So equivalently
 \[
     \LL^{*} = \{y \in \mathbb{R}^{n} | \forall x \in \LL:  \langle x,y\rangle \in \ZZ \}
 \]
 
-\begin{definition}
+\begin{definition}\label{def:dual_basis}
     For a basis $B = (b_{1}, \dots, b_{n}) \in \mathbb{R}^{m \times n}$, define the dual basis $D = (d_{1}, \dots, d_{n}) \in \mathbb{R}^{m \times n}$ as the unique basis that satisfies
     \begin{itemize}
         \item $\Span(D) = \Span(B)$
@@ -227,32 +227,31 @@ If B is a square matrix then $(B^{T})^{-1}$ satisfies the definition. In the cas
 \end{enumerate}
 We will describe each of them in more details
 
-\subsubsection{Parity check representations (\ref{step1})}
+\subsubsection{Parity check representations (Step \ref{step1}.)}
 \label{subsubsec:parity_check_repr}
 In the section \ref{subsec:def_integers} we were able to represent $\LL$ as an intersection of $\LL_{1}, \dots, \LL_{k}$ for which we have parity check representations:
 \[
     \LL_{j} \coloneqq \{(x_{1}, \dots, x_{n}) \in \ZZ^{n} | \sum_{i=1}^{n}x_{i}\log_{\beta_{j}}p_{i}\equiv 0 \pmod{\varphi(q_{j}^{e_{j}})}\}
 \]
-To compute them we calculate many discrete logarithms in finite groups. As you probably know it is a hard problem for a general case of which no polynomial algorithm is known. We need to choose parameters such that we can compute them efficiently. We discuss it in the section (\ref{subsec:complexity_integers}) of this document.
+To compute them we calculate many discrete logarithms in finite groups. As one probably knows, it is a hard problem for a general case in the sense that we don't know a polynomial algorithm to solve it. We need to choose parameters such that we can still compute them efficiently. We discuss this choice in the section (\ref{subsec:complexity_integers}) of this document.
 
-\subsubsection{Dual generating set (\ref{step2})}
+\subsubsection{Dual generating set (Step \ref{step2}.)}
 \label{subsubsec:dual_gen_set}
-To justify this step we need two lemmas
+To describe this step we need two lemmas
 \begin{definition}
     For two lattices $\LL_1$, $\LL_2$ we define their sum
 \[
     \LL_1 + \LL_2 \coloneqq \{x + y | x \in \LL_1, y \in \LL_2\}
 \]
 \end{definition}
-This space $\LL_{1} + \LL_{2}$ can be generated by concatenation of bases of $\LL_{1}$ and $\LL_{2}$. It is a sum of two additive subgroups of $\mathbb{R}^{n}$ so it stays an additive subgroup. But it is not always discreet so it doesn't necessarily form a lattice.
+This space $\LL_{1} + \LL_{2}$ can be generated by concatenation of bases of $\LL_{1}$ and $\LL_{2}$. It is a sum of two additive subgroups of $\mathbb{R}^{n}$ so it stays an additive subgroup. But it is not always discrete so it doesn't necessarily form a lattice.
 
 \begin{lemma}
-    \footnote{Check it again with fresh head}
     \label{lemma_intersection}
-    Suppose $\LL = \bigcap_{j=1}^{k} \LL_{j} \neq \{0\}$ and $\LL^{*}$, $\LL_{j}^{*}$ are duals of the respective lattices. Then $\LL^{*} = \sum_{j=1}^{k} \LL_{j}^{*}$
+    Suppose $\LL = \bigcap_{j=1}^{k} \LL_{j} \neq \{0\}$ and $\LL^{*}$, $\LL_{j}^{*}$ are duals of the respective lattices. Then $\LL^{*} = \sum_{j=1}^{k} \LL_{j}^{*}$ .
 \end{lemma}
 \begin{proof}
-    Let us start from the end. Take lattices $\LL_{1}, \dots, \LL_{n}$ which is the dual of their sum.
+    Let us start discussing the expression on the right hand side. Take lattices $\LL_{1}, \dots, \LL_{n}$ and evaluate the dual of their sum.
     \footnote{We can take all $x_{i}$ equal to 0 but 1 of them}
 \[
 \begin{split}
@@ -298,9 +297,9 @@ Then from lemma \ref{lemma_intersection}
 \]
 It is obvious that $(\ZZ^{n})^{*} = \ZZ^{n}$. To prove that $(\frac{1}{p}B)^{T}$(here basis vectors are columns) is a basis of the dual it is enough to show $(\frac{1}{p}B)^{-1}$ is basis of the primal lattice. This is quite simple:
 \[
-    \forall x \in \ZZ^{n}: \frac{1}{p}B \cdot (\frac{1}{p}B)^{-1} \cdot x \in \ZZ
+    \forall x \in \ZZ^{n}: \frac{1}{p}B \cdot (\frac{1}{p}B)^{-1} \cdot x \in \ZZ,
 \]
-And the other way:
+which proves the inclusion in one direction. For the inclusion in the opposite direction we have:
 \[
     \forall x \in \LL: \frac{1}{p}B \cdot x = y \in \ZZ^{n} \implies x = (\frac{1}{p}B)^{-1} \cdot y , y \in \ZZ^{n}
 \]
@@ -309,19 +308,19 @@ A generating set of the sum of lattices can be obtained by concatenation of thei
 
 The basis computation algorithm takes parity check representations of every lattice $\LL_{j}$ scales them and adds an identity matrix. The output is the concatenation of calculated generating sets.
 
-\subsubsection{Eliminating linear dependencies using elementary matrix transformations (\ref{step3})}
+\subsubsection{Eliminating linear dependencies using elementary matrix transformations (Step \ref{step3}.)}
 \label{subsubsec:hermite_form}
-Now we have obtained a generating set of the dual lattice but we would like to have its basis. The idea is to transform the matrix to its row echelon form so the resulting set has some zero vectors which we will discard and obtain the basis of the lattice.
+Now we have obtained a generating set of the dual lattice but we would like to have its basis. The idea is to transform the matrix to its row echelon form so the resulting set has some zero vectors which we will discard, and obtain the basis of the lattice by keeping the remaining non-zero generators.
 
-Out of all elementary matrix transformations, we are only allowed adding to a row an integer multiple of another row, interchanging two rows, multiplying a row by -1. These three possibilities are called unimodular transformations. As you may have noticed the only restriction is that we can't multiply a row by an integer different from $\pm 1$. This would result in a sublattice of $\LL$ with a higher determinant.
+Out of all elementary matrix transformations, we are only allowed adding to a row an integer multiple of another row, interchanging two rows, multiplying a row by -1. These three possibilities are called unimodular transformations. As one may have noticed the only restriction is that we can't multiply a row by an integer different from $\pm 1$. This would result in a sublattice of $\LL$ with a higher determinant.
 
 We use an algorithm for reducing the matrix to its Hermite normal form. It is an equivalent of row echelon form for matrices over $\ZZ$ with a restriction to unimodular transformations. Our input matrix can have rational coefficients so we first transform them into integers multiplying by the least common multiple of all denominators. We divide by it when the matrix is in the Hermite form.
 
 Resulting vectors might be quite long. If we want to control the size of the basis we can use the LLL algorithm instead. This change will, for example, make our encoded messages shorter and easier to decode.
 
-\subsubsection{Primal basis from dual basis (\ref{step4})}
+\subsubsection{Primal basis from dual basis (Step \ref{step4}.)}
 \label{subsubsec:primal_from_dual}
-A way to calculate a basis of primal lattice having the basis of the dual is straightforward having its definition.
+A way to calculate a basis of primal lattice having the basis of the dual is straightforward having its definition that we stated here \ref{def:dual_basis}. If $D$ denotes a dual basis, then $B = D(D^{T}D)^{-1}$ is  a primal basis.
 
 
 \subsection{Complexity analysis}
@@ -333,11 +332,11 @@ It is a $q$-smooth integer, so to efficiently calculate discrete logarithms in t
 \[
     O(\sum_{i=1}^{k} a_{i}(\ln(|G|) + \sqrt{t_{i}}))
 \]
-To be polynomial in lattice dimension $a_{i} \leq e_{j}-1$ and $t_{i} \leq q_{j}$ need to be polynomial in $n$. As we have $n \cdot k$ such operations, $k$ should be polynomial in $n$.
+To be polynomial in lattice dimension, $a_{i} \leq e_{j}-1$ and $t_{i} \leq q_{j}$ need to be polynomial in $n$. As we have $n \cdot k$ such operations, $k$ should also be polynomial in $n$.
 
-It is easy to see that step two (\ref{step2}) takes linear time in $n + k$. Step three (\ref{step3}) is Hermite normal form reduction which has the same complexity as Gaussian elimination so runs in time polynomial in $n + k$.
+It is easy to see that step \ref{step2} takes linear time in $n + k$. Step \ref{step3} is Hermite normal form reduction which has the same complexity as Gaussian elimination so runs in time polynomial in $n + k$.
 
-Finally, step four (\ref{step4}) includes matrix multiplication and inversion for matrices whose dimension is bounded by $n + k$. They take polynomial time.
+Finally, step \ref{step4} includes matrix multiplication and inversion for matrices whose dimension is bounded by $n + k$. They take polynomial time.
 
 
 \subsection{Decoding radius}
@@ -350,11 +349,11 @@ Decoding algorithm extends naturally to the generalized setting. Let us remind t
 \]
 where $B$ is a constant bounding all $p_{i}$
 
-We still haven't configured parameters $k, q_{j}, p_{i}$. $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $p_{i}$ to be equal to first $n$ prime numbers and $q_{j}$ equal to the next $k$ smallest primes that we haven't used yet.
+We still haven't configured parameters $k, q_{j}, p_{i}$. The primes $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $p_{i}$ to be equal to first $n$ prime numbers and $q_{j}$ equal to the next $k$ smallest primes that we haven't used yet.
 
 The ratio $\frac{ln(m/2)}{\varphi(m)}$ decreases as $m$ tends to infinity, so to make use of the difference in the ratio in the generalization, we would like $m$ to have the same size as in the original construction. We would like to have $e_i \sim \frac{\ln(3) \cdot n}{\ln(q) \cdot k}$, but it has to be an integer, so we round this value. Then we have:
 \[
-    m = \prod_{i = 1}^{k} q_i^{round(\frac{\ln(3) \cdot n}{\ln(q) \cdot k})} \sim 3^n
+    m = \prod_{i = 1}^{k} q_i^{round(\frac{\ln(3) \cdot n}{\ln(q) \cdot k})} \sim 3^n .
 \]
 
 The only parameter left to configure is $k$. The way we set up $e_i$s number of factors will only increase the ratio $\frac{ln(m/2)}{\varphi(m)}$. So the more factors we have the better.
@@ -395,16 +394,17 @@ Assume the primes $p_{1}, \dots, p_{n}$ are the same for both lattices. If $a \c
 \label{subsec:def_polynomials}
 
 
-Let us set parameters a prime power $q$ and integers $k$, $d$ and $n$. Let $\FF_{q}[x]$ be polynomial ring over a field  $\FF_{q}$. We take a set of $k$ irreducible polynomials $c_{j}(x) \in \FF_{q}[x]$, $j =1, ...,k$ of degree $d$. According to the analogue of the prime number theorem for polynomials $k$ must not be greater than $\frac{q^d}{d}$.
+Let us set parameters a prime power $q$ and integers $k$, $d$ and $n$. Let $\FF_{q}[x]$ be polynomial ring over a field  $\FF_{q}$. We take a set of $k$ irreducible polynomials $c_{j}(x) \in \FF_{q}[x]$, $j =1, ...,k$ of degree $d$. According to the analogue of the prime number theorem for polynomials $k$ cannot be greater than $\frac{q^d}{d}$.
 
 Define $c(x) \coloneqq \prod_{j = 1}^{k} c_{j}(x)$. We are going to work in the multiplicative group of the quotient ring of  $\FF_{q}[x]$ with respect to $c(x)$.
 Chinese Remainder Theorem helps to determine the structure of $\big(\FF_{q}[x]/c(x)\big)^{*}$:
 \[
     \big(\FF_{q}[x]/c(x)\big)^{*} \sim \prod_{i=1}^{k}\big(\FF_{q}[x]/c_{i}(x)\big)^{*} \sim \prod_{i=1}^{k}\FF_{q^{d}}^*
 \]
-Every component is quotient by an irreducible polynomial, therefore it's a field. Multiplicative group of a field is cyclic, so we can consider discrete logarithms in every component of the product to find a lattice basis.
+Every component is quotient by an irreducible polynomial, therefore it's a field. The multiplicative group of a field is cyclic, so we can consider discrete logarithms in every component of the product to find a lattice basis.
 
-Consider a vector $\alpha = (\alpha_{1}, ... , \alpha_{n}) \in \FF_{q}^{n}$ where $\alpha_{i}$s are pairwise different. Since polynomials $c_{j}(\cdot)$ are irreducible over $\FF_{q}$ neither of $\alpha_{i}$ can be their root. So for all $\alpha_{i}$ we have: $c(\alpha_{i}) \neq 0$.
+Consider a vector $\alpha = (\alpha_{1}, ... , \alpha_{n}) \in \FF_{q}^{n}$ where the $\alpha_{i}$'s are pairwise different and not roots of $c(\cdot)$.
+
 
 Now consider a group morphism:
 \[
@@ -424,9 +424,9 @@ We will be calling $\LL$ the polynomial lattice from now on. Applying CRT gives 
 \]
 Supposing we know $\beta_{j}$ a generator of $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ for every $j$ we get another representation by computing discrete logarithms in the multiplicative group of every component:
 \[
-    \LL = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} | \forall 1 \leq j \leq k: \sum_{i=1}^{n}u_{i}log_{\beta_{j}}(x - \alpha_{i}) \equiv 0 \pmod{q^{d} -1}\}
+    \LL = \{(u_{1}, ..., u_{n}) \in \ZZ^{n} | \forall 1 \leq j \leq k: \sum_{i=1}^{n}u_{i}\log_{\beta_{j}}(x - \alpha_{i}) \equiv 0 \pmod{q^{d} -1}\}
 \]
-What might cuase a confusion is that each $\log_{\beta_{j}}$ has a different input domain. For every $j$:  $\log_{\beta_{j}}$ acts from $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ into $(\ZZ/(q^{d} - 1)\ZZ)$.
+What might cuase a confusion is that each $\log_{\beta_{j}}$ has a different input domain. For every $j$:  $\log_{\beta_{j}}$ maps $\big(\FF_{q}[x]/c_{j}(x)\big)^{*}$ to $(\ZZ/(q^{d} - 1)\ZZ)$.
 
 
 \subsection{Lattice computation for polynomials}
@@ -455,7 +455,7 @@ Lemma \ref{lemma:dual_gen_set} gives us a straightforward way to compute the gen
 \subsubsection{Recovering Primal basis from Dual \ref{step3_p} (Theory).}
 \label{subsubsec:primal_from_dual_t_polynomials}
 
-In this section, $q$ is an arbitrary integer, not related to the lattices constructed before.
+In this section, $Q$ is an arbitrary integer, not related to the lattices constructed before.
 
 Lattices that admit a parity check representation are called $q$-ary lattices. They lie between $\ZZ^{n}_{q}$ and $\ZZ^{n}$: $\ZZ^{n}_{q}  \subset \LL \subset \ZZ^{n}$. For this kind of lattices, it's possible to transform the parity check lattice into its basis efficiently. In the algorithm, we will rely on the parity check matrix to have a special shape.
 \begin{definition}
@@ -506,7 +506,7 @@ Suppose the matrix $H$ is in permuted systematic form $e.g. \exists P - \text{ c
 \subsubsection{Recovering Primal basis from Dual \ref{step3_p} (Practice).}
 \label{subsubsec:primal_from_dual_pr_polynomials}
 
-Let us build an algorithm specific to the polynomial lattices. First in our case $q \rightarrow q^{d} -1$. Now $q$ means a prime power - the modulus of the base field $\FF_{q}$.
+Let us build an algorithm specific to the polynomial lattices. First, in our case the lattice is $Q$-ary for $Q = q^{d} -1$. Here $q$ is a prime power - the modulus of the base field $\FF_{q}$.
 
 At the start of this step of lattice computation, we are given the parity check matrix if the polynomial lattice. The lattice is the set of solutions to a homogeneous equation modulo $q^{d} -1$ defined by the parity check matrix, therefore, none of the elementary transformations modulo $q^{d} -1$ can change it. So we can apply Gaussian elimination to reduce it to the systematic form.
 
@@ -526,7 +526,7 @@ Let us put all the steps together in an algorithm:
 \subsection{Decoding algorithm modification}
 \label{subsec:decoding_polynomials}
 
-We could check now if the framework of the decoding algorithm developed before will fit this new setting. In this section, we discuss the modification we need to make and the decoding radius we can achieve with this approach. Modifying the algorithm to treat polynomials instead of integers leads to the following steps.
+We could check now if the framework of the decoding algorithm developed before fits this new setting. In this section, we discuss the modification we need to make and the decoding radius we can achieve with this approach. Modifying the algorithm to treat polynomials instead of integers leads to the following steps.
 
 \begin{enumerate}
     \item Round every coordinate to $t$ to deal only with discrete error $\lfloor t \rceil = v + \lfloor e \rceil$. Note $e' = \lfloor e \rceil$, $t' = \lfloor t \rceil$.
@@ -536,14 +536,14 @@ We could check now if the framework of the decoding algorithm developed before w
     \item Subtract just recovered error from $t'$.
 \end{enumerate}
 
-Except for the step \ref{step:rfr} translates directly to the case of polynomials. Step \ref{step:rfr} needs more work, let us discuss rational function reconstruction in more detail.
+Except for the step \ref{step:rfr}, all other steps translate directly to the case of polynomials. Step \ref{step:rfr} needs more work, let us discuss rational function reconstruction in more detail.
 
 \subsubsection{Rational function reconstruction \ref{step:rfr}}
 \label{subsubsec:rfr}
-In the work of \cite{[KM06]} authors study rational function reconstruction in depth.  Given $g,f$ the goal is to find $n, d \in \mathbb{F}[x]$ that $\deg(n) + \deg(d) < \frac{\deg(f)}{2}$ and $\frac{n}{d} = g \pmod{f}$ The main algorithm the discuss is based in Extended Euclidean Algorithm(EEA). We perform extended euclidean division and the select a step where the degree of the xcurrent quotient is greater or equal to $\frac{\deg f}{2}$. The authors refer to it as Wang's algorithm. Here is its formal description.
+In the work of \cite{[KM06]} authors study rational function reconstruction in depth.  Given $g,f$ the goal is to find $n, d \in \mathbb{F}[x]$ that $\deg(n) + \deg(d) < \frac{\deg(f)}{2}$ and $\frac{n}{d} = g \pmod{f}$ The main algorithm the discuss is based in Extended Euclidean Algorithm(EEA). We perform extended euclidean division and the select a step where the degree of the current quotient is greater or equal to $\frac{\deg f}{2}$. The authors refer to it as Wang's algorithm. Here is its formal description.
 
 \begin{algorithm}
-\caption{RFR}\label{RFR}
+\caption{Rational Function Reconstruction.}\label{RFR}
 \begin{algorithmic}[1]
 \Procedure{Reconstruct}{$f,g$}
     \State $r_0 = f$  $r_1 = g$
@@ -554,7 +554,7 @@ In the work of \cite{[KM06]} authors study rational function reconstruction in d
         \State $(r_0, r_1) = (r_1, r_0 - qr_1)$
         \State $(t_0, t_1) = (t_1, t_0 - qt_1)$
     \EndWhile
-    \If{$GCD(r_0, t_0) \neq 1$ or $\deg(r_0) + \deg(t_0) \geq \frac{\deg(f)}{2}$}
+    \If{$\gcd(r_0, t_0) \neq 1$ or $\deg(r_0) + \deg(t_0) \geq \frac{\deg(f)}{2}$}
         \State \Return FAIL
     \Else:
             \State \Return  $(\frac{r_0}{lc(t_0)}, \frac{t_0}{lc(t_0)})$
@@ -655,44 +655,44 @@ The choice of $a$ is independent from choices of $b$ and $c$ so we can configure
 
 The function we are considering with fixed parameters $c, b$ tend to the same value as $\frac{bc \cdot n}{2\log(n)n^{cb/\log(n)}}$. To simplify the analysis we will find the best parameters for the latter.
 
-Note $d \coloneqq bc$, $f_n(d) = \frac{d \cdot n^{1 - \frac{d}
+Note $e \coloneqq bc$, $f_n(e) = \frac{e \cdot n^{1 - \frac{e}
 {\log(n)} }}{2\log(n)}$.
-We would like to prove that for any value of $n$, $argmax(f_n(d)) = 1$
+We would like to prove that for any value of $n$, $argmax(f_n(e)) = 1$
 \[
 \begin{split}
-    f_n'(d) & = \frac{n^{1 - \frac{d}
-    {\log(n)}}}{2\log(n)} + \frac{d \cdot n^{1 - \frac{d}
+    f_n'(e) & = \frac{n^{1 - \frac{e}
+    {\log(n)}}}{2\log(n)} + \frac{e \cdot n^{1 - \frac{e}
     {\log(n)}} \cdot \log(n) \big(-\frac{1}{\log(n)}\big)}{2\log(n)} \\
-    & = \frac{n^{1 - \frac{d}{\log(n)}}}{2\log(n)}(1-d)
+    & = \frac{n^{1 - \frac{e}{\log(n)}}}{2\log(n)}(1-e)
 \end{split}
 \]
-$d = 1$ is the only solution to the equation $f_n'(d) = 0$. It is easy to verify that it corresponds to the maximum of $f_n(d)$ and it doesn't depend on the value of $n$.
+The value $e = 1$ is the only solution to the equation $f_n'(e) = 0$. It is easy to verify that it corresponds to the maximum of $f_n(e)$ and it doesn't depend on the value of $n$.
 
-Therefore, $b \cdot c = 1$. In practice we fix $b = 2, c = \frac{1}{2}$. In the end, the decoding radius our algorithm achieves is
+Therefore, $e = b \cdot c = 1$. In practice we fix $b = 2, c = \frac{1}{2}$. In the end, the decoding radius our algorithm achieves is
 \[
     \bar{r}_1 = \frac{n}{2 \cdot \log(n)(n^{2} - 1)^{1/2\log(n)}}
 \]
 
-\subsection{Comparing the decoding radius of the algorithms}
+\subsection{Comparing the decoding radius of the algorithms.}
 \label{sec:comparison}
 
 For the first family final normalized error radius that the algorithm can handle is:
 \[
     \bar{r}_1 = \frac{\ln(m/2)}{4 \cdot \varphi(m)^{1/n} \cdot \ln((n+1)\ln(n+1))}
 \]
-And for the second construction it is much better:
+As we can see on the plot \ref{fig:everything} for the second construction the radius is much better:
 \[
     \bar{r}_1 = \frac{n}{2 \cdot \log(n)(n^{2} - 1)^{1/2\log(n)}}
 \]
-But both of them are still logarithmically far from Minkowski's bound. The figure \ref{fig:everything} will help you to see the difference in practice.
+But both of them are still logarithmically far from Minkowski's bound.
 
 \begin{figure}
   \includegraphics[width=\linewidth]{plot5.png}
-  \caption{Comparison of all algorithms and theoretical upperbound(in red): basic algorithm for integer lattice(in green), algorithm for polynomial lattices(in blue)}
+  \caption{Comparison of all algorithms and theoretical upperbound (in red): basic algorithm for integer lattice (in green), algorithm for polynomial lattices (in blue).}
   \label{fig:everything}
 \end{figure}
 
-\section{LLXY17 Cryptanalysis}
+\section{Cryptanalysis of the LLXY17 cryptosystem.}
 \label{sec:cryptanalysis}
 
 Let us give a high-level description of the encryption scheme presented in \cite{[LLXY17]}. It is based on the family of polynomial lattices that we described above. The public key of Alice is a matrix $G$ that generates a sublattice of a polynomial lattice $\LL$. When Bob wants to send a message $m$ to Alice he generates a random noise $ e \in \{0,1\}^{n}$ of hamming weight $w$ and sends the ciphertext $c = Gm + e$.
@@ -727,7 +727,7 @@ In this attack we partition $x$ on two vectors $x_1 \in \{0,1\}^{k}$ and  $x_2  
 \[
 t = x_1 + D \cdot x_2
 \]
-We make a bet of the weight partition between $|x_1| = w_1$ and $|x_2| = w_2$, where $w_1 + w_2 = w$. Now we enumerate only the possible values of $x_2$, compute $x_1 = t - D \cdot x_2$ and check if it satisfies $|x_1| = w_1$. If we don't find a correct pair with this weight distribution, we rerandomize H and t and start over. Here we present the pseudoce of the attack. \ref{alg:ISD}
+We make a bet of the weight partition between $|x_1| = w_1$ and $|x_2| = w_2$, where $w_1 + w_2 = w$. Now we enumerate only the possible values of $x_2$, compute $x_1 = t - D \cdot x_2$ and check if it satisfies $|x_1| = w_1$. If we don't find a correct pair with this weight distribution, we rerandomize H and t and start over. The pseudo-code is given as Algorithm \ref{alg:ISD}.
 
 \subsection{Meet in the Middle}
 In this attack, we have the same goal but no information about the form of the matrix A.
@@ -736,7 +736,7 @@ Then $Ax = y$ is equivalent to
 \[
     A_1x_1 + A_2x_2 = y
 \]
-If we can find vectors $x_1$ and $x_2$ for which values $A_1x_1$ and $y - A_2x_2$ coincide. Here we make a bet that weight is distributed equally between the two parts. Similarly, we present the pseudocode of the attack below \ref{alg:MitM}.
+If we can find vectors $x_1$ and $x_2$ for which values $A_1x_1$ and $y - A_2x_2$ collide their concatenation $x = (x_1 |x_2)$ will satisfy $Ax = y$. Here we make a bet that weight is distributed equally between the two parts. For all values of $x_1$ with correct weight we compute the value $A_1x_1$ and put $x_1$ into a hash-table with the index $h(A_1x_1)$, where $h(\cdot)$ is an arbitrary suitable hash function. Then for every $x_2$ we look up the value with index $h(y - A_2x_2)$ in the table. If the cell is not empty we found the correct pair. Similarly, the pseudo-code of the attack is given below as Algorithm \ref{alg:MitM}.
 
 \subsection{Combining the two approaches.}
 
@@ -755,7 +755,7 @@ For that we desing a compression function $f$ that will often map close vectors 
 \]
 Here $p$ is a parameter of the function.
 
-We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We will need to deal with false positives and false negatives in this collision search. Too many false positives can increase the cost of the search for every randomization of the public key matrix and too many false negatives can increase the number of randomizations themselves. To ease the analysis we present pseudocode of the algorithm. \ref{alg:ISD+MitM}
+We store a table of $f(D_1x_1)$ in memory and look-up there for $t - D_2x_2$. We will need to deal with false positives and false negatives in this collision search. Too many false positives can increase the cost of the search for every randomization of the public key matrix and too many false negatives can increase the number of randomizations themselves. To ease the analysis the pseudo-code is given as Algorithm \ref{alg:ISD+MitM}.
 
 \subsection{Adding negative errors}
 \label{subsec:negative_error_improvement}
@@ -1020,7 +1020,7 @@ Let us calculate missing parts of the formula:
 \end{split}
 \]
 
-To simplify the notations for the computation of false negatives the approximate collision search between $y_1 \coloneqq D_1x_1$ and $y_2 \coloneqq t-D_2x_2$ let us call $T$ the hash table of $y_1$s. The number of boxes to which we map $y_1$ and $y_2$ with our compression function we denote with $b = \lfloor q/p \rceil$. We assume that $y_1, y_2$ are distributed uniformly over $\ZZ_q^{k}$ because otherwise we would be able to obtain some information on $x_1$ and $x_2$ and speed up the bruteforce which contradicts our security assumption. $t_i$ signify the non-zero coordinates of $x_0$
+To simplify the notations for the computation of false negatives the approximate collision search between $y_1 \coloneqq D_1x_1$ and $y_2 \coloneqq t-D_2x_2$ let us call $T$ the hash table of $y_1$'s. The number of boxes to which we map $y_1$ and $y_2$ with our compression function we denote with $b = \lfloor q/p \rceil$. We assume that $y_1, y_2$ are distributed uniformly over $\ZZ_q^{k}$ because otherwise we would be able to obtain some information on $x_1$ and $x_2$ and speed up the bruteforce which contradicts our security assumption. $t_i$ signify the non-zero coordinates of $x_0$
 \[
 \begin{split}
     Pr_{y_2}(\text{false negative}) & = Pr_{y_2}(\exists y_1 \in T: f_p(y_1) \neq f_p(y_2), |x_0| \coloneqq |y_2 - y_1| = w_1, x_0 \in \{0,1\}^{k}) \\
