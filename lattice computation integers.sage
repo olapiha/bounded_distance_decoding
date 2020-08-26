@@ -20,7 +20,6 @@ import time
 
 
 def parity_check_representation(q, e, primes):
-    #print("in PARITY CHECK")
     order = q**e - q**(e-1)
     q = q**e
     Zq = Zmod(q)
@@ -35,12 +34,10 @@ def parity_check_representation(q, e, primes):
 
 
 def compute_log(order, generator, element):
-    #print("in LOG")
     return discrete_log(element, generator, order)
 
 
 def dual_generating_set(modulus_factors, primes):
-    #print("in DUAL GEN SET")
     dual_gens = identity_matrix(QQ, len(primes))
     for q, e in modulus_factors:
         euler_phi = q**e - q**(e-1)
@@ -49,10 +46,7 @@ def dual_generating_set(modulus_factors, primes):
     return dual_gens
 
 
-# input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
-# input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
 def hermite_form(B, indep_length):
-    #print("in HERMITE FORM")
     den = B.denominator()
     int_B = (den*B).change_ring(ZZ)
     (H, U) = int_B.hermite_form(transformation = True)
@@ -75,12 +69,8 @@ def lll_wrap(B, indep_length):
     return basis
 
 
-# input type 'sage.matrix.matrix_rational_dense.Matrix_rational_dense'
-# input type 'sage.matrix.matrix_integer_dense.Matrix_integer_dense'
 def primal_basis_from_dual(B):
-    #print("in PRIMAL FROM DUAL")
     return (B * ~(B.T * B)).change_ring(ZZ)
-
 
 
 def test_lattice_construction(n, t):
@@ -117,20 +107,5 @@ def lattice_construction(modulus_factors, primes):
 '''
 begin = time.time()
 print(test_lattice_construction(200, 20))
-print(time.time() - begin)
-begin = time.time()
-print(test_lattice_construction(250, 20))
-print(time.time() - begin)
-begin = time.time()
-print(test_lattice_construction(300, 20))
-print(time.time() - begin)
-begin = time.time()
-print(test_lattice_construction(200, 5))
-print(time.time() - begin)
-begin = time.time()
-print(test_lattice_construction(250, 5))
-print(time.time() - begin)
-begin = time.time()
-print(test_lattice_construction(300, 5))
 print(time.time() - begin)
 '''

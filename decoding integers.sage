@@ -100,35 +100,8 @@ def test_decoding(n, t):
     return (res, noise)
 
 
-
+'''
 result = test_decoding(100, 20)
 print(result[0])
 print(result[1])
-
-result = test_decoding(200, 20)
-print(result[0])
-print(result[1])
-
-result = test_decoding(100, 5)
-print(result[0])
-print(result[1])
-
-result = test_decoding(200, 5)
-print(result[0])
-print(result[1])
-
-result = test_decoding(250, 20)
-print(result[0])
-print(result[1])
-
-result = test_decoding(250, 5)
-print(result[0])
-print(result[1])
-
-result = test_decoding(300, 20)
-print(result[0])
-print(result[1])
-
-result = test_decoding(300, 5)
-print(result[0])
-print(result[1])
+'''

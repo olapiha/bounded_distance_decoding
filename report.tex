@@ -54,24 +54,22 @@
 \label{sec:intro}
 
 
+Message decoding is a difficult problem to solve, yet we encounter it every day. It arises when two parties need to communicate over a noisy channel and we are concerned with the integrity of transmitted data. For example, think of a bad quality phone line. We are dealing with information loss that occurs due to the information flow being slightly disturbed by forces of nature.
 
-\textbf{Bounded Distance Decoding problem.}
-
-Message decoding is a problem that arises when two parties need to communicate over a noisy channel. Here we are in the setting where we are only concerned with the integrity of transmitted data and we assume there's no adversary listening and modifying messages in the network. We are dealing with information loss that occurs due to our information flow being \textit{slightly disturbed} by forces of nature.
-
-To achieve integrity we encode messages as points in Euclidean space. Now we can model the rate of "disturbance" as the distance between the input and output points. And call it "slight" if it can be bounded by a constant. A natural way to arrange the space of messages is a Euclidean lattice(all integer linear combinations of a linearly independent set of vectors in $\mathbb{R}^{n}$).
+To achieve integrity we encode messages as points in Euclidean space.  A natural way to arrange the space of messages is to follow a Euclidean lattice (all integer linear combinations of a linearly independent set of vectors in $\mathbb{R}^{n}$).
 
 The decoding procedure aims to identify the point of the lattice closest to the output point. If the disturbance in the network is small enough the closest lattice point will indeed be the input message. This will help us identify the upper bound on how much error a perfect decoding algorithm can handle. We know that the distance between lattice points is bounded from below by the length of the shortest vector(note $\lambda_{1}(\LL)$) of the lattice. If the error exceeds $\frac{\lambda_{1}(\LL)}{2}$, the closest point might not be the input message anymore so decoding becomes impossible.
 
-We would like to have an algorithm where the decoding radius is close to $\frac{\lambda_{1}(\LL)}{2}$. Unfortunately, the Lattice Shortest Vector Problem(SVP) is believed to be hard in the general case, so we cannot evaluate exactly how good our decoding radius is. Nevertheless, we have an upper-bound on the length of the shortest vector. So we aim to get a decoding radius close to it instead.
+We would like to have an algorithm where the decoding radius is close to $\frac{\lambda_{1}(\LL)}{2}$, and where $\lambda_{1}(\LL)$ is as large as possible. An upper bound on $\lambda_{1}(\LL)$ is given by Minkowski's first Theorem.
+
 \begin{theorem}[Minkowski's First Theorem]
     For any full-rank lattice $\LL$ of rank $n$ and for $l_1$ norm of the shortest vector length the following inequality holds:
     \[
-        \lambda_{1}(\LL) \leq \frac{n}{e} \det(\LL)^{1/n}
+        \lambda_{1}(\LL) \leq (n!)^{1/n} \det(\LL)^{1/n} \sim \frac{n}{e} \det(\LL)^{1/n}
     \]
+    Using the $l_1$ norm will be natural for our decoding algorithm.
 \end{theorem}
-Using the $l_1$ norm will be natural for our decoding algorithm.
-An instance of such problem is called a Bounded Distance Decoding problem and it is considered a hard problem for a random lattice and decoding radius of $\frac{\lambda_{1}(\LL)}{2}$ in the norm $l_{\infty}$ \cite{[LM09]}.
+Furthermore, we know that a random lattice $\LL$ is likely to have a $\lambda_{1}(\LL)$ close to this bound; yet solving the bounded distance decoding problem in random lattice is hard.
 
 Our work focuses on two families of lattices for which the BDD problem has an efficient solution and error is close to the Minkowski's bound. The first one is a generalization of a lattice discussed in \cite{[DP19]} and used in Chor-Rivest cryptosystem \cite{[CR88]}. The second one was used in \cite{[LLXY17]} for construction of a trapdoor function and has a similar decoding algorithm. Apart from decoding algorithms, we discuss an efficient way to compute the basis of a given lattice. It is important to be able to compute some representation of the lattice efficiently because this is a way to craft lattice points from messages we would like to transmit. We also suggest security improvements for the encryption scheme from \cite{[LLXY17]} using our decoding algorithm and perform its cryptanalysis to improve their parameter selection.
 
@@ -92,32 +90,30 @@ The kernel of $\psi$ is a subgroup of $\ZZ^{n}$ so it is a lattice.
 \]
 
 \begin{definition}
-For every matrix $H \in \ZZ_{q}^{n \times m}$ the following defines a lattice $\LL = \{x \in \ZZ^{n}: Hx \equiv 0 \pmod{q}\}$. This representation is called a parity check representation of the lattice $\LL$.
+For every matrix $H \in \ZZ_{q}^{n \times k}$ the following defines a lattice $\LL = \{x \in \ZZ^{n}: Hx \equiv 0 \pmod{q}\}$. This representation is called a parity check representation of the lattice $\LL$.
 \end{definition}
 
-Using the properties of parity check representation it is simple to compute the basis of this lattice. It only requires the computation of $n$ discrete logarithms in $(\ZZ/m\ZZ)^*$ it can be done because the multiplicative group of a field $\ZZ/m\ZZ$ is cyclic. Discrete logarithms can be computed in polynomial time as they are calculated modulo a smooth number. More on that you can find in \cite{[DP19]}. The generalization we give will require more work in this regard.
-
-
+Using the properties of parity check representation it is simple to compute the basis of this lattice. It only requires the computation of $n$ discrete logarithms in $(\ZZ/m\ZZ)^*$ it can be done because the multiplicative group of $\ZZ/m\ZZ$ is cyclic. Discrete logarithms can be computed in polynomial time with a combination of Pohlig-Hellman \cite{[PH78]} and Pollard-$\rho$ \cite{[Pol78]} algorithms. It's possible as they are calculated modulo a smooth number. The generalization we give will require more work in this regard.
 
 
 \textbf{Efficient decoding algorithm.}
 
 We use a decoding algorithm discussed in \cite{[DP19]} and \cite{[LLXY17]}. We provide a few modifications for it to fit our scenario in the second part of the work, but the skeleton of the algorithm will stay the same.
 
-We are given a lattice $\LL$ defined above and a point $t = (t_1, \dots t_n) \in \mathbb{R}^{n}$ which doesn't belong to $\LL$ and we would like to find the lattice point $x$ closest to $t$. We assume that error is a vector of real numbers whose norm is bounded. The algorithm has the following steps:
+We are given a lattice $\LL$ defined above and a point $t = (t_1, \dots t_n) \in \mathbb{R}^{n}$ which doesn't belong to $\LL$ and we would like to find the lattice point $x$ closest to $t$. We assume that error is a vector of real positive numbers whose norm is bounded. The algorithm has the following steps:
 
 \begin{enumerate}
-    \item Round every coordinate to $t$ to deal only with discrete error $\lfloor t \rceil = x + \lfloor e \rceil$. Note $e' = \lfloor e \rceil$, $t' = \lfloor t \rceil$. Lattice point $x$ is not affected by this operation since $\LL \subset \ZZ^{n}$.
+    \item Round every coordinate to $t$ to deal only with discrete error $\lfloor t \rceil = x + \lfloor e \rceil$. Denote $e' = \lfloor e \rceil$, $t' = \lfloor t \rceil$. Lattice point $x$ is not affected by this operation since $\LL \subset \ZZ^{n}$.
     \item Compute $\psi(t) = \prod_{i=1}^{n}p_{i}^{x_{i} + e'_i} \pmod{m} = \prod_{i=1}^{n}p_{i}^{e'_i} \pmod{m}$. If the error is small enough here we recover non-reduced value $v = \prod_{i=1}^{n}p_{i}^{e'_i}$.
-    \item Reconstruct the numerator $n$ and the denominator $d$ of $v$ that correspond to positive and negative parts of the error.
-    \item Recover prime number factorization of $n$ and $d$ using trial division. Powers of primes will be the coordinates of our error.
-    \item Subtract just recovered error from $t'$.
+    \item Recover prime number factorization of $v$ using trial division. Powers of primes will be the coordinates of our error.
+    \item Subtract the error from $t'$.
 \end{enumerate}
+For negative errors we use rational number reconstruction techniques and the bound on the error will come from there.
 In this work by an efficient algorithm we mean an algorithm that runs in polynomial time.
 
 \textbf{Organisation of the document.}
 
-In the section \ref{sec:gen_integers} we discuss the first lattice family. We detail on:
+In the section \ref{sec:gen_integers} we discuss the first lattice family. We provide details on:
 \begin{itemize}
     \item how to compute its basis \ref{subsec:compute_basis_integers}
     \item what it the complexity of this algorithm \ref{subsec:complexity_integers}
@@ -216,7 +212,7 @@ Linear maps can be represented as an inner product function with a fixed vector.
         \item $B^{T}D = I$
     \end{itemize}
 \end{definition}
-If B is a square matrix then $(B^{T})^{-1}$ satisfies the definition. In the case of a non-square matrix, one can verify that $D = B(B^{T}B)^{-1}$ is the dual basis. \footnote{Since columns of $B$ are basis vectors, $B$ is a full column rank matrix. Therefore, $B^{T}B$ is always invertible.}
+If B is a square matrix then $(B^{T})^{-1}$ satisfies the definition. In the case of a non-square matrix, one can verify that $D = B(B^{T}B)^{-1}$ is the dual basis.
 
  Our algorithm \label{algorithm} has the following steps
 \begin{enumerate}
@@ -251,8 +247,7 @@ This space $\LL_{1} + \LL_{2}$ can be generated by concatenation of bases of $\L
     Suppose $\LL = \bigcap_{j=1}^{k} \LL_{j} \neq \{0\}$ and $\LL^{*}$, $\LL_{j}^{*}$ are duals of the respective lattices. Then $\LL^{*} = \sum_{j=1}^{k} \LL_{j}^{*}$ .
 \end{lemma}
 \begin{proof}
-    Let us start discussing the expression on the right hand side. Take lattices $\LL_{1}, \dots, \LL_{n}$ and evaluate the dual of their sum.
-    \footnote{We can take all $x_{i}$ equal to 0 but 1 of them}
+    Let us start discussing the expression on the right hand side. Take lattices $\LL_{1}, \dots, \LL_{n}$ and evaluate the dual of their sum
 \[
 \begin{split}
 (\sum_{j=1}^{n}\LL_j)^{*} & = \{y \in \ZZ^{n} | \forall x_{1} \in \LL_1, \dots, \forall x_{n} \in \LL_n: \langle y, \sum_{j=1}^{n} x_{j} \rangle \in \ZZ \} \\
@@ -351,25 +346,11 @@ where $B$ is a constant bounding all $p_{i}$
 
 We still haven't configured parameters $k, q_{j}, p_{i}$. The primes $q_{j}, p_{i}$ must be pairwise different and as small as possible, so we need $n+k$ distinct prime numbers. We choose $p_{i}$ to be equal to first $n$ prime numbers and $q_{j}$ equal to the next $k$ smallest primes that we haven't used yet.
 
-The ratio $\frac{ln(m/2)}{\varphi(m)}$ decreases as $m$ tends to infinity, so to make use of the difference in the ratio in the generalization, we would like $m$ to have the same size as in the original construction. We would like to have $e_i \sim \frac{\ln(3) \cdot n}{\ln(q) \cdot k}$, but it has to be an integer, so we round this value. Then we have:
-\[
-    m = \prod_{i = 1}^{k} q_i^{round(\frac{\ln(3) \cdot n}{\ln(q) \cdot k})} \sim 3^n .
-\]
-
-The only parameter left to configure is $k$. The way we set up $e_i$s number of factors will only increase the ratio $\frac{ln(m/2)}{\varphi(m)}$. So the more factors we have the better.
-
-Let us compare initial construction, its generalization and theoretical upper bound with respect to the decoding radius.
-
-\begin{figure}
-  \includegraphics[width=\linewidth]{plot4.png}
-  \caption{Comparison of the normalized decoding radius for initial construction(in green) and the generalization(in yellow). Here we took k = 20. }
-  \label{fig:gen_int}
-\end{figure}
+The more factors $m$ the smoother $\varphi(m)$ will be, but also the ratio $\frac{ln(m/2)}{\varphi(m)}$ decreases as $m$ tends to infinity. For every dimention $n$ we take $m = \prod_{j = 1}^{l} q_j$ where $l$ we be determined by a script as the first local maximum of the radius.
 
 
 \subsection{Was it all worth it?}
 \label{subsec:improvement_integers}
-
 
 As it turns out factorization of $m$ does not affect the decoding radius substantially. It can only introduce a minor improvement. We prove that with the following lemma:
 
@@ -383,6 +364,15 @@ Assume the primes $p_{1}, \dots, p_{n}$ are the same for both lattices. If $a \c
     The proof is in the appendix \ref{app:B}
 \end{proof}
 
+Refer to the figure \ref{fig:gen_int} to compare the initial construction and its generalization in practice.
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{plot4.png}
+  \caption{Comparison of the normalized decoding radius for initial construction(in green) and the generalization(in yellow). }
+  \label{fig:gen_int}
+\end{figure}
+
+From a practical perspective, such complications may indeed not be Worthy. But we may have learned a thing or two on our way.
 
 
 \section{New Construction for Polynomial Lattices}
@@ -394,14 +384,14 @@ Assume the primes $p_{1}, \dots, p_{n}$ are the same for both lattices. If $a \c
 \label{subsec:def_polynomials}
 
 
-Let us set parameters a prime power $q$ and integers $k$, $d$ and $n$. Let $\FF_{q}[x]$ be polynomial ring over a field  $\FF_{q}$. We take a set of $k$ irreducible polynomials $c_{j}(x) \in \FF_{q}[x]$, $j =1, ...,k$ of degree $d$. According to the analogue of the prime number theorem for polynomials $k$ cannot be greater than $\frac{q^d}{d}$.
+Let us set parameters a prime power $q$ and integers $k$, $d$ and $n$. Let $\FF_{q}[x]$ be polynomial ring over a field  $\FF_{q}$. We take a set of $k$ irreducible polynomials $c_{j}(x) \in \FF_{q}[x]$, $j =1, ...,k$ of degree $d$. According to the analogue of the prime number theorem for polynomials \cite{[GC65]} $k$ cannot be greater than $\frac{q^d}{d}$.
 
 Define $c(x) \coloneqq \prod_{j = 1}^{k} c_{j}(x)$. We are going to work in the multiplicative group of the quotient ring of  $\FF_{q}[x]$ with respect to $c(x)$.
 Chinese Remainder Theorem helps to determine the structure of $\big(\FF_{q}[x]/c(x)\big)^{*}$:
 \[
     \big(\FF_{q}[x]/c(x)\big)^{*} \sim \prod_{i=1}^{k}\big(\FF_{q}[x]/c_{i}(x)\big)^{*} \sim \prod_{i=1}^{k}\FF_{q^{d}}^*
 \]
-Every component is quotient by an irreducible polynomial, therefore it's a field. The multiplicative group of a field is cyclic, so we can consider discrete logarithms in every component of the product to find a lattice basis.
+Every component is a quotient by an irreducible polynomial, therefore it's a field. The multiplicative group of a field is cyclic, so we can consider discrete logarithms in every component of the product to find a lattice basis.
 
 Consider a vector $\alpha = (\alpha_{1}, ... , \alpha_{n}) \in \FF_{q}^{n}$ where the $\alpha_{i}$'s are pairwise different and not roots of $c(\cdot)$.
 
@@ -636,11 +626,14 @@ Let us optimize the values of $d$ and $k$.
 
 We have the following constraints:
 \begin{enumerate}\label{constraints}
-    \item $q^d = n^{O(1)}$
-    \item $dk < q^{d}$
-    \item $n \leq q$
+    \item $q^d = n^{O(1)}$, \\
+    so that computing discrete logarithm in polynomial time (Section \ref{subsubsec:parity_check_polynomials}).
+    \item $dk < q^{d}$, \\
+    so we can find enough irreducible polynomias of degree $d$ (Section \ref{subsec:def_polynomials}).
+    \item $n \leq q$, \\
+    so we can take $n$ polynomials $x - \alpha_i$ from $\FF_q[x]$ (Section \ref{subsec:def_polynomials}).
 \end{enumerate}
-From these we can immediately conclude that $d$ must be constant. \\
+From these constraints we can immediately conclude that $d$ must be constant. \\
 
 To obtain not more than a logarithmic gap from Minkowski's bound we need the following asymptotics: $q = a \cdot n$, $d = b$, $k =  c \cdot \frac{n}{\log(n)}$. What we are going to do next is finding optimal values for parameters $a, b$ and $c$. We want to maximize the following function:
 \[

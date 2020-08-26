@@ -2,6 +2,8 @@
 import numpy as np
 import time
 import random
+
+
 # As input we are given a lattice basis,
 # prime numbers and modulus m used to construct it
 # and a point point_t = (t_1, ..., t_n) in R^n such that point_t = x + e,
@@ -126,30 +128,9 @@ def test_decoding_with_optimal_parameters(n):
     print(q,d,k,B)
     return test_decoding(q, d, n, k, B)
 
-for i in range(1):
-    pass
-    #start = time.time()
-    #test_decoding_with_optimal_parameters(50)
-    #end = time.time()
-    '''
-    print("full execution time: ", end-start)
-    print("calculated error: ", result[0])
-    start = time.time()
-    result = test_decoding_with_optimal_parameters(200)
-    end = time.time()
-    print("full execution time: ", end-start)
-    print("calculated error: ", result[0])
-    print("real error:       ", result[1])
-    start = time.time()
-    result = test_decoding_with_optimal_parameters(350)
-    end = time.time()
-    print("full execution time: ", end-start)
-    print("calculated error: ", result[0])
-    print("real error:       ", result[1])
-    start = time.time()
-    result = test_decoding_with_optimal_parameters(400)
-    end = time.time()
-    print("full execution time: ", end-start)
-    print("calculated error: ", result[0])
-    print("real error:       ", result[1])
-    '''
+'''
+start = time.time()
+test_decoding_with_optimal_parameters(50)
+end = time.time()
+print("execution time": end-start)
+'''

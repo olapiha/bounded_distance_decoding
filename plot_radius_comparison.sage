@@ -32,7 +32,7 @@ def algorithm_general_optimal(n):
 def polynomials(n):
     return (n, (n)/(2*ln(n)*(n^2-1)^(1/(2*ln(n)))))
 
-n = 300
+n = 600
 s = 10
 
 p1 = list_plot([upperbound(i) for i in range(s,n)], color='red')
